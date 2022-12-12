@@ -33,7 +33,7 @@ def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
         f.write(response.content)
 
 
-def get_artifact_file(artifact: str, version: str) -> str:
+def get_artifact_files(artifact: str, version: str) -> List[str]:
     sparql = SPARQLWrapper2(DATABUS_ENDPOINT)
     sparql.setReturnFormat(JSON)
 
@@ -57,7 +57,7 @@ def get_artifact_file(artifact: str, version: str) -> str:
         """
     )
     result = sparql.query()
-    return result.bindings[0]["file"].value
+    return [file["file"].value for file in result.bindings]
 
 
 def get_latest_version_of_artifact(artifact: str) -> str:
