@@ -2,12 +2,12 @@ import json
 import os
 import pathlib
 import urllib.parse
-from typing import List, Union
+from typing import List, Optional, Union
 
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
-DATABUS_ENDPOINT = "https://energy.databus.dbpedia.org/sparql"
+from data_adapter import settings
 
 
 def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
@@ -33,8 +33,8 @@ def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
         f.write(response.content)
 
 
-def get_artifact_files(artifact: str, version: str) -> List[str]:
-    sparql = SPARQLWrapper2(DATABUS_ENDPOINT)
+def get_artifact_filenames(artifact: str, version: str) -> List[str]:
+    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
     sparql.setReturnFormat(JSON)
 
     sparql.setQuery(
@@ -74,7 +74,7 @@ def get_latest_version_of_artifact(artifact: str) -> str:
     str
         Latest version of given artifact
     """
-    sparql = SPARQLWrapper2(DATABUS_ENDPOINT)
+    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
     sparql.setReturnFormat(JSON)
 
     sparql.setQuery(
@@ -127,3 +127,43 @@ def get_artifacts_from_collection(collection: str) -> List[str]:
     content_raw = urllib.parse.unquote(data["@graph"][0]["content"])
     content = json.loads(content_raw)
     return list(find_artifact(content["root"]))
+
+
+def download_collection(
+    collection_url: str,
+    collection_output_directory: Optional[
+        Union[str, pathlib.Path]
+    ] = settings.COLLECTIONS_DIR,
+):
+    """
+    Downloads all artifact files for given collection and saves it to local output directory
+
+    Parameters
+    ----------
+    collection_url : str
+        URL of collection on databus
+    collection_output_directory : Union[str, pathlib.Path]
+        Path where collection is saved to
+    """
+    output_dir = pathlib.Path(collection_output_directory)
+
+    collection_name = collection_url.split("/")[-1]
+    collection_dir = output_dir / collection_name
+    if not collection_dir.exists():
+        collection_dir.mkdir()
+
+    artifacts = get_artifacts_from_collection(collection_url)
+    artifact_versions = {
+        artifact: get_latest_version_of_artifact(artifact) for artifact in artifacts
+    }
+    for artifact, version in artifact_versions.items():
+        artifact_name = artifact.split("/")[-1]
+        group_name = artifact.split("/")[-2]
+        group_dir = collection_dir / group_name
+        if not group_dir.exists():
+            group_dir.mkdir()
+        artifact_filenames = get_artifact_filenames(artifact, version)
+        for artifact_filename in artifact_filenames:
+            suffix = artifact_filename.split(".")[-1]
+            filename = f"{artifact_name}.{suffix}"
+            download_artifact(artifact_filename, group_dir / filename)

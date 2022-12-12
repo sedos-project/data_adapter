@@ -21,7 +21,7 @@ def test_collections():
 
 
 def test_artifact_file():
-    databus_files = databus.get_artifact_files(EXAMPLE_ARTIFACT, "v1")
+    databus_files = databus.get_artifact_filenames(EXAMPLE_ARTIFACT, "v1")
     assert len(databus_files) == 2
     assert (
         "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
