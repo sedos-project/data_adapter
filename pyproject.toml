@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "data-adapter"
+version = "0.1.0"
+description = "Provides general functionality for other data adapters"
+authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
+license = "AGPL-3.0 license"
+readme = "README.md"
+packages = [{include = "data_adapter"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+flake8 = "^6.0.0"
+pre-commit = "^2.20.0"
+isort = "^5.10.1"
+pylint = "^2.15.8"
+pytest = "^7.2.0"
+mccabe = "^0.7.0"
+bandit = "^1.7.4"
+flake8-bandit = "^4.1.1"
+flake8-bugbear = "^22.12.6"
+flake8-builtins = "^2.0.1"
+flake8-comprehensions = "^3.10.1"
+darglint = "^1.8.1"
+flake8-isort = "^5.0.3"
+flake8-mutable = "^1.2.0"
+flake8-pytest-style = "^1.6.0"
+pep8-naming = "^0.13.2"
+pytest-sugar = "^0.9.6"
+add-trailing-comma = "^2.3.0"
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
