@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import pathlib
 import urllib.parse
@@ -134,6 +135,7 @@ def download_collection(
     collection_output_directory: Optional[
         Union[str, pathlib.Path]
     ] = settings.COLLECTIONS_DIR,
+    force_download=False,
 ):
     """
     Downloads all artifact files for given collection and saves it to local output directory
@@ -144,12 +146,21 @@ def download_collection(
         URL of collection on databus
     collection_output_directory : Union[str, pathlib.Path]
         Path where collection is saved to
+    force_download : bool
+        Downloads the latest versions, even if version is already present
     """
     output_dir = pathlib.Path(collection_output_directory)
 
     collection_name = collection_url.rstrip("/").split("/")[-1]
     collection_dir = output_dir / collection_name
-    if not collection_dir.exists():
+    collection_meta = {}
+    if collection_dir.exists():
+        if (collection_dir / settings.COLLECTION_JSON).exists():
+            with open(
+                collection_dir / settings.COLLECTION_JSON, "r", encoding="utf-8"
+            ) as collection_json_file:
+                collection_meta = json.load(collection_json_file)
+    else:
         collection_dir.mkdir()
 
     artifacts = get_artifacts_from_collection(collection_url)
@@ -157,13 +168,42 @@ def download_collection(
         artifact: get_latest_version_of_artifact(artifact) for artifact in artifacts
     }
     for artifact, version in artifact_versions.items():
-        artifact_name = artifact.split("/")[-1]
         group_name = artifact.split("/")[-2]
+        if group_name not in collection_meta:
+            collection_meta[group_name] = {}
+        artifact_name = artifact.split("/")[-1]
+        if artifact_name not in collection_meta[group_name]:
+            collection_meta[group_name][artifact_name] = {}
+
+        latest_version = collection_meta[group_name][artifact_name].get(
+            "latest_version"
+        )
+        if not force_download and latest_version and latest_version == version:
+            logging.info(
+                f"Skipping download of {artifact_name=} {version=} as latest version is already present."
+            )
+            continue
+        collection_meta[group_name][artifact_name]["latest_version"] = version
+
         group_dir = collection_dir / group_name
         if not group_dir.exists():
             group_dir.mkdir()
+        artifact_dir = group_dir / artifact_name
+        if not artifact_dir.exists():
+            artifact_dir.mkdir()
+
+        version_dir = artifact_dir / version
+        if not version_dir.exists():
+            version_dir.mkdir()
+
         artifact_filenames = get_artifact_filenames(artifact, version)
         for artifact_filename in artifact_filenames:
             suffix = artifact_filename.split(".")[-1]
             filename = f"{artifact_name}.{suffix}"
-            download_artifact(artifact_filename, group_dir / filename)
+            download_artifact(artifact_filename, version_dir / filename)
+        logging.info(f"Downloaded {artifact_name=} {version=}.")
+
+    with open(
+        collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8"
+    ) as collection_json_file:
+        json.dump(collection_meta, collection_json_file)
