@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
-from data_adapter import settings
+from data_adapter import ontology, settings
 
 
 def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
@@ -201,6 +201,9 @@ def download_collection(
             suffix = artifact_filename.split(".")[-1]
             filename = f"{artifact_name}.{suffix}"
             download_artifact(artifact_filename, version_dir / filename)
+            if suffix == "json":
+                subject = ontology.get_subject(version_dir / filename)
+                collection_meta[group_name][artifact_name]["subject"] = subject
         logging.info(f"Downloaded {artifact_name=} {version=}.")
 
     with open(
