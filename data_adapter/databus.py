@@ -147,7 +147,7 @@ def download_collection(
     """
     output_dir = pathlib.Path(collection_output_directory)
 
-    collection_name = collection_url.split("/")[-1]
+    collection_name = collection_url.rstrip("/").split("/")[-1]
     collection_dir = output_dir / collection_name
     if not collection_dir.exists():
         collection_dir.mkdir()
