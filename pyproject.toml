@@ -37,5 +37,5 @@ add-trailing-comma = "^2.3.0"
 profile = "black"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
