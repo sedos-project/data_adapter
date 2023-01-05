@@ -3,12 +3,12 @@ import logging
 import os
 import pathlib
 import urllib.parse
-from typing import List, Optional, Union
+from typing import List, Union
 
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
-from data_adapter import ontology, settings
+from data_adapter import core, ontology, settings
 
 
 def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
@@ -130,13 +130,7 @@ def get_artifacts_from_collection(collection: str) -> List[str]:
     return list(find_artifact(content["root"]))
 
 
-def download_collection(
-    collection_url: str,
-    collection_output_directory: Optional[
-        Union[str, pathlib.Path]
-    ] = settings.COLLECTIONS_DIR,
-    force_download=False,
-):
+def download_collection(collection_url: str, force_download=False):
     """
     Downloads all artifact files for given collection and saves it to local output directory
 
@@ -144,15 +138,11 @@ def download_collection(
     ----------
     collection_url : str
         URL of collection on databus
-    collection_output_directory : Union[str, pathlib.Path]
-        Path where collection is saved to
     force_download : bool
         Downloads the latest versions, even if version is already present
     """
-    output_dir = pathlib.Path(collection_output_directory)
-
     collection_name = collection_url.rstrip("/").split("/")[-1]
-    collection_dir = output_dir / collection_name
+    collection_dir = settings.COLLECTIONS_DIR / collection_name
     collection_meta = {}
     if collection_dir.exists():
         if (collection_dir / settings.COLLECTION_JSON).exists():
@@ -202,8 +192,13 @@ def download_collection(
             filename = f"{artifact_name}.{suffix}"
             download_artifact(artifact_filename, version_dir / filename)
             if suffix == "json":
-                subject = ontology.get_subject(version_dir / filename)
-                collection_meta[group_name][artifact_name]["subject"] = subject
+                metadata = core.get_metadata(version_dir / filename)
+                collection_meta[group_name][artifact_name][
+                    "subject"
+                ] = ontology.get_subject(metadata)
+                collection_meta[group_name][artifact_name][
+                    "datatype"
+                ] = core.get_data_type(metadata)
         logging.info(f"Downloaded {artifact_name=} {version=}.")
 
     with open(

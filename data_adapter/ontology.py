@@ -1,28 +1,30 @@
-import json
 import logging
-import pathlib
-from typing import Union
+
+from data_adapter.core import get_metadata
 
 
-def get_metadata(metadata: Union[str, pathlib.Path, dict]):
-    if isinstance(metadata, dict):
-        return metadata
-    with open(metadata, "r", encoding="utf-8") as metadata_file:
-        return json.load(metadata_file)
+class AnnotationError(Exception):
+    """Raised if annotation is corrupted"""
 
 
 def get_subject(metadata):
     metadata = get_metadata(metadata)
-    if "subject" not in metadata:
+    if "subject" not in metadata or len(metadata["subject"]) == 0:
         logging.warning(f"No subject found in metadata for table '{metadata['name']}'.")
         return metadata["name"]
-    return get_name_from_subject_or_isabout(metadata["subject"])
+    try:
+        return get_name_from_annotation(metadata["subject"])
+    except AnnotationError:
+        logging.warning(f"No subject found in metadata for table '{metadata['name']}'.")
+        return metadata["name"]
 
 
-def get_name_from_subject_or_isabout(field):
+def get_name_from_annotation(annotation):
     names = []
-    for entry in field:
+    for entry in annotation:
         # pylint: disable=W0511
         # FIXME: Read name from ontology if OEO is present in "path"
+        if "name" not in entry:
+            raise AnnotationError("No annotation found")
         names.append(entry["name"])
     return "_".join(names)

@@ -1,23 +1,43 @@
 import json
 import pathlib
-from collections import namedtuple
-from typing import Dict, List, Optional, Union
+from dataclasses import dataclass
+from typing import Dict, List
 
 import pandas
 
-from data_adapter import settings
+from data_adapter import settings, structure
+from data_adapter.core import SCALAR_COLUMNS, TIMESERIES_COLUMNS, DataType
 
-ArtifactPath = namedtuple("Artifact", ["group", "artifact", "version", "filename"])
+
+@dataclass
+class Artifact:
+    collection: str
+    group: str
+    artifact: str
+    version: str
+    filename: str
+    subject: str
+    datatype: DataType
+
+    def path(self):
+        return (
+            settings.COLLECTIONS_DIR
+            / self.collection
+            / self.group
+            / self.artifact
+            / self.version
+            / self.filename
+        )
 
 
-def __get_collection_meta(collection_dir: pathlib.Path) -> dict:
+def __get_collection_meta(collection: str) -> dict:
     """
     Returns collection meta file if present
 
     Parameters
     ----------
-    collection_dir : pathlib.Path
-        Collection folder to search for collection meta
+    collection : str
+        Name of collection to get metadata from
 
     Returns
     -------
@@ -29,25 +49,24 @@ def __get_collection_meta(collection_dir: pathlib.Path) -> dict:
     FileNotFoundError
         if collection metadata cannot be found in given collection folder
     """
-    collection_meta_file = collection_dir / settings.COLLECTION_JSON
+    collection_folder = pathlib.Path(settings.COLLECTIONS_DIR) / collection
+    collection_meta_file = collection_folder / settings.COLLECTION_JSON
     if not collection_meta_file.exists():
         raise FileNotFoundError(
-            f"Could not find collection meta ('{settings.COLLECTION_JSON}') in collection folder '{collection_dir}'."
+            f"Could not find collection meta ('{settings.COLLECTION_JSON}') in collection folder '{collection_folder}'."
         )
     with open(collection_meta_file, "r", encoding="utf-8") as meta_file:
         return json.load(meta_file)
 
 
-def __get_artifacts_for_process(
-    collection_meta: dict, process: str
-) -> List[ArtifactPath]:
+def __get_artifacts_for_process(collection: str, process: str) -> List[Artifact]:
     """
     Returns list of artifacts belonging to given process (subject)
 
     Parameters
     ----------
-    collection_meta: dict
-        Collection metadata
+    collection: str
+        Collection name
     process : str
         Name of process to search collection metadata for
 
@@ -56,24 +75,58 @@ def __get_artifacts_for_process(
     List[ArtifactPath]
         List of artifacts in collection belonging to given process
     """
+    collection_meta = __get_collection_meta(collection)
     artifacts = []
     for group in collection_meta:
         for artifact, artifact_info in collection_meta[group].items():
             if artifact_info["subject"] == process:
                 filename = f"{artifact}.csv"
                 artifacts.append(
-                    ArtifactPath(
-                        group, artifact, artifact_info["latest_version"], filename
+                    Artifact(
+                        collection,
+                        group,
+                        artifact,
+                        artifact_info["latest_version"],
+                        filename,
+                        subject=process,
+                        datatype=DataType(artifact_info["datatype"]),
                     )
                 )
     return artifacts
 
 
-def get_process_df(
-    collection: str,
-    process: str,
-    collection_dir: Optional[Union[str, pathlib.Path]] = settings.COLLECTIONS_DIR,
-) -> Dict[str, pandas.DataFrame]:
+def __get_df_from_artifact(artifact: Artifact, *parameters: List[str]):
+    """
+    Returns DataFrame from given artifact.
+
+    If parameters are given, artifact columns are filtered for given parameters
+    and default columns from datatype.
+
+    Parameters
+    ----------
+    artifact: Artifact
+        Artifact to get DataFrame from
+    parameters: List[str]
+        Parameters to filter DataFrame
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    df = pandas.read_csv(artifact.path())
+    if len(parameters) == 0:
+        return df
+    columns = (
+        set(SCALAR_COLUMNS)
+        if artifact.datatype is DataType.Scalar
+        else set(TIMESERIES_COLUMNS)
+    )
+    columns.update(set(parameters))
+    drop_columns = set(df.columns).difference(columns)
+    return df.drop(drop_columns, axis=1)
+
+
+def get_process_df(collection: str, process: str) -> Dict[str, pandas.DataFrame]:
     """
     Loads data for given process from collection as pandas.DataFrame
 
@@ -85,34 +138,34 @@ def get_process_df(
         Name of collection to get data from
     process : str
         Name of process (from subject)
-    collection_dir : Optional[Union[str, pathlib.Path]]
-        Folder where collections are stored, defaults to working_dir/collections
 
     Returns
     -------
-    pandas.DataFrame
-        Data for given process with column headers translated by ontology
+    Dict[str, pandas.DataFrame]
+        Data for given process, keys represent related artifact. DataFrame column headers are translated by ontology.
 
     Raises
     ------
     FileNotFoundError
         if collection is not present in collection folder
+    StructureError
+        if additional parameters of process are related to multiple subjects
     """
-    collection_folder = pathlib.Path(collection_dir) / collection
+    collection_folder = pathlib.Path(settings.COLLECTIONS_DIR) / collection
     if not collection_folder.exists():
         raise FileNotFoundError(
             f"Could not find {collection=} in collection folder '{collection_folder}'."
         )
-    collection_meta = __get_collection_meta(collection_folder)
-    artifacts = __get_artifacts_for_process(collection_meta, process)
+    artifacts = __get_artifacts_for_process(collection, process)
     data = {}
     for artifact in artifacts:
-        artifact_path = (
-            collection_folder
-            / artifact.group
-            / artifact.artifact
-            / artifact.version
-            / artifact.filename
-        )
-        data[artifact.artifact] = pandas.read_csv(artifact_path)
+        data[artifact.artifact] = __get_df_from_artifact(artifact)
+    for subject, parameters in structure.get_additional_parameters(process).items():
+        artifacts = __get_artifacts_for_process(collection, subject)
+        if len(artifacts) > 1:
+            raise structure.StructureError(
+                f"Additional parameter for process '{process}' "
+                f"points to subject '{subject}' which is not unique."
+            )
+        data[artifacts[0].artifact] = __get_df_from_artifact(artifacts[0], *parameters)
     return data

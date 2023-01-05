@@ -1,3 +1,10 @@
+from collections import defaultdict, namedtuple
+
+
+class StructureError(Exception):
+    """Raised if structure is corrupted"""
+
+
 HARDCODED_ES_STRUCTURE = {
     "energy transformation unit": {
         "input_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
@@ -9,13 +16,24 @@ HARDCODED_ES_STRUCTURE = {
         "output_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
         "e2p_ratio": {"inputs": ["electricity"], "outputs": []},
     },
-    "onshore wind farm": {
-        "installed_capacity": {
-            "inputs": ["onshore wind farm"],  # wind timeseries
-            "outputs": ["electricity"],
-        }
-    },
 }
+
+Parameter = namedtuple("Parameter", ("subject", "isAbout"))
+
+ADDITONAL_PARAMETERS = {
+    "onshore wind farm": [
+        Parameter("net capacity factor", "onshore"),
+    ]
+}
+
+
+def get_additional_parameters(process: str):
+    if process not in ADDITONAL_PARAMETERS:
+        return {}
+    parameters = defaultdict(list)
+    for parameter in ADDITONAL_PARAMETERS[process]:
+        parameters[parameter.subject].append(parameter.isAbout)
+    return parameters
 
 
 def get_energy_structure():
