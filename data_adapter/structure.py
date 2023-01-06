@@ -74,30 +74,55 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
     # Empty Graph:
     G = nx.DiGraph()
     edges = []
+    pos  = {}
+    i = 0
+    x = 0
     for unit, process in HARDCODED_ES_STRUCTURE.items():
+        i = i+2
+        pos[unit] = (1,i)
+        k=0
         if ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and\
                 ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
+
             for process_name, process_parameters in process.items():
-                edges.append((unit, process_name))
+                pos[process_name+unit] = (2,i+k)
+                edges.append((unit, process_name+unit))
                 edges.append((unit, process_parameters["inputs"][0]))
                 edges.append((unit, process_parameters["outputs"][0]))
                 break
         elif ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and not\
                 ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
             for process_name, process_parameters in process.items():
-                edges.append((unit, process_name))
+                pos[process_name+unit] = (1,i+k)
+
+                edges.append((unit, process_name+unit))
                 edges.append((unit, process_parameters["inputs"][0]))
-                edges.append((process_name, process_parameters["outputs"][0]))
+                edges.append((process_name+unit, process_parameters["outputs"][0]))
         else:
             for process_name, process_parameters in process.items():
+                pos[process_name+unit] = (1,i+k)
+
                 edges.append((unit, process_name))
-                edges.append((process_name, process_parameters["inputs"][0]))
-                edges.append((process_name, process_parameters["outputs"][0]))
+                edges.append((process_name+unit, process_parameters["inputs"][0]))
+                edges.append((process_name+unit, process_parameters["outputs"][0]))
+    print(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE))
+    for y, inpt in enumerate(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE)):
+        if inpt in pos:
+            pass
+        else:
+            pos[inpt] = (0, y)
+    for y, opt in enumerate(jmespath.search("*.*.outputs[][]", HARDCODED_ES_STRUCTURE)):
+        if opt in pos:
+            pass
+        else:
+            pos[opt] = (3, y)
+
     print(edges)
+    print(pos)
     G.add_edges_from(edges)
 
     plt.figure(figsize=(6, 4))
-    nx.draw_networkx(G)
+    nx.draw_networkx(G, pos=pos)
     plt.show()
 
 draw_struct(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS)
