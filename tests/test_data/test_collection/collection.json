@@ -1,0 +1,34 @@
+{
+  "modex": {
+    "modex_capacity_factor": {
+      "datatype": 1,
+      "latest_version": "v2",
+      "subject": "net capacity factor"
+    },
+    "modex_constraint": {
+      "datatype": 0,
+      "latest_version": "v2",
+      "subject": "global variables"
+    },
+    "modex_demand": {
+      "datatype": 1,
+      "latest_version": "v2",
+      "subject": "energy demand"
+    },
+    "modex_tech_generator_gas": {
+      "datatype": 0,
+      "latest_version": "v2",
+      "subject": "energy transformation unit"
+    },
+    "modex_tech_storage_battery": {
+      "datatype": 0,
+      "latest_version": "v2",
+      "subject": "battery storage"
+    },
+    "modex_tech_wind_turbine_onshore": {
+      "datatype": 0,
+      "latest_version": "v2",
+      "subject": "onshore wind farm"
+    }
+  }
+}

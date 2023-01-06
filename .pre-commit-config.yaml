@@ -4,7 +4,7 @@ fail_fast: true
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.3.0
     hooks:
       - id: check-json
       - id: end-of-file-fixer
@@ -15,6 +15,7 @@ repos:
             "--autofix", # Autofix JSONs
           ]
       - id: check-added-large-files
+        args: ["--maxkb=1500"]
 
   - repo: local
     hooks:

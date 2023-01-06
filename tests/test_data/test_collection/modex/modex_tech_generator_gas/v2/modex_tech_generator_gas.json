@@ -1,0 +1,320 @@
+{
+  "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/master/metadata/latest/context.json",
+  "_comment": {
+    "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss\u00b1hh)",
+    "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+    "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+    "metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+    "null": "If not applicable use: null",
+    "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+    "todo": "If a value is not yet available, use: todo",
+    "units": "Use a space between numbers and units (100 m)"
+  },
+  "context": {
+    "contact": "Felix.Maurer@rl-institut.de",
+    "documentation": "https://sedos-project.github.io/.github/",
+    "homepage": "https://sedos-project.github.io/.github/",
+    "sourceCode": "https://github.com/sedos-project/oedatamodel/tree/main/parameter_datamodel"
+  },
+  "contributors": [
+    {
+      "comment": "From modex concrete to uploadable parametermodel",
+      "date": "2022-11-13",
+      "object": "datapackage",
+      "title": "FelixMau"
+    }
+  ],
+  "description": "datamodel, metadata and examples provided as datapackage",
+  "id": "ID31modex_tech_generator_gas",
+  "keywords": [
+    "oedatamodel",
+    "datapackage",
+    "general energy dataformat",
+    "modex",
+    "ID31",
+    "parameter_datamodel",
+    "modex",
+    "tech",
+    "generator",
+    "gas"
+  ],
+  "language": [
+    "en-GB"
+  ],
+  "licenses": [
+    {
+      "name": "TestLicense",
+      "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode"
+    }
+  ],
+  "metaMetadata": {
+    "metadataLicense": {
+      "name": "CC0-1.0",
+      "path": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "title": "Creative Commons Zero v1.0 Universal"
+    },
+    "metadataVersion": "OEP-1.5.1"
+  },
+  "name": "modex_tech_generator_gas",
+  "publicationDate": "2022-11-14",
+  "resources": [
+    {
+      "dialect": {
+        "decimalSeparator": ".",
+        "delimiter": ";"
+      },
+      "encoding": "UTF-8",
+      "format": "PostgreSQL",
+      "name": "model_draft.modex_tech_generator_gas",
+      "path": "parameter_model_csv/scalar/modex_tech_generator_gas.csv",
+      "profile": "tabular_data_resource",
+      "schema": {
+        "fields": [
+          {
+            "description": "Unique identifier",
+            "isAbout": [
+              {
+                "name": "unique individual identifier",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00010037"
+              }
+            ],
+            "name": "id",
+            "type": "int",
+            "valueReference": []
+          },
+          {
+            "description": "Region in Germany",
+            "isAbout": [
+              {
+                "name": "subregion",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020033"
+              }
+            ],
+            "name": "region",
+            "type": "text",
+            "valueReference": []
+          },
+          {
+            "description": "Method",
+            "isAbout": [
+              {
+                "name": "methodology",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020166"
+              }
+            ],
+            "name": "method",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Source",
+            "isAbout": [
+              {
+                "name": "data source"
+              }
+            ],
+            "name": "source",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Comment",
+            "isAbout": [
+              {
+                "name": "comment",
+                "path": "None"
+              }
+            ],
+            "name": "comment",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Year",
+            "isAbout": [
+              {
+                "name": "year",
+                "path": "http://purl.obolibrary.org/obo/UO_0000036"
+              }
+            ],
+            "name": "year",
+            "type": "int",
+            "valueReference": []
+          },
+          {
+            "description": "Installed Capacity",
+            "isAbout": [
+              {
+                "name": "power capacity",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00010257"
+              }
+            ],
+            "name": "installed_capacity",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "Bandwith Type",
+            "isAbout": [
+              {
+                "name": "bandwidth type"
+              }
+            ],
+            "name": "bandwidth_type",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Version",
+            "isAbout": [
+              {
+                "name": "dataset version string"
+              }
+            ],
+            "name": "version",
+            "type": "text",
+            "valueReference": []
+          },
+          {
+            "description": "Variable Costs",
+            "isAbout": [
+              {
+                "name": "variable cost",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020145"
+              }
+            ],
+            "name": "variable_costs",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "Fixed Costs",
+            "isAbout": [
+              {
+                "name": "fixed cost",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020168"
+              }
+            ],
+            "name": "fixed_costs",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "Capital Costs",
+            "isAbout": [
+              {
+                "name": "investment cost",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020167"
+              }
+            ],
+            "name": "capital_costs",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "Lifetime",
+            "isAbout": [
+              {
+                "name": "operational life time",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020178"
+              }
+            ],
+            "name": "lifetime",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "input ratio",
+            "isAbout": [
+              {
+                "name": "input_ratio",
+                "path": "None"
+              }
+            ],
+            "name": "input_ratio",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "output ratio",
+            "isAbout": [
+              {
+                "name": "output_ratio",
+                "path": "None"
+              }
+            ],
+            "name": "output_ratio",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "emission factor",
+            "isAbout": [
+              {
+                "name": "emission factor",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00000148"
+              }
+            ],
+            "name": "emission_factor",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "fuel costs",
+            "isAbout": [
+              {
+                "name": "fuel_costs",
+                "path": "None"
+              }
+            ],
+            "name": "fuel_costs",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "expansion limit",
+            "isAbout": [
+              {
+                "name": "developable flow potential",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00140060"
+              }
+            ],
+            "name": "expansion_limit",
+            "type": "float",
+            "valueReference": []
+          }
+        ],
+        "foreignKeys": [],
+        "primaryKey": [
+          "id"
+        ]
+      }
+    }
+  ],
+  "sources": [
+    {
+      "description": "Parameter data model for secondary input scalars and timeseries",
+      "licenses": [
+        {
+          "attribution": "\u00a9 Reiner Lemoine Institut",
+          "instruction": "You are free: To Share, To Create, To Adapt",
+          "name": "CC0-1.0",
+          "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "title": "Creative Commons Zero v1.0 Universal"
+        }
+      ],
+      "path": "https://github.com/sedos-project/oedatamodel/tree/main/parameter_datamodel",
+      "title": "Parameter datamodel"
+    }
+  ],
+  "subject": [
+    {
+      "name": "energy transformation unit",
+      "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020102"
+    }
+  ],
+  "temporal": {
+    "timeseries": []
+  },
+  "title": "MODEX concrete Datamodel to Parameter"
+}

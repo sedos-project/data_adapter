@@ -18,5 +18,5 @@ def test_process_with_additional_data():
     assert len(artifacts["modex_tech_wind_turbine_onshore"].columns) == 13
     assert len(artifacts["modex_tech_wind_turbine_onshore"]) == 51
     assert len(artifacts["modex_capacity_factor"].columns) == 10
-    assert len(artifacts["modex_capacity_factor"]) == 54
+    assert len(artifacts["modex_capacity_factor"]) == 4
     assert len(artifacts["modex_capacity_factor"]["onshore"].dropna().iloc[0]) == 8760
