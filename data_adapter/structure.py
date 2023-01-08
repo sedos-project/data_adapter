@@ -1,5 +1,6 @@
+import graphviz
 import networkx as nx
-#import jmespath
+import jmespath
 import matplotlib.pyplot as plt
 from collections import defaultdict, namedtuple
 
@@ -120,37 +121,39 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
     print(edges)
     print(pos)
 
-from graphviz import Digraph
+def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> graphviz.Digraph():
+    """
 
-g = Digraph('G', filename='cluster.gv')
+    Parameters
+    ----------
+    HARDCODED_ES_STRUCTURE
+    ADDITONAL_PARAMETERS
 
-# NOTE: the subgraph name needs to begin with 'cluster' (all lowercase)
-#       so that Graphviz recognizes it as a special cluster subgraph
+    Returns
+    -------
+    Graphviz object
 
-with g.subgraph(name='cluster_0') as c:
-    c.attr(style='filled', color='lightgrey')
-    c.node_attr.update(style='filled', color='white')
-    c.edges([('a0', 'a1'), ('a1', 'a2'), ('a2', 'a3')])
-    c.attr(label='process #1')
+    TODO:
+        -Integrate Edges
+            -"Edge points" (with tags like f0 edge point: <f0>) at each process AND structure
+        -Connect Edges
+        -Add Comodities and Sinks
 
-with g.subgraph(name='cluster_1') as c:
-    c.attr(color='blue')
-    c.node_attr['style'] = 'filled'
-    c.edges([('b0', 'b1'), ('b1', 'b2'), ('b2', 'b3')])
-    c.attr(label='process #2')
-
-g.edge('start', 'a0')
-g.edge('start', 'b0')
-g.edge('a1', 'b3')
-g.edge('b2', 'a3')
-g.edge('a3', 'a0')
-g.edge('a3', 'end')
-g.edge('b3', 'end')
-
-g.node('start', shape='Mdiamond')
-g.node('end', shape='Msquare')
-
-g.view()
+    """
 
 
-draw_struct(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS)
+
+    s = graphviz.Digraph('structs', filename='structs_revisited.gv',
+                         node_attr={'shape': 'record'})
+    for struct, process in HARDCODED_ES_STRUCTURE.items():
+        node_string = "{"+str(struct) + "|{"
+        process_names = [process_name for process_name, process_params in process.items()]
+        node_string += '|'.join(process_names)
+        node_string += "}}"
+        print(node_string)
+        s.node(str(struct), node_string)
+
+    #s.edges([('struct1:f1', 'struct2:f0'), ('struct1:f2', 'struct3:here')])
+    return s
+
+draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save("test.dot")
