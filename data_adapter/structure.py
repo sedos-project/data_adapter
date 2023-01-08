@@ -1,5 +1,5 @@
 import networkx as nx
-import jmespath
+#import jmespath
 import matplotlib.pyplot as plt
 from collections import defaultdict, namedtuple
 
@@ -71,7 +71,7 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
                 break
         return chk
 
-    # Empty Graph:
+    #Empty Graph:
     G = nx.DiGraph()
     edges = []
     pos  = {}
@@ -119,10 +119,38 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
 
     print(edges)
     print(pos)
-    G.add_edges_from(edges)
 
-    plt.figure(figsize=(6, 4))
-    nx.draw_networkx(G, pos=pos)
-    plt.show()
+
+import graphviz
+# Create a graph object
+graph = pyxdg.Graph()
+
+# Iterate over the units in the energy system structure
+for i, (unit, processes) in enumerate(HARDCODED_ES_STRUCTURE.items()):
+    # Add a node for the unit
+    unit_node = graph.add_node(label=unit)
+
+    # Iterate over the processes in the unit
+    for j, (process, data) in enumerate(processes.items()):
+        # Add a node for the process
+        process_node = graph.add_node(label=process)
+        # Add an edge from the unit to the process
+        graph.add_edge(unit_node, process_node)
+
+        # Iterate over the inputs and outputs of the process
+        for inputs, outputs in (data["input_ratio"], data["output_ratio"]):
+            # Add a node for each input
+            for input_ in inputs:
+                input_node = graph.add_node(label=input_)
+                # Add an edge from the input to the process
+                graph.add_edge(input_node, process_node)
+            # Add a node for each output
+            for output in outputs:
+                output_node = graph.add_node(label=output)
+                # Add an edge from the process to the output
+                graph.add_edge(process_node, output_node)
+
+# Render the graph as a DOT file
+graph.write_dot("flowchart.dot")
 
 draw_struct(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS)
