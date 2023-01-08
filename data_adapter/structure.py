@@ -120,37 +120,37 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
     print(edges)
     print(pos)
 
+from graphviz import Digraph
 
-import graphviz
-# Create a graph object
-graph = pyxdg.Graph()
+g = Digraph('G', filename='cluster.gv')
 
-# Iterate over the units in the energy system structure
-for i, (unit, processes) in enumerate(HARDCODED_ES_STRUCTURE.items()):
-    # Add a node for the unit
-    unit_node = graph.add_node(label=unit)
+# NOTE: the subgraph name needs to begin with 'cluster' (all lowercase)
+#       so that Graphviz recognizes it as a special cluster subgraph
 
-    # Iterate over the processes in the unit
-    for j, (process, data) in enumerate(processes.items()):
-        # Add a node for the process
-        process_node = graph.add_node(label=process)
-        # Add an edge from the unit to the process
-        graph.add_edge(unit_node, process_node)
+with g.subgraph(name='cluster_0') as c:
+    c.attr(style='filled', color='lightgrey')
+    c.node_attr.update(style='filled', color='white')
+    c.edges([('a0', 'a1'), ('a1', 'a2'), ('a2', 'a3')])
+    c.attr(label='process #1')
 
-        # Iterate over the inputs and outputs of the process
-        for inputs, outputs in (data["input_ratio"], data["output_ratio"]):
-            # Add a node for each input
-            for input_ in inputs:
-                input_node = graph.add_node(label=input_)
-                # Add an edge from the input to the process
-                graph.add_edge(input_node, process_node)
-            # Add a node for each output
-            for output in outputs:
-                output_node = graph.add_node(label=output)
-                # Add an edge from the process to the output
-                graph.add_edge(process_node, output_node)
+with g.subgraph(name='cluster_1') as c:
+    c.attr(color='blue')
+    c.node_attr['style'] = 'filled'
+    c.edges([('b0', 'b1'), ('b1', 'b2'), ('b2', 'b3')])
+    c.attr(label='process #2')
 
-# Render the graph as a DOT file
-graph.write_dot("flowchart.dot")
+g.edge('start', 'a0')
+g.edge('start', 'b0')
+g.edge('a1', 'b3')
+g.edge('b2', 'a3')
+g.edge('a3', 'a0')
+g.edge('a3', 'end')
+g.edge('b3', 'end')
+
+g.node('start', shape='Mdiamond')
+g.node('end', shape='Msquare')
+
+g.view()
+
 
 draw_struct(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS)
