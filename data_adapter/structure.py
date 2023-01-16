@@ -29,6 +29,12 @@ HARDCODED_ES_STRUCTURE = {
         "output_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
         "emission_factor": {"inputs": ["lignite"], "outputs": ["co2"]},
     },
+    "many_inputs_outputs": {
+        "input_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity"]},
+        "output_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity", "heat"]},
+        "emission_factor": {"inputs": ["lignite", "coal"], "outputs": ["co2", "co", "so2"]},
+        "price_timeseries": {"inputs": ["lignite", "coal"], "outputs": ["€", "$"]},
+    },
 }
 
 Parameter = namedtuple("Parameter", ("subject", "isAbout"))
@@ -57,7 +63,7 @@ def get_processes():
     return list(HARDCODED_ES_STRUCTURE)
 
 
-def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> nx.Graph:
+def draw_struct_networkx(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> nx.Graph:
     """
 
     Parameters
