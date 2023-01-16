@@ -133,6 +133,13 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
     -------
     Graphviz object
 
+    How To
+    ------
+    Graphviz graphs are created by a string. The String is build with trigger string characters representing line and
+    column breaks.
+
+        Linebreaks:
+
     TODO:
         -Integrate Edges
             -"Edge points" (with tags like f0 edge point: <f0>) at each process AND structure
@@ -145,15 +152,53 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
 
     s = graphviz.Digraph('structs', filename='structs_revisited.gv',
                          node_attr={'shape': 'record'})
-    for struct, process in HARDCODED_ES_STRUCTURE.items():
-        node_string = "{"+str(struct) + "|{"
-        process_names = [process_name for process_name, process_params in process.items()]
-        node_string += '|'.join(process_names)
-        node_string += "}}"
-        print(node_string)
-        s.node(str(struct), node_string)
+    def cluster():
+        """
+        Trying to work with clusters
+            Pro:
+                - Able to draw nice boxes around Process clusters
+                - Easy understandable
+            Cons:
+                - Somehow boxes do not appear if subprocesses are not interconnected (
+                    maybe add invisible edges between processes?)
+        Returns
+        -------
 
+        """
+        for struct, process in HARDCODED_ES_STRUCTURE.items():
+            with s.subgraph(name=struct) as c:
+                for process_name, process_vars in process.items():
+                    for inpts in process_vars["inputs"]:
+                        edges.append(((inpts, process_name)))
+                    for outpts in process_vars["outputs"]:
+                        edges.append(((process_name, outpts)))
+                c.attr(style='filled', color='lightgrey', label="12")
+                c.node_attr.update(style='filled', color='white')
+                c.edges(edges)
+            break
+    def structs():
+        for struct, process in HARDCODED_ES_STRUCTURE.items():
+            node_string = "{"+str(struct) + "|{"
+            process_names = [process_name for process_name, process_params in process.items()]
+            node_string += '|'.join(process_names)
+            node_string += "}}"
+            print(node_string)
+            s.node(str(struct), node_string)
+    structs()
     #s.edges([('struct1:f1', 'struct2:f0'), ('struct1:f2', 'struct3:here')])
+    g = graphviz.Digraph('G', filename='cluster.gv')
+
+    # NOTE: the subgraph name needs to begin with 'cluster' (all lowercase)
+    #       so that Graphviz recognizes it as a special cluster subgraph
+
+    with g.subgraph(name='cluster_0') as c:
+        c.attr(style='filled', color='lightgrey')
+        c.node_attr.update(style='filled', color='white')
+        c.edges([('a0', 'a1'), ('a1', 'a2'), ('a2', 'a3')])
+        c.attr(label='process #1')
+
+
+
     return s
 
 draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save("test.dot")
