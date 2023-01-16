@@ -196,6 +196,19 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
 
         ToDo:
             Long or revistied attempt?
+        Long:
+            Pro:
+                - better Port definition
+                - Seems a little more stable?
+            Con:
+                - Longer and more complicated strings
+                - Much harder to humanly read
+        Short:
+            Pro:
+                - Easier creation
+                - For Testing posibilities
+            Con:
+                - Possibly to simple to be fullfill all upcoming challanges?
         """
         for struct, process in HARDCODED_ES_STRUCTURE.items():
             node_string = "{"+str(struct) + "|{"
@@ -206,16 +219,6 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
             s.node(str(struct), node_string)
     structs()
     #s.edges([('struct1:f1', 'struct2:f0'), ('struct1:f2', 'struct3:here')])
-    g = graphviz.Digraph('G', filename='cluster.gv')
-
-    # NOTE: the subgraph name needs to begin with 'cluster' (all lowercase)
-    #       so that Graphviz recognizes it as a special cluster subgraph
-
-    with g.subgraph(name='cluster_0') as c:
-        c.attr(style='filled', color='lightgrey')
-        c.node_attr.update(style='filled', color='white')
-        c.edges([('a0', 'a1'), ('a1', 'a2'), ('a2', 'a3')])
-        c.attr(label='process #1')
 
 
 
