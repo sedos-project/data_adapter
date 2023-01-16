@@ -161,12 +161,16 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
             Cons:
                 - Somehow boxes do not appear if subprocesses are not interconnected (
                     maybe add invisible edges between processes?)
+                - Maybe use "cluster_edges"?
+                - Duplicate processes seem not possible on first view -> ineligible solution!
         Returns
         -------
+        graphviz.Digraph() object
 
         """
         for struct, process in HARDCODED_ES_STRUCTURE.items():
             with s.subgraph(name=struct) as c:
+                edges = []
                 for process_name, process_vars in process.items():
                     for inpts in process_vars["inputs"]:
                         edges.append(((inpts, process_name)))
@@ -175,8 +179,24 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
                 c.attr(style='filled', color='lightgrey', label="12")
                 c.node_attr.update(style='filled', color='white')
                 c.edges(edges)
-            break
     def structs():
+        """
+        Trying to work with clusters
+            Pro:
+                - Structures have boxes
+                - Structure sub-items can have defined in/output ports
+                - Looks more like I think it should. Also duplicate processes are possible!
+            Cons:
+                - Complicated to create from string
+                - String creation is a little dirty
+
+        Returns
+        -------
+        graphviz.Digraph() object
+
+        ToDo:
+            Long or revistied attempt?
+        """
         for struct, process in HARDCODED_ES_STRUCTURE.items():
             node_string = "{"+str(struct) + "|{"
             process_names = [process_name for process_name, process_params in process.items()]
