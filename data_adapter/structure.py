@@ -1,8 +1,8 @@
-import graphviz
-import networkx as nx
-import jmespath
-import matplotlib.pyplot as plt
 from collections import defaultdict, namedtuple
+
+import graphviz
+import jmespath
+import networkx as nx
 
 
 class StructureError(Exception):
@@ -10,15 +10,24 @@ class StructureError(Exception):
 
 
 HARDCODED_ES_STRUCTURE = {
-    "energy transformation unit": {
-        "input_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
+    "gasturbine": {
+        "input_ratio": {"inputs": ["gas"], "outputs": ["output_ratio"]},
+        "output_ratio": {"inputs": ["input_ratio"], "outputs": ["electricity"]},
         "emission_factor": {"inputs": ["gas"], "outputs": ["co2"]},
     },
     "battery storage": {
         "input_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
         "output_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
         "e2p_ratio": {"inputs": ["electricity"], "outputs": []},
+    },
+    "Windpark": {
+        "input_ratio": {"inputs": ["wind"], "outputs": ["electricity"]},
+        "output_ratio": {"inputs": ["wind"], "outputs": ["electricity"]},
+    },
+    "steam power": {
+        "input_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
+        "output_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
+        "emission_factor": {"inputs": ["lignite"], "outputs": ["co2"]},
     },
 }
 
@@ -48,7 +57,7 @@ def get_processes():
     return list(HARDCODED_ES_STRUCTURE)
 
 
-def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.Graph:
+def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> nx.Graph:
     """
 
     Parameters
@@ -62,7 +71,7 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
 
     """
 
-    def ckeck_list_singular(lst)->bool:
+    def ckeck_list_singular(lst) -> bool:
         ele = lst[0]
         chk = True
         # Comparing each element with first item
@@ -72,40 +81,40 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
                 break
         return chk
 
-    #Empty Graph:
+    # Empty Graph:
     G = nx.DiGraph()
     edges = []
-    pos  = {}
+    pos = {}
     i = 0
     x = 0
     for unit, process in HARDCODED_ES_STRUCTURE.items():
-        i = i+2
-        pos[unit] = (1,i)
-        k=0
-        if ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and\
+        i = i + 2
+        pos[unit] = (1, i)
+        k = 0
+        if ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and \
                 ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
 
             for process_name, process_parameters in process.items():
-                pos[process_name+unit] = (2,i+k)
-                edges.append((unit, process_name+unit))
+                pos[process_name + unit] = (2, i + k)
+                edges.append((unit, process_name + unit))
                 edges.append((unit, process_parameters["inputs"][0]))
                 edges.append((unit, process_parameters["outputs"][0]))
                 break
-        elif ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and not\
+        elif ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and not \
                 ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
             for process_name, process_parameters in process.items():
-                pos[process_name+unit] = (1,i+k)
+                pos[process_name + unit] = (1, i + k)
 
-                edges.append((unit, process_name+unit))
+                edges.append((unit, process_name + unit))
                 edges.append((unit, process_parameters["inputs"][0]))
-                edges.append((process_name+unit, process_parameters["outputs"][0]))
+                edges.append((process_name + unit, process_parameters["outputs"][0]))
         else:
             for process_name, process_parameters in process.items():
-                pos[process_name+unit] = (1,i+k)
+                pos[process_name + unit] = (1, i + k)
 
                 edges.append((unit, process_name))
-                edges.append((process_name+unit, process_parameters["inputs"][0]))
-                edges.append((process_name+unit, process_parameters["outputs"][0]))
+                edges.append((process_name + unit, process_parameters["inputs"][0]))
+                edges.append((process_name + unit, process_parameters["outputs"][0]))
     print(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE))
     for y, inpt in enumerate(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE)):
         if inpt in pos:
@@ -121,7 +130,8 @@ def draw_struct(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> nx.G
     print(edges)
     print(pos)
 
-def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict)-> graphviz.Digraph():
+
+def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> graphviz.Digraph():
     """
 
     Parameters
@@ -141,17 +151,14 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
         Linebreaks:
 
     TODO:
-        -Integrate Edges
-            -"Edge points" (with tags like f0 edge point: <f0>) at each process AND structure
-        -Connect Edges
-        -Add Comodities and Sinks
+        - Layout verbessern
+        - verschaltete Prozesse mit Unterprozessen verbinden (input/output zusammenhang: gas -> input -> output -> elec)
 
     """
 
+    s = graphviz.Digraph('wide', filename='structs_revisited.gv',
+                         node_attr={'shape': 'record'}, graph_attr={"nodesep": "1"}, engine='dot')
 
-
-    s = graphviz.Digraph('structs', filename='structs_revisited.gv',
-                         node_attr={'shape': 'record'})
     def cluster():
         """
         Trying to work with clusters
@@ -179,9 +186,10 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
                 c.attr(style='filled', color='lightgrey', label="12")
                 c.node_attr.update(style='filled', color='white')
                 c.edges(edges)
+
     def structs():
         """
-        Trying to work with clusters
+        Trying to work with clusters using HTML like labels
             Pro:
                 - Structures have boxes
                 - Structure sub-items can have defined in/output ports
@@ -194,34 +202,29 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
         -------
         graphviz.Digraph() object
 
-        ToDo:
-            Long or revistied attempt?
-        Long:
-            Pro:
-                - better Port definition
-                - Seems a little more stable?
-            Con:
-                - Longer and more complicated strings
-                - Much harder to humanly read
-        Short:
-            Pro:
-                - Easier creation
-                - For Testing posibilities
-            Con:
-                - Possibly to simple to be fullfill all upcoming challanges?
+        CheatSheet
+        -------
+
         """
+
+        edges = []
         for struct, process in HARDCODED_ES_STRUCTURE.items():
-            node_string = "{"+str(struct) + "|{"
-            process_names = [process_name for process_name, process_params in process.items()]
+            node_string = "{" + str(struct) + "|"
+            process_names = [f"<f{port}> {process_name}" for port, [process_name, process_params] in
+                             enumerate(process.items())]
+            for port, [process_name, process_params] in enumerate(process.items()):
+                [edges.append((target, f"{struct}:<f{port}>:w")) for target in process_params["inputs"]]
+                [edges.append((f"{struct}:<f{port}>:e", target)) for target in process_params["outputs"]]
             node_string += '|'.join(process_names)
-            node_string += "}}"
-            print(node_string)
-            s.node(str(struct), node_string)
+            node_string += "}"
+            s.node(str(struct), node_string, tailport="e", headport="w")
+        s.edges(edges)
+
     structs()
-    #s.edges([('struct1:f1', 'struct2:f0'), ('struct1:f2', 'struct3:here')])
-
-
-
+    # s.node_attr(nodesep=0.5)
+    # s.edges([('struct1:f1', 'struct2:f0'), ('struct1:f2', 'struct3:here')])
     return s
 
-draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save("test.dot")
+
+draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save(
+    "test.dot")
