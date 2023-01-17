@@ -9,6 +9,10 @@ import pandas
 from data_adapter import core, settings, structure
 
 
+class CollectionError(Exception):
+    """Raised if collection data or metadata is invalid"""
+
+
 @dataclass
 class Artifact:
     collection: str
@@ -55,7 +59,34 @@ def __get_collection_meta(collection: str) -> dict:
             f"Could not find collection meta ('{settings.COLLECTION_JSON}') in collection folder '{collection_folder}'."
         )
     with open(collection_meta_file, "r", encoding="utf-8") as meta_file:
-        return json.load(meta_file)
+        metadata = json.load(meta_file)
+    __check_collection_meta(metadata)
+    return metadata
+
+
+def __check_collection_meta(collection_meta: dict):
+    """
+    Simple checks if collection metadata is up-to-date
+
+    Parameters
+    ----------
+    collection_meta: dict
+        Metadata of collection
+
+    Raises
+    ------
+    CollectionError
+        if Collection metadata is invalid
+    """
+    # Check if artifact info keys are missing:
+    for group, artifacts in collection_meta.items():
+        for artifact, artifact_infos in artifacts.items():
+            for key in ("latest_version", "subject", "datatype"):
+                if key not in artifact_infos:
+                    raise CollectionError(
+                        f"Collection metadata is invalid ({group=}, {artifact=} misses {key=}). "
+                        "Collection metadata may changed. Please re-download collection and try again."
+                    )
 
 
 def __get_artifacts_for_process(collection: str, process: str) -> List[Artifact]:
