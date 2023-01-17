@@ -8,6 +8,7 @@ from typing import List, Union
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
+import data_adapter.collection
 from data_adapter import core, ontology, settings
 
 
@@ -230,5 +231,5 @@ def __download_artifacts(
                 ] = ontology.get_subject(metadata)
                 collection_meta[group_name][artifact_name][
                     "datatype"
-                ] = core.get_data_type(metadata)
+                ] = data_adapter.collection.get_data_type(metadata)
         logging.info(f"Downloaded {artifact_name=} {version=}.")

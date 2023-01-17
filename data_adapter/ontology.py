@@ -1,6 +1,6 @@
 import logging
 
-from data_adapter.core import get_metadata
+from data_adapter import core
 
 
 class AnnotationError(Exception):
@@ -8,7 +8,7 @@ class AnnotationError(Exception):
 
 
 def get_subject(metadata):
-    metadata = get_metadata(metadata)
+    metadata = core.get_metadata(metadata)
     if "subject" not in metadata or len(metadata["subject"]) == 0:
         logging.warning(f"No subject found in metadata for table '{metadata['name']}'.")
         return metadata["name"]
