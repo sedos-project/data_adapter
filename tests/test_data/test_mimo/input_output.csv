@@ -1,0 +1,9 @@
+id;name
+0;gas
+1;coal
+2;biomass
+3;wind
+4;sun
+5;co2
+6;elec
+7;heat

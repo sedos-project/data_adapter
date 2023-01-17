@@ -1,0 +1,3 @@
+id;parameter;process;input;output
+1;eff_heat;chp;gas,  coal;heat,  co2
+2;eff_elec;chp;biomass, gas;elec,  co2
