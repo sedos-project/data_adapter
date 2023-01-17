@@ -3,10 +3,10 @@ import pathlib
 from dataclasses import dataclass
 from typing import Dict, List
 
+import frictionless
 import pandas
 
-from data_adapter import settings, structure
-from data_adapter.core import SCALAR_COLUMNS, TIMESERIES_COLUMNS, DataType
+from data_adapter import core, settings, structure
 
 
 @dataclass
@@ -17,7 +17,7 @@ class Artifact:
     version: str
     filename: str
     subject: str
-    datatype: DataType
+    datatype: core.DataType
 
     def path(self):
         return (
@@ -26,7 +26,6 @@ class Artifact:
             / self.group
             / self.artifact
             / self.version
-            / self.filename
         )
 
 
@@ -80,7 +79,7 @@ def __get_artifacts_for_process(collection: str, process: str) -> List[Artifact]
     for group in collection_meta:
         for artifact, artifact_info in collection_meta[group].items():
             if artifact_info["subject"] == process:
-                filename = f"{artifact}.csv"
+                filename = artifact
                 artifacts.append(
                     Artifact(
                         collection,
@@ -89,7 +88,7 @@ def __get_artifacts_for_process(collection: str, process: str) -> List[Artifact]
                         artifact_info["latest_version"],
                         filename,
                         subject=process,
-                        datatype=DataType(artifact_info["datatype"]),
+                        datatype=core.DataType(artifact_info["datatype"]),
                     )
                 )
     return artifacts
@@ -113,13 +112,27 @@ def __get_df_from_artifact(artifact: Artifact, *parameters: List[str]):
     -------
     pandas.DataFrame
     """
-    df = pandas.read_csv(artifact.path())
+    with open(
+        artifact.path() / f"{artifact.filename}.json", "r", encoding="utf-8"
+    ) as metadata_file:
+        metadata = json.load(metadata_file)
+    fl_table_schema = core.reformat_oep_to_frictionless_schema(
+        metadata["resources"][0]["schema"]
+    )
+    resource = frictionless.Resource(
+        name=metadata["name"],
+        profile="tabular-data-resource",
+        source=artifact.path() / f"{artifact.filename}.csv",
+        schema=fl_table_schema,
+        format="csv",
+    )
+    df = resource.to_pandas()
     if len(parameters) == 0:
         return df
     columns = (
-        set(SCALAR_COLUMNS)
-        if artifact.datatype is DataType.Scalar
-        else set(TIMESERIES_COLUMNS)
+        set(core.SCALAR_COLUMNS)
+        if artifact.datatype is core.DataType.Scalar
+        else set(core.TIMESERIES_COLUMNS)
     )
     columns.update(set(parameters))
     drop_columns = set(df.columns).difference(columns)
