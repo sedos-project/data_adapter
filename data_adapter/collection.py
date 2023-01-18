@@ -2,7 +2,7 @@ import json
 import pathlib
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, Union
+from typing import List, Optional, Union
 
 from data_adapter import core, settings
 
@@ -61,6 +61,26 @@ def check_collection_meta(collection_meta: dict):
                     )
 
 
+def get_metadata_from_artifact(artifact: Artifact) -> dict:
+    """
+    Returns metadata from given artifact.
+
+    Parameters
+    ----------
+    artifact: Artifact
+        Artifact to get metadata from
+
+    Returns
+    -------
+    dict
+        Metadata from artifact
+    """
+    with open(
+        artifact.path() / f"{artifact.filename}.json", "r", encoding="utf-8"
+    ) as metadata_file:
+        return json.load(metadata_file)
+
+
 def get_data_type(metadata: Union[str, pathlib.Path, dict]):
     metadata = core.get_metadata(metadata)
     for field in metadata["resources"][0]["schema"]["fields"]:
@@ -100,7 +120,9 @@ def get_collection_meta(collection: str) -> dict:
     return metadata
 
 
-def get_artifacts_for_process(collection: str, process: str) -> List[Artifact]:
+def get_artifacts_from_collection(
+    collection: str, process: Optional[str] = None
+) -> List[Artifact]:
     """
     Returns list of artifacts belonging to given process (subject)
 
@@ -108,29 +130,30 @@ def get_artifacts_for_process(collection: str, process: str) -> List[Artifact]:
     ----------
     collection: str
         Collection name
-    process : str
-        Name of process to search collection metadata for
+    process : Optional[str]
+        Name of process to search collection metadata for. If not set, all artifacts will be returned.
 
     Returns
     -------
     List[ArtifactPath]
-        List of artifacts in collection belonging to given process
+        List of artifacts in collection (belonging to given process, if set)
     """
     collection_meta = get_collection_meta(collection)
     artifacts = []
     for group in collection_meta:
         for artifact, artifact_info in collection_meta[group].items():
-            if artifact_info["subject"] == process:
-                filename = artifact
-                artifacts.append(
-                    Artifact(
-                        collection,
-                        group,
-                        artifact,
-                        artifact_info["latest_version"],
-                        filename,
-                        subject=process,
-                        datatype=DataType(artifact_info["datatype"]),
-                    )
+            if process and artifact_info["subject"] != process:
+                continue
+            filename = artifact
+            artifacts.append(
+                Artifact(
+                    collection,
+                    group,
+                    artifact,
+                    artifact_info["latest_version"],
+                    filename,
+                    subject=process,
+                    datatype=DataType(artifact_info["datatype"]),
                 )
+            )
     return artifacts

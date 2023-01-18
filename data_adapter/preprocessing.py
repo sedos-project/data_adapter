@@ -1,4 +1,3 @@
-import json
 import pathlib
 from typing import Dict, List
 
@@ -26,10 +25,7 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: List[str]
     -------
     pandas.DataFrame
     """
-    with open(
-        artifact.path() / f"{artifact.filename}.json", "r", encoding="utf-8"
-    ) as metadata_file:
-        metadata = json.load(metadata_file)
+    metadata = collection.get_metadata_from_artifact(artifact)
     fl_table_schema = core.reformat_oep_to_frictionless_schema(
         metadata["resources"][0]["schema"]
     )
@@ -83,12 +79,12 @@ def get_process_df(collection_name: str, process: str) -> Dict[str, pandas.DataF
         raise FileNotFoundError(
             f"Could not find {collection_name=} in collection folder '{collection_folder}'."
         )
-    artifacts = collection.get_artifacts_for_process(collection_name, process)
+    artifacts = collection.get_artifacts_from_collection(collection_name, process)
     data = {}
     for artifact in artifacts:
         data[artifact.artifact] = __get_df_from_artifact(artifact)
     for subject, parameters in structure.get_additional_parameters(process).items():
-        artifacts = collection.get_artifacts_for_process(collection_name, subject)
+        artifacts = collection.get_artifacts_from_collection(collection_name, subject)
         if len(artifacts) > 1:
             raise structure.StructureError(
                 f"Additional parameter for process '{process}' "
