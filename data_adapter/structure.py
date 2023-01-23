@@ -10,9 +10,15 @@ class StructureError(Exception):
 
 
 HARDCODED_ES_STRUCTURE = {
+    "many_inputs_outputs": {
+        "input_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity"]},
+        "output_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity", "heat"]},
+        "emission_factor": {"inputs": ["lignite", "coal"], "outputs": ["co2", "co", "so2"]},
+        "price_timeseries": {"inputs": ["lignite", "coal"], "outputs": ["€", "$"]},
+    },
     "gasturbine": {
-        "input_ratio": {"inputs": ["gas"], "outputs": ["output_ratio"]},
-        "output_ratio": {"inputs": ["input_ratio"], "outputs": ["electricity"]},
+        "input_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
+        "output_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
         "emission_factor": {"inputs": ["gas"], "outputs": ["co2"]},
     },
     "battery storage": {
@@ -29,12 +35,7 @@ HARDCODED_ES_STRUCTURE = {
         "output_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
         "emission_factor": {"inputs": ["lignite"], "outputs": ["co2"]},
     },
-    "many_inputs_outputs": {
-        "input_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity", "heat"]},
-        "emission_factor": {"inputs": ["lignite", "coal"], "outputs": ["co2", "co", "so2"]},
-        "price_timeseries": {"inputs": ["lignite", "coal"], "outputs": ["€", "$"]},
-    },
+
 }
 
 Parameter = namedtuple("Parameter", ("subject", "isAbout"))
@@ -61,80 +62,6 @@ def get_energy_structure():
 
 def get_processes():
     return list(HARDCODED_ES_STRUCTURE)
-
-
-def draw_struct_networkx(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> nx.Graph:
-    """
-
-    Parameters
-    ----------
-    HARDCODED_ES_STRUCTURE
-    ADDITONAL_PARAMETERS
-
-    Returns
-    -------
-    plottable Networkx Graph illustrating the Models structure given to the Frameworks
-
-    """
-
-    def ckeck_list_singular(lst) -> bool:
-        ele = lst[0]
-        chk = True
-        # Comparing each element with first item
-        for item in lst:
-            if ele != item:
-                chk = False
-                break
-        return chk
-
-    # Empty Graph:
-    G = nx.DiGraph()
-    edges = []
-    pos = {}
-    i = 0
-    x = 0
-    for unit, process in HARDCODED_ES_STRUCTURE.items():
-        i = i + 2
-        pos[unit] = (1, i)
-        k = 0
-        if ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and \
-                ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
-
-            for process_name, process_parameters in process.items():
-                pos[process_name + unit] = (2, i + k)
-                edges.append((unit, process_name + unit))
-                edges.append((unit, process_parameters["inputs"][0]))
-                edges.append((unit, process_parameters["outputs"][0]))
-                break
-        elif ckeck_list_singular(jmespath.search("@.*.inputs[]", HARDCODED_ES_STRUCTURE[unit])) and not \
-                ckeck_list_singular(jmespath.search("@.*.outputs[]", HARDCODED_ES_STRUCTURE[unit])):
-            for process_name, process_parameters in process.items():
-                pos[process_name + unit] = (1, i + k)
-
-                edges.append((unit, process_name + unit))
-                edges.append((unit, process_parameters["inputs"][0]))
-                edges.append((process_name + unit, process_parameters["outputs"][0]))
-        else:
-            for process_name, process_parameters in process.items():
-                pos[process_name + unit] = (1, i + k)
-
-                edges.append((unit, process_name))
-                edges.append((process_name + unit, process_parameters["inputs"][0]))
-                edges.append((process_name + unit, process_parameters["outputs"][0]))
-    print(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE))
-    for y, inpt in enumerate(jmespath.search("*.*.inputs[][]", HARDCODED_ES_STRUCTURE)):
-        if inpt in pos:
-            pass
-        else:
-            pos[inpt] = (0, y)
-    for y, opt in enumerate(jmespath.search("*.*.outputs[][]", HARDCODED_ES_STRUCTURE)):
-        if opt in pos:
-            pass
-        else:
-            pos[opt] = (3, y)
-
-    print(edges)
-    print(pos)
 
 
 def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dict) -> graphviz.Digraph():
@@ -212,18 +139,27 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
         -------
 
         """
-
+        pos_counter = 0
         edges = []
-        for struct, process in HARDCODED_ES_STRUCTURE.items():
+        for process_id, [struct, process] in enumerate(HARDCODED_ES_STRUCTURE.items()):
             node_string = "{" + str(struct) + "|"
             process_names = [f"<f{port}> {process_name}" for port, [process_name, process_params] in
                              enumerate(process.items())]
             for port, [process_name, process_params] in enumerate(process.items()):
-                [edges.append((target, f"{struct}:<f{port}>:w")) for target in process_params["inputs"]]
-                [edges.append((f"{struct}:<f{port}>:e", target)) for target in process_params["outputs"]]
+                for source, target in zip(process_params["inputs"], process_params["outputs"]):
+                    # adding input nodes
+                    s.node(name=source, pos=f"0,{pos_counter * 100}", tailport="e", headport="w")
+                    # adding output nodes
+                    s.node(name=target, pos=f"300,{pos_counter * 100}", tailport="e", headport="w")
+                    edges.append((source, f"{struct}:<f{port}>:w"))
+                    edges.append((f"{struct}:<f{port}>:e", target))
+
+                    pos_counter += 0.5
+
             node_string += '|'.join(process_names)
             node_string += "}"
-            s.node(str(struct), node_string, tailport="e", headport="w")
+            print(node_string)
+            s.node(str(struct), node_string, tailport="e", headport="w", pos=f"150, {pos_counter * 100}")
         s.edges(edges)
 
     structs()
