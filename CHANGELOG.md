@@ -16,12 +16,15 @@ Here is a template for new release sections
 ### Removed
 -
 ```
-## [0.4.0]
 
-### Added
+## [0.4.1] - 2023-01-23
+
+### Fixed
+- reading of annotation
+
+
+## [0.4.0]
 
 ### Changed
 - collection metadata holds data type (Note: Collections have to be reloaded)
 - data import via frictionless (converts timeseries to list-of-floats while loading)
-
-### Removed

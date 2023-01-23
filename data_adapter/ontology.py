@@ -68,7 +68,7 @@ def get_name_from_annotation(annotation, default) -> str:
                 continue
             except AnnotationError:
                 pass
-        if "name" in entry and annotation["name"]:
+        if "name" in entry and entry["name"]:
             names.append(entry["name"])
             continue
         logging.warning(f"Could not read annotation ({annotation=}) for '{default}'.")
