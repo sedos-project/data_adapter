@@ -1,8 +1,6 @@
 from collections import defaultdict, namedtuple
 
 import graphviz
-import jmespath
-import networkx as nx
 
 
 class StructureError(Exception):
