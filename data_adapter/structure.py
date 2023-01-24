@@ -8,30 +8,28 @@ class StructureError(Exception):
 
 
 HARDCODED_ES_STRUCTURE = {
-    "many_inputs_outputs": {
-        "input_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["lignite", "coal"], "outputs": ["electricity", "heat"]},
-        "emission_factor": {"inputs": ["lignite", "coal"], "outputs": ["co2", "co", "so2"]},
-        "price_timeseries": {"inputs": ["lignite", "coal"], "outputs": ["€", "$"]},
+    # dispatchables:
+    "ch4-gt": {
+        "capacity": {"inputs": ["ch4"], "outputs": ["electricity"]},
+        "efficiency": {"inputs": ["ch4"], "outputs": ["electricity"]},
     },
-    "gasturbine": {
-        "input_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
-        "emission_factor": {"inputs": ["gas"], "outputs": ["co2"]},
+    "electricity-liion_battery": {
+        "storage_capacity": {"inputs": ["electricity"], "outputs": ["electricity"]},
+        "capacity": {"inputs": ["electricity"], "outputs": ["electricity"]},
+        "storage_capacity_initial": {"inputs": ["electricity"], "outputs": ["electricity"]},
     },
-    "battery storage": {
-        "input_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "e2p_ratio": {"inputs": ["electricity"], "outputs": []},
+    # timeseries dependend (with profiles):
+    # version 1 for wind-onshore:
+    "wind-onshore1": {
+        "profile": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
+        "capacity": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
     },
-    "Windpark": {
-        "input_ratio": {"inputs": ["wind"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["wind"], "outputs": ["electricity"]},
+    # version 2 for wind-onshore:
+    "wind-onshore2": {
+        "capacity": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
     },
-    "steam power": {
-        "input_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["lignite"], "outputs": ["electricity"]},
-        "emission_factor": {"inputs": ["lignite"], "outputs": ["co2"]},
+    "electricity-demand": {
+        "profile": {"inputs": ["electricity-load-profile"], "outputs": ["electricity"]},
     },
 
 }
