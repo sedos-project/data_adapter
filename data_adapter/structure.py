@@ -90,7 +90,7 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
 
     def cluster():
         """
-        Trying to work with clusters
+        Examining Clusters
             Pro:
                 - Able to draw nice boxes around Process clusters
                 - Easy understandable
@@ -118,7 +118,7 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
 
     def structs():
         """
-        Trying to work with clusters using HTML like labels
+        Examining structs using HTML like labels
             Pro:
                 - Structures have boxes
                 - Structure sub-items can have defined in/output ports
@@ -164,5 +164,10 @@ def draw_struct_graphviz(HARDCODED_ES_STRUCTURE: dict, ADDITONAL_PARAMETERS: dic
     return s
 
 
-draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save(
-    "test.dot")
+def main():
+    draw_struct_graphviz(HARDCODED_ES_STRUCTURE=HARDCODED_ES_STRUCTURE, ADDITONAL_PARAMETERS=ADDITONAL_PARAMETERS).save(
+        "test.dot")
+
+
+if __name__ == "__main__":
+    main()
