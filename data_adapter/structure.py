@@ -1,5 +1,5 @@
 from collections import defaultdict, namedtuple
-from databus import download_collection
+from data_adapter.databus import download_collection
 
 import os
 import json
