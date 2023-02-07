@@ -89,7 +89,7 @@
               }
             ],
             "name": "region",
-            "type": "text",
+            "type": "text array",
             "valueReference": []
           },
           {

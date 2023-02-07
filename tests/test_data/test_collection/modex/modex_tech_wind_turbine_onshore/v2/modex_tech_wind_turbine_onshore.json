@@ -82,7 +82,7 @@
             "description": "Region in Germany",
             "isAbout": [],
             "name": "region",
-            "type": "text",
+            "type": "text array",
             "valueReference": []
           },
           {
