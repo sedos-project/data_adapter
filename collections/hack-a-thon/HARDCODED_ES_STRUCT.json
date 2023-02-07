@@ -1,0 +1,99 @@
+{
+  "modex_tech_storage_battery": {
+    "installed_capacity": {
+      "inputs": [
+        "electricity"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "input_ratio": {
+      "inputs": [
+        "electricity"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "output_ratio": {
+      "inputs": [
+        "electricity"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "e2p_ratio": {
+      "inputs": [
+        "electricity"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "expansion_limit": {
+      "inputs": [],
+      "outputs": [
+        "electricity"
+      ]
+    }
+  },
+  "modex_tech_wind_turbine_onshore": {
+    "expansion_limit": {
+      "inputs": [],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "installed_capacity": {
+      "inputs": [
+        "electricity"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    }
+  },
+  "modex_tech_generator_gas": {
+    "installed_capacity": {
+      "inputs": [
+        "ch4"
+      ],
+      "outputs": [
+        "electricity",
+        "heat"
+      ]
+    },
+    "input_ratio": {
+      "inputs": [
+        "ch4"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "output_ratio": {
+      "inputs": [
+        "ch4"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "emission_factor": {
+      "inputs": [
+        "ch4"
+      ],
+      "outputs": [
+        "co2"
+      ]
+    },
+    "expansion_limit": {
+      "inputs": [],
+      "outputs": [
+        "electricity"
+      ]
+    }
+  }
+}
