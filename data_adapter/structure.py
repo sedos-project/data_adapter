@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict, namedtuple
 
 import sqlalchemy as sa
@@ -32,7 +34,7 @@ class Process(Base):
 
     id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
     name = sa.Column(sa.String)
-    parameters = relationship("Parameter")
+    parameters: Parameter = relationship("Parameter")
 
 
 class Parameter(Base):
@@ -41,10 +43,10 @@ class Parameter(Base):
     id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
     process_id = sa.Column(sa.BIGINT, sa.ForeignKey("process.id"), nullable=False)
     name = sa.Column(sa.String)
-    inputs = relationship(
+    inputs: InputOutput = relationship(
         "InputOutput", secondary=parameter_inputs, backref="to_parameters"
     )
-    outputs = relationship(
+    outputs: InputOutput = relationship(
         "InputOutput", secondary=parameter_outputs, backref="from_parameters"
     )
 

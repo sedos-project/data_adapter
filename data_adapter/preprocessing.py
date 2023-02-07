@@ -1,5 +1,4 @@
 import pathlib
-from typing import Dict, List
 
 import frictionless
 import pandas
@@ -7,7 +6,7 @@ import pandas
 from data_adapter import collection, core, settings, structure
 
 
-def __get_df_from_artifact(artifact: collection.Artifact, *parameters: List[str]):
+def __get_df_from_artifact(artifact: collection.Artifact, *parameters: str):
     """
     Returns DataFrame from given artifact.
 
@@ -49,7 +48,7 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: List[str]
     return df.drop(drop_columns, axis=1)
 
 
-def get_process_df(collection_name: str, process: str) -> Dict[str, pandas.DataFrame]:
+def get_process_df(collection_name: str, process: str) -> dict[str, pandas.DataFrame]:
     """
     Loads data for given process from collection as pandas.DataFrame
 

@@ -23,7 +23,7 @@ class Artifact:
     artifact: str
     version: str
     filename: str
-    subject: str
+    subject: Optional[str]
     datatype: DataType
 
     def path(self):
@@ -82,8 +82,8 @@ def get_metadata_from_artifact(artifact: Artifact) -> dict:
 
 
 def get_data_type(metadata: Union[str, pathlib.Path, dict]):
-    metadata = core.get_metadata(metadata)
-    for field in metadata["resources"][0]["schema"]["fields"]:
+    metadata_dict: dict = core.get_metadata(metadata)
+    for field in metadata_dict["resources"][0]["schema"]["fields"]:
         if field["name"].startswith("timeindex"):
             return DataType.Timeseries
     return DataType.Scalar
