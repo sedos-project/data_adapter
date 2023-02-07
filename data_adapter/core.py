@@ -1,27 +1,28 @@
+import datetime
 import json
 import pathlib
 from typing import Union
 
 SCALAR_COLUMNS = {
-    "id",
-    "region",
-    "year",
-    "bandwidth_type",
-    "version",
-    "method",
-    "source",
-    "comment",
+    "id": int,
+    "region": list,
+    "year": int,
+    "bandwidth_type": dict,
+    "version": str,
+    "method": dict,
+    "source": dict,
+    "comment": dict,
 }
 TIMESERIES_COLUMNS = {
-    "id",
-    "region",
-    "version",
-    "method",
-    "source",
-    "comment",
-    "timeindex_start",
-    "timeindex_stop",
-    "timeindex_resolution",
+    "id": int,
+    "region": list,
+    "version": str,
+    "method": dict,
+    "source": dict,
+    "comment": dict,
+    "timeindex_start": datetime.datetime,
+    "timeindex_stop": datetime.datetime,
+    "timeindex_resolution": str,
 }
 
 OEP_TO_FRICTIONLESS_CONVERSION = {
