@@ -23,6 +23,9 @@ Here is a template for new release sections
 - mypy linting
 - models for ES structure
 
+### Changed
+- regions are unpacked and merged in process dataframes
+
 ## [0.4.1] - 2023-01-23
 
 ### Fixed
