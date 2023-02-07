@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-adapter"
-version = "0.3.0"
+version = "0.4.1"
 description = "Provides general functionality for other data adapters"
 authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
 license = "AGPL-3.0 license"
@@ -14,6 +14,7 @@ requests = "^2.28.1"
 pandas = "^1.5.2"
 frictionless = "^4.40.8"
 python-dotenv = "^0.21.0"
+sqlalchemy = "^1.4.46"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
@@ -35,9 +36,13 @@ flake8-pytest-style = "^1.6.0"
 pep8-naming = "^0.13.2"
 pytest-sugar = "^0.9.6"
 add-trailing-comma = "^2.3.0"
+pylama = "^8.4.1"
 
 [tool.isort]
 profile = "black"
+
+[tool.pylama.linter.pycodestyle]
+max_line_length = 120
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]

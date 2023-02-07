@@ -29,6 +29,12 @@ repos:
         entry: flake8
         language: python
         types: [python]
+      - id: pylama
+        name: pylama
+        description: Run pylama linter on python files/directories.
+        entry: pylama
+        language: python
+        types: [ "python" ]
       - id: pylint
         name: pylint
         entry: pylint

@@ -8,6 +8,7 @@ from typing import List, Union
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
+import data_adapter.collection
 from data_adapter import core, ontology, settings
 
 
@@ -157,6 +158,38 @@ def download_collection(collection_url: str, force_download=False):
     artifact_versions = {
         artifact: get_latest_version_of_artifact(artifact) for artifact in artifacts
     }
+    __download_artifacts(
+        artifact_versions, collection_dir, collection_meta, force_download
+    )
+
+    with open(
+        collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8"
+    ) as collection_json_file:
+        json.dump(collection_meta, collection_json_file)
+
+
+def __download_artifacts(
+    artifact_versions: dict,
+    collection_dir: pathlib.Path,
+    collection_meta: dict,
+    force_download: bool,
+):
+    """
+    Download artifacts from collection.
+
+    Downloads artifacts into collection folder and updates/creates collection metadata.
+
+    Parameters
+    ----------
+    artifact_versions: dict
+        Dictionary containing artifact names (key) and latest version (value)
+    collection_dir: pathlib.Path
+        Folder to download artifacts
+    collection_meta: dict
+        Metadata of collection. Gets updated with artifact infos.
+    force_download: bool
+        Whether to download artifact, independent of version.
+    """
     for artifact, version in artifact_versions.items():
         group_name = artifact.split("/")[-2]
         if group_name not in collection_meta:
@@ -198,10 +231,5 @@ def download_collection(collection_url: str, force_download=False):
                 ] = ontology.get_subject(metadata)
                 collection_meta[group_name][artifact_name][
                     "datatype"
-                ] = core.get_data_type(metadata)
+                ] = data_adapter.collection.get_data_type(metadata)
         logging.info(f"Downloaded {artifact_name=} {version=}.")
-
-    with open(
-        collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8"
-    ) as collection_json_file:
-        json.dump(collection_meta, collection_json_file)

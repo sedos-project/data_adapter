@@ -16,10 +16,23 @@ Here is a template for new release sections
 ### Removed
 -
 ```
+
 ## [Unreleased]
 
 ### Added
+- models for ES structure
+
+## [0.4.1] - 2023-01-23
+
+### Fixed
+- reading of annotation
+
+
+## [0.4.0]
+
+### Added
+- checks for annotations of collection
 
 ### Changed
-
-### Removed
+- collection metadata holds data type (Note: Collections have to be reloaded)
+- data import via frictionless (converts timeseries to list-of-floats while loading)

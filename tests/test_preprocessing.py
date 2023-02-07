@@ -6,7 +6,7 @@ def test_process():
     assert len(artifacts) == 1
     assert "modex_tech_storage_battery" in artifacts
     data = artifacts["modex_tech_storage_battery"]
-    assert len(data.columns) == 17
+    assert len(data.columns) == 16
     assert len(data) == 30
 
 
@@ -15,8 +15,8 @@ def test_process_with_additional_data():
     assert len(artifacts) == 2
     assert "modex_tech_wind_turbine_onshore" in artifacts
     assert "modex_capacity_factor" in artifacts
-    assert len(artifacts["modex_tech_wind_turbine_onshore"].columns) == 13
+    assert len(artifacts["modex_tech_wind_turbine_onshore"].columns) == 12
     assert len(artifacts["modex_tech_wind_turbine_onshore"]) == 51
-    assert len(artifacts["modex_capacity_factor"].columns) == 10
+    assert len(artifacts["modex_capacity_factor"].columns) == 9
     assert len(artifacts["modex_capacity_factor"]) == 4
     assert len(artifacts["modex_capacity_factor"]["onshore"].dropna().iloc[0]) == 8760
