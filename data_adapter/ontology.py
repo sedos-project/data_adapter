@@ -25,10 +25,12 @@ class AnnotationError(Exception):
 
 
 def get_subject(metadata: Union[str, pathlib.Path]) -> str:
-    metadata = core.get_metadata(metadata)
-    if "subject" not in metadata:
-        return metadata["name"]
-    return get_name_from_annotation(metadata["subject"], default=metadata["name"])
+    metadata_dict = core.get_metadata(metadata)
+    if "subject" not in metadata_dict:
+        return metadata_dict["name"]
+    return get_name_from_annotation(
+        metadata_dict["subject"], default=metadata_dict["name"]
+    )
 
 
 def get_name_from_ontology(oeo_path: str) -> str:
@@ -154,7 +156,7 @@ def check_annotations_in_collection(
         Dictionary of artifacts (key) with its annotations and annotation quality for each field and subject.
     """
 
-    annotation_qualities = defaultdict(list)
+    annotation_qualities: dict = defaultdict(list)
     artifacts = collection.get_artifacts_from_collection(collection_name)
     for artifact in artifacts:
         metadata = collection.get_metadata_from_artifact(artifact)

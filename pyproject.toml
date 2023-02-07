@@ -37,12 +37,16 @@ pep8-naming = "^0.13.2"
 pytest-sugar = "^0.9.6"
 add-trailing-comma = "^2.3.0"
 pylama = "^8.4.1"
+sqlalchemy = {version = "^1.4.46", extras = ["mypy"]}
 
 [tool.isort]
 profile = "black"
 
 [tool.pylama.linter.pycodestyle]
 max_line_length = 120
+
+[tool.mypy]
+plugins = "sqlalchemy.ext.mypy.plugin"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]
