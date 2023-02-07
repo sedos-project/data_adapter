@@ -16,58 +16,10 @@ class StructureError(Exception):
 
 
 this_path = "../collections/hack-a-thon/"
-HARDCODED_ES_STUCT = {}
-with open(this_path + "collection.json") as f:
-    for source, element_dict in json.load(f).items():
-        for element, value in element_dict.items():
-            if "tech" in element:
-                lastest_version_csv_path = this_path + source + "/" + element + "/" + value[
-                    "latest_version"] + "/" + element + ".csv"
-                io_list = pd.read_csv(lastest_version_csv_path).drop(["id", "region", "method", "source", "comment",
-                                                                      "year",
-                                                                      "bandwidth_type", "lifetime", "version",
-                                                                      "capital_costs", "fixed_costs", "marginal_costs",
-                                                                      "variable_costs"],
-                                                                     axis=1, errors="ignore").columns.values.tolist()
 
-                io_dict = {}
-                for io in io_list:
-                    io_dict[io] = {}
-                    io_dict[io]["inputs"] = []
-                    io_dict[io]["outputs"] = []
-                print(value["subject"])
-                HARDCODED_ES_STUCT[value["subject"]] = io_dict
+with open(this_path + "HARDCODED_ES_STRUCT.json", "r") as f:
+    HARDCODED_ES_STRUCTURE = json.read(f)
 
-print(HARDCODED_ES_STUCT)
-with open(this_path + "HARDCODED_ES_STRUCT.json", "w") as f:
-    json.dump(HARDCODED_ES_STUCT, f)
-
-HARDCODED_ES_STRUCTURE = {
-    # dispatchables:
-    "ch4-gt": {
-        "capacity": {"inputs": ["ch4"], "outputs": ["electricity"]},
-        "efficiency": {"inputs": ["ch4"], "outputs": ["electricity"]},
-    },
-    "electricity-liion_battery": {
-        "storage_capacity": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "capacity": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "storage_capacity_initial": {"inputs": ["electricity"], "outputs": ["electricity"]},
-    },
-    # timeseries dependend (with profiles):
-    # version 1 for wind-onshore:
-    "wind-onshore1": {
-        "profile": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
-        "capacity": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
-    },
-    # version 2 for wind-onshore:
-    "wind-onshore2": {
-        "capacity": {"inputs": ["wind-profile"], "outputs": ["electricity"]},
-    },
-    "electricity-demand": {
-        "profile": {"inputs": ["electricity-load-profile"], "outputs": ["electricity"]},
-    },
-
-}
 
 Parameter = namedtuple("Parameter", ("subject", "isAbout"))
 
