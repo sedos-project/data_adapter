@@ -1,12 +1,9 @@
 import os
 from collections import defaultdict, namedtuple
 
-from dataclasses import dataclass, field
 import graphviz
 import json
-import csv
 import pandas as pd
-from MultiChoice import MultiChoice
 
 from databus import download_collection
 
@@ -16,22 +13,6 @@ from databus import download_collection
 class StructureError(Exception):
     """Raised if structure is corrupted"""
 
-
-def remove_duplicates_from_list(lst: list = ["None"]):
-    f
-
-
-@dataclass
-class ES_STRUCT:
-    collection_dict: dict
-    collection_path: str = "../collections/modex_test_renewable"
-    tech: list = field(init=False)
-    tech_names: list = field(init=False)
-    listdir: list = field(init=False)
-
-    def __post_init__(self):
-        self.tech = [element for i in self.collection_dict.values() for element in i if "tech" in element]
-        self.tech_names = [element for i in self.collection_dict for element in i]
 
 
 this_path = "../collections/hack-a-thon/"
@@ -52,27 +33,14 @@ with open(this_path + "collection.json") as f:
                 io_dict = {}
                 for io in io_list:
                     io_dict[io] = {}
-                    # options = ("electricity", "ch4", "wind_onshore_capacity_factor",
-                    #            "wind_offshore_capacity_factor", "solar_capacity_factor", "coal")
-                    # inputs = input(f"Give inputs for {element}, {io} seperated by coma")
-                    # if inputs.split(",") not in options:
-                    #     Exception(KeyError, f"{inputs} not in options")
-                    # outputs = input(f"Give outputs for {element}, {io} seperated by coma")
-                    # if outputs.split(",") not in options:
-                    #     Exception(KeyError, f"{outputs} not in options")
                     io_dict[io]["inputs"] = []
                     io_dict[io]["outputs"] = []
-                    # for i in inputs.split(","):
-                    #     io_dict[io]["inputs"].append(i)
-                    #     for i in outputs.split(","):
-                    #         io_dict[io]["outputs"].append(i)
 
                 HARDCODED_ES_STUCT[element] = io_dict
 
 print(HARDCODED_ES_STUCT)
 with open(this_path + "HARDCODED_ES_STRUCT.json", "w") as f:
     json.dump(HARDCODED_ES_STUCT, f)
-exit()
 
 HARDCODED_ES_STRUCTURE = {
     # dispatchables:
