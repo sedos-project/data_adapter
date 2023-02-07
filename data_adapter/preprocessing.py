@@ -17,7 +17,7 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: str):
     ----------
     artifact: Artifact
         Artifact to get DataFrame from
-    parameters: List[str]
+    parameters: tuple[str]
         Parameters to filter DataFrame
 
     Returns
@@ -38,9 +38,32 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: str):
     df = resource.to_pandas()
     if len(parameters) == 0:
         return df
+    return _filter_parameters(df, parameters, artifact.datatype)
+
+
+def _filter_parameters(
+    df: pandas.DataFrame, parameters: tuple[str], datatype: collection.DataType
+) -> pandas.DataFrame:
+    """
+    Filters dataframe columns by parameter list.
+
+    Parameters
+    ----------
+    df: pandas.DataFrame
+        Data to filter columns from
+    parameters: tuple[str]
+        Tuple of parameters to filter columns
+    datatype: collection.DataType
+        Type of dataframe (scalar or timeseries)
+
+    Returns
+    -------
+    pandas.DataFrame
+        Filtered data frame with remaining columns from parameter list
+    """
     columns = (
         set(core.SCALAR_COLUMNS)
-        if artifact.datatype is collection.DataType.Scalar
+        if datatype is collection.DataType.Scalar
         else set(core.TIMESERIES_COLUMNS)
     )
     columns.update(set(parameters))
