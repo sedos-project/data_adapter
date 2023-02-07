@@ -20,6 +20,7 @@ Here is a template for new release sections
 ## [Unreleased]
 
 ### Added
+- mypy linting
 - models for ES structure
 
 ## [0.4.1] - 2023-01-23
