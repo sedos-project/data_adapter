@@ -35,8 +35,8 @@ with open(this_path + "collection.json") as f:
                     io_dict[io] = {}
                     io_dict[io]["inputs"] = []
                     io_dict[io]["outputs"] = []
-
-                HARDCODED_ES_STUCT[element] = io_dict
+                print(value["subject"])
+                HARDCODED_ES_STUCT[value["subject"]] = io_dict
 
 print(HARDCODED_ES_STUCT)
 with open(this_path + "HARDCODED_ES_STRUCT.json", "w") as f:

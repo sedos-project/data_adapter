@@ -1,5 +1,5 @@
 {
-  "modex_tech_storage_battery": {
+  "battery storage": {
     "installed_capacity": {
       "inputs": [
         "electricity"
@@ -33,20 +33,6 @@
       ]
     },
     "expansion_limit": {
-      "inputs": [],
-      "outputs": [
-        "electricity"
-      ]
-    }
-  },
-  "modex_tech_wind_turbine_onshore": {
-    "expansion_limit": {
-      "inputs": [],
-      "outputs": [
-        "electricity"
-      ]
-    },
-    "installed_capacity": {
       "inputs": [
         "electricity"
       ],
@@ -55,7 +41,25 @@
       ]
     }
   },
-  "modex_tech_generator_gas": {
+  "onshore wind farm": {
+    "expansion_limit": {
+      "inputs": [
+        "onshore"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    },
+    "installed_capacity": {
+      "inputs": [
+        "onshore"
+      ],
+      "outputs": [
+        "electricity"
+      ]
+    }
+  },
+  "energy transformation unit": {
     "installed_capacity": {
       "inputs": [
         "ch4"
@@ -70,7 +74,8 @@
         "ch4"
       ],
       "outputs": [
-        "electricity"
+        "electricity",
+        "heat"
       ]
     },
     "output_ratio": {
@@ -78,7 +83,8 @@
         "ch4"
       ],
       "outputs": [
-        "electricity"
+        "electricity",
+        "heat"
       ]
     },
     "emission_factor": {
@@ -90,9 +96,12 @@
       ]
     },
     "expansion_limit": {
-      "inputs": [],
+      "inputs": [
+        "ch4"
+      ],
       "outputs": [
-        "electricity"
+        "electricity",
+        "heat"
       ]
     }
   }
