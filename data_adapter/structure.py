@@ -1,7 +1,7 @@
 from collections import defaultdict, namedtuple
 from data_adapter.databus import download_collection
 
-import os
+from pathlib import Path
 import json
 
 import sqlalchemy as sa
@@ -15,12 +15,10 @@ class StructureError(Exception):
     """Raised if structure is corrupted"""
 
 
+this_path = Path(__file__).parent.parent /"collections"/"hack-a-thon"
 
-
-this_path = "../collections/hack-a-thon/"
-
-with open(this_path + "HARDCODED_ES_STRUCT.json", "r") as f:
-    HARDCODED_ES_STRUCTURE = json.read(f)
+with open(this_path / "HARDCODED_ES_STRUCT.json", "r") as f:
+    HARDCODED_ES_STRUCTURE = json.load(f)
 
 
 Base = declarative_base()
