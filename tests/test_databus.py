@@ -12,12 +12,12 @@ CSV_ARTIFACT = "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_ph
 
 def test_version():
     version = databus.get_latest_version_of_artifact(EXAMPLE_ARTIFACT)
-    assert version == "v1"
+    assert version == "v2"
 
 
 def test_collections():
     artifacts = databus.get_artifacts_from_collection(EXAMPLE_COLLECTION)
-    assert len(artifacts) == 10
+    assert len(artifacts) == 11
 
 
 def test_artifact_file():
