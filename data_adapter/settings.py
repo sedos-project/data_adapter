@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent
 COLLECTIONS_DIR = (
-    pathlib.Path(os.environ["COLLECTION_DIR"].parent)
+    pathlib.Path(os.environ["COLLECTION_DIR"])
     if "COLLECTION_DIR" in os.environ
     else pathlib.Path(__file__).parent.parent / "collections"
 )
