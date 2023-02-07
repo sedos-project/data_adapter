@@ -130,7 +130,8 @@ def get_artifacts_from_collection(collection: str) -> List[str]:
     return list(find_artifact(content["root"]))
 
 
-def download_collection(collection_url: str, force_download=False):
+def download_collection(collection_url: str, force_download=False,
+                        collection_path: pathlib.Path = pathlib.Path.cwd().parent):
     """
     Downloads all artifact files for given collection and saves it to local output directory
 
@@ -140,7 +141,13 @@ def download_collection(collection_url: str, force_download=False):
         URL of collection on databus
     force_download : bool
         Downloads the latest versions, even if version is already present
+    collection_path: pathlib.Path | str | None
+        Path to folder where collection should be saved to
+        Default: collection folder is on same level as folder of running skript
+        Collection path can also be set via os.environ ("COLLECTION_DIR"
     """
+    if "COLLECTION_DIR" not in os.environ and collection_path is not None:
+        os.environ["COLLECTION_DIR"] = str(collection_path)
     collection_name = collection_url.rstrip("/").split("/")[-1]
     collection_dir = settings.COLLECTIONS_DIR / collection_name
     collection_meta = {}
