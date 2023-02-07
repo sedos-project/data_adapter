@@ -1,4 +1,8 @@
 from collections import defaultdict, namedtuple
+from databus import download_collection
+
+import os
+import json
 
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, relationship
@@ -6,8 +10,17 @@ from sqlalchemy.orm import declarative_base, relationship
 from data_adapter import settings
 
 
+
 class StructureError(Exception):
     """Raised if structure is corrupted"""
+
+
+
+
+this_path = "../collections/hack-a-thon/"
+
+with open(this_path + "HARDCODED_ES_STRUCT.json", "r") as f:
+    HARDCODED_ES_STRUCTURE = json.read(f)
 
 
 Base = declarative_base()
@@ -56,18 +69,6 @@ class InputOutput(Base):
     name = sa.Column(sa.String)
 
 
-HARDCODED_ES_STRUCTURE = {
-    "energy transformation unit": {
-        "input_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["gas"], "outputs": ["electricity"]},
-        "emission_factor": {"inputs": ["gas"], "outputs": ["co2"]},
-    },
-    "battery storage": {
-        "input_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "output_ratio": {"inputs": ["electricity"], "outputs": ["electricity"]},
-        "e2p_ratio": {"inputs": ["electricity"], "outputs": []},
-    },
-}
 
 AdditionalParameter = namedtuple("AdditionalParameter", ("subject", "isAbout"))
 
@@ -95,5 +96,8 @@ def get_processes():
     return list(HARDCODED_ES_STRUCTURE)
 
 
+
+
 def init_database():
     Base.metadata.create_all(settings.engine)
+
