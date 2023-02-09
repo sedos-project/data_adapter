@@ -3,10 +3,21 @@ from __future__ import annotations
 import json
 from collections import defaultdict, namedtuple
 
+import re
+import pandas as pd
+
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, relationship
 
 from data_adapter import settings
+
+
+# constants
+MAX_IDENTIFIER_LENGTH = 50
+# pylint:disable=C0209
+IDENTIFIER_PATTERN = re.compile(
+    "^[a-z][a-z0-9_, ]{0,%s}$" % (MAX_IDENTIFIER_LENGTH - 1)
+)
 
 
 class StructureError(Exception):
@@ -77,7 +88,47 @@ def get_additional_parameters(process: str):
     return parameters
 
 
-def get_energy_structure():
+def check_character_convention(dataframe=None):
+    """
+    Check in parameter-, process-, input-and output-column for character convention.
+
+    Parameters
+    ----------
+    dataframe
+
+    """
+    for col in dataframe.columns[1:]:
+        for element in dataframe[col]:
+            if not IDENTIFIER_PATTERN.match(element):
+                raise ValueError(
+                    f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _"
+                )
+
+
+def get_energy_structure(process_parameter_path: str = None) -> dict:
+    """
+    Parse processes and its parameters with corresponding inputs and outputs to dict.
+
+    Parameters
+    ----------
+    parameter_process_path: str
+        Path to process and parameter sheet.
+
+    Returns
+    -------
+    ValueError
+        if processes of parameters do not match character convention
+
+    """
+
+    process_parameter_in_out = pd.read_csv(
+        process_parameter_path, delimiter=";", encoding="utf-8"
+    )
+    check_character_convention(process_parameter_in_out)
+
+    # create HARDCODED_ES_STRUCTURE dict from process_parameter_in_out
+    # do stuff
+
     return HARDCODED_ES_STRUCTURE
 
 
