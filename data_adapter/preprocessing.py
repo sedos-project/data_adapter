@@ -202,7 +202,7 @@ def get_process_df(collection_name: str, process: str) -> dict[str, pandas.DataF
     collection_folder = pathlib.Path(settings.COLLECTIONS_DIR) / collection_name
     if not collection_folder.exists():
         raise FileNotFoundError(
-            f"Could not find {collection_name=} in collection folder '{collection_folder}'."
+            f"Could not find {collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'."
         )
     artifacts = collection.get_artifacts_from_collection(collection_name, process)
     data = {}
