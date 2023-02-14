@@ -1,10 +1,18 @@
 import sys
 
-import databus
+from data_adapter import databus, preprocessing
 
-try:
-    collection_url = sys.argv[1]
-except IndexError:
-    raise ValueError("No collection url given.")
 
-databus.download_collection(collection_url)
+def download_collection(collection_url):
+    databus.download_collection(collection_url)
+
+
+def get_process(collection, process):
+    df = preprocessing.get_process_df(collection, process)
+    print(df)
+
+
+if __name__ == "__main__":
+    command = sys.argv[1]
+    if command == "get_process":
+        get_process(sys.argv[2], sys.argv[3])

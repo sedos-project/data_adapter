@@ -3,4 +3,4 @@ PYTHONPATH := $(CURDIR)
 export PYTHONPATH
 
 download_collection:
-	python data_adapter/main.py $(collection)
+	python -c "from data_adapter import main; main.download_collection('$(collection)')"
