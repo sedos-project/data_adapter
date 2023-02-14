@@ -142,6 +142,7 @@ def download_collection(collection_url: str, force_download=False):
     force_download : bool
         Downloads the latest versions, even if version is already present
     """
+    logging.info(f"Downloading collection from URL '{collection_url}'...")
     collection_name = collection_url.rstrip("/").split("/")[-1]
     collection_dir = settings.COLLECTIONS_DIR / collection_name
     collection_meta = {}

@@ -42,6 +42,9 @@ sqlalchemy = {version = "^1.4.46", extras = ["mypy"]}
 [tool.isort]
 profile = "black"
 
+[tool.ruff]
+line-length = 120
+
 [tool.pylama.linter.pycodestyle]
 max_line_length = 120
 
