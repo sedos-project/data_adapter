@@ -13,7 +13,7 @@ ROOT_DIR = pathlib.Path(__file__).parent.parent
 COLLECTIONS_DIR = (
     pathlib.Path(os.environ["COLLECTION_DIR"])
     if "COLLECTION_DIR" in os.environ
-    else pathlib.Path.cwd() / "collections"
+    else pathlib.Path.cwd() / "../collections"
 )
 COLLECTION_JSON = "collection.json"
 
