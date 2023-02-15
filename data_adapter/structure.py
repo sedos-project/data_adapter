@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from collections import defaultdict, namedtuple
-from data_adapter.databus import download_collection
-
-from pathlib import Path
 import json
+from collections import defaultdict, namedtuple
 
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, relationship
@@ -12,15 +9,12 @@ from sqlalchemy.orm import declarative_base, relationship
 from data_adapter import settings
 
 
-
 class StructureError(Exception):
     """Raised if structure is corrupted"""
 
 
-this_path = Path(__file__).parent.parent /"collections"/"hack-a-thon"
-
-with open(this_path / "HARDCODED_ES_STRUCT.json", "r") as f:
-    HARDCODED_ES_STRUCTURE = json.load(f)
+with open(settings.STRUCTURES_DIR / "HARDCODED_ES_STRUCT.json", "r") as hardcoded_es_file:
+    HARDCODED_ES_STRUCTURE = json.load(hardcoded_es_file)
 
 
 Base = declarative_base()
@@ -54,12 +48,8 @@ class Parameter(Base):
     id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
     process_id = sa.Column(sa.BIGINT, sa.ForeignKey("process.id"), nullable=False)
     name = sa.Column(sa.String)
-    inputs: InputOutput = relationship(
-        "InputOutput", secondary=parameter_inputs, backref="to_parameters"
-    )
-    outputs: InputOutput = relationship(
-        "InputOutput", secondary=parameter_outputs, backref="from_parameters"
-    )
+    inputs: InputOutput = relationship("InputOutput", secondary=parameter_inputs, backref="to_parameters")
+    outputs: InputOutput = relationship("InputOutput", secondary=parameter_outputs, backref="from_parameters")
 
 
 class InputOutput(Base):
@@ -67,7 +57,6 @@ class InputOutput(Base):
 
     id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
     name = sa.Column(sa.String)
-
 
 
 AdditionalParameter = namedtuple("AdditionalParameter", ("subject", "isAbout"))
@@ -96,8 +85,5 @@ def get_processes():
     return list(HARDCODED_ES_STRUCTURE)
 
 
-
-
 def init_database():
     Base.metadata.create_all(settings.engine)
-
