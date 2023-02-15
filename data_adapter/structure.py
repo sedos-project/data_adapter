@@ -140,8 +140,8 @@ def get_energy_structure(process_parameter_path: str = None) -> dict:
 
         dic_para = {}
         dic_para[dic.get("parameter")] = dict(
-            inputs=dic.get("inputs").split(",")
-        ) | dict(outputs=dic.get("outputs").split(","))
+            inputs=dic.get("inputs").replace(" ", "").split(",")
+        ) | dict(outputs=dic.get("outputs").replace(" ", "").split(","))
 
         if dic.get("process") not in ES_STRUCTURE:
             ES_STRUCTURE[dic.get("process")] = dic_para
