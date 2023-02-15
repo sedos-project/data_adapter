@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.5.0] - 2023-02-15
 
 ### Added
 - mypy linting
