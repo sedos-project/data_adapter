@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from data_adapter import settings, structure
+from data_adapter.structure import get_energy_structure
 
 
 @pytest.fixture()
@@ -29,3 +30,21 @@ def test_es_example():
         input_ratio.outputs.append(electricity_bus)
         session.add(input_ratio)
         session.commit()
+
+
+def test_get_energy_structure():
+
+    dict_expected = {
+        "chp": {
+            "eff_heat": {"inputs": ["gas", "coal"], "outputs": ["heat", "co2"]},
+            "eff_elec": {"inputs": ["biomass", "gas"], "outputs": ["elec", "co2"]},
+        },
+        "test": {"para3": {"inputs": ["in"], "outputs": ["out"]}},
+    }
+
+    assert (
+        get_energy_structure(
+            process_parameter_path="test_data/test_mimo/user_mimos.csv"
+        )
+        == dict_expected
+    )
