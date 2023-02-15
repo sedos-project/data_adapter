@@ -50,8 +50,12 @@ def check_collection_meta(collection_meta: dict):
     CollectionError
         if Collection metadata is invalid
     """
+    if collection_meta.get("version", None) != settings.COLLECTION_META_VERSION:
+        raise CollectionError(
+            "Collection metadata is outdated. Please re-download collection and try again."
+        )
     # Check if artifact info keys are missing:
-    for group, artifacts in collection_meta.items():
+    for group, artifacts in collection_meta["artifacts"].items():
         for artifact, artifact_infos in artifacts.items():
             for key in ("latest_version", "subject", "datatype"):
                 if key not in artifact_infos:
@@ -140,8 +144,8 @@ def get_artifacts_from_collection(
     """
     collection_meta = get_collection_meta(collection)
     artifacts = []
-    for group in collection_meta:
-        for artifact, artifact_info in collection_meta[group].items():
+    for group in collection_meta["artifacts"]:
+        for artifact, artifact_info in collection_meta["artifacts"][group].items():
             if process and artifact_info["subject"] != process:
                 continue
             filename = artifact

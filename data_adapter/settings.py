@@ -16,6 +16,7 @@ COLLECTIONS_DIR = (
     else pathlib.Path(__file__).parent.parent / "collections"
 )
 COLLECTION_JSON = "collection.json"
+COLLECTION_META_VERSION = "v1"
 
 DATABUS_ENDPOINT = "https://energy.databus.dbpedia.org/sparql"
 DATABASE_URL = os.environ.get("DATABASE_URL")

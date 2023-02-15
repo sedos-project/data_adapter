@@ -25,6 +25,7 @@ Here is a template for new release sections
 
 ### Changed
 - regions are unpacked and merged in process dataframes
+- versioned collection metadata
 
 ## [0.4.1] - 2023-01-23
 
