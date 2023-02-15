@@ -124,9 +124,7 @@ def get_artifacts_from_collection(collection: str) -> List[str]:
         for child in node["childNodes"]:
             yield from find_artifact(child)
 
-    response = requests.get(
-        collection, headers={"Content-Type": "text/sparql"}, timeout=90
-    )
+    response = requests.get(collection, headers={"Content-Type": "text/sparql"}, timeout=90)
     data = response.json()
     content_raw = urllib.parse.unquote(data["@graph"][0]["content"])
     content = json.loads(content_raw)
@@ -152,12 +150,10 @@ def download_collection(collection_url: str, force_download=False):
     logging.info(f"Downloading collection from URL '{collection_url}'...")
     collection_name = collection_url.rstrip("/").split("/")[-1]
     collection_dir = settings.COLLECTIONS_DIR / collection_name
-    collection_meta = {"version": settings.COLLECTION_META_VERSION, "artifacts": {}}
+    collection_meta = {"name": collection_url, "version": settings.COLLECTION_META_VERSION, "artifacts": {}}
     if collection_dir.exists():
         if (collection_dir / settings.COLLECTION_JSON).exists():
-            with open(
-                collection_dir / settings.COLLECTION_JSON, "r", encoding="utf-8"
-            ) as collection_json_file:
+            with open(collection_dir / settings.COLLECTION_JSON, "r", encoding="utf-8") as collection_json_file:
                 collection_meta = json.load(collection_json_file)
     else:
         collection_dir.mkdir()
@@ -169,20 +165,13 @@ def download_collection(collection_url: str, force_download=False):
         )
 
     artifacts = get_artifacts_from_collection(collection_url)
-    logging.warning(
-        "Currently, version is fixed to 'v2', as version 'v3' is not working!"
-    )
+    logging.warning("Currently, version is fixed to 'v2', as version 'v3' is not working!")
     artifact_versions = {
-        artifact: "v2"
-        for artifact in artifacts  # FIXME: Hardcoded version to v2, as this version is correct!
+        artifact: "v2" for artifact in artifacts  # FIXME: Hardcoded version to v2, as this version is correct!
     }
-    __download_artifacts(
-        artifact_versions, collection_dir, collection_meta, force_download
-    )
+    __download_artifacts(artifact_versions, collection_dir, collection_meta, force_download)
 
-    with open(
-        collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8"
-    ) as collection_json_file:
+    with open(collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8") as collection_json_file:
         json.dump(collection_meta, collection_json_file)
 
 
@@ -216,17 +205,11 @@ def __download_artifacts(
         if artifact_name not in collection_meta["artifacts"][group_name]:
             collection_meta["artifacts"][group_name][artifact_name] = {}
 
-        latest_version = collection_meta["artifacts"][group_name][artifact_name].get(
-            "latest_version"
-        )
+        latest_version = collection_meta["artifacts"][group_name][artifact_name].get("latest_version")
         if not force_download and latest_version and latest_version == version:
-            logging.info(
-                f"Skipping download of {artifact_name=} {version=} as latest version is already present."
-            )
+            logging.info(f"Skipping download of {artifact_name=} {version=} as latest version is already present.")
             continue
-        collection_meta["artifacts"][group_name][artifact_name][
-            "latest_version"
-        ] = version
+        collection_meta["artifacts"][group_name][artifact_name]["latest_version"] = version
 
         group_dir = collection_dir / group_name
         if not group_dir.exists():
@@ -246,9 +229,7 @@ def __download_artifacts(
             download_artifact(artifact_filename, version_dir / filename)
             if suffix == "json":
                 metadata = core.get_metadata(version_dir / filename)
-                collection_meta["artifacts"][group_name][artifact_name][
-                    "subject"
-                ] = ontology.get_subject(metadata)
+                collection_meta["artifacts"][group_name][artifact_name]["subject"] = ontology.get_subject(metadata)
                 collection_meta["artifacts"][group_name][artifact_name][
                     "datatype"
                 ] = data_adapter.collection.get_data_type(metadata)
