@@ -1,6 +1,7 @@
 import math
 import pathlib
 from collections import ChainMap
+from dataclasses import dataclass
 from typing import Iterable
 
 import frictionless
@@ -15,6 +16,12 @@ TIMESERIES_MERGE_GROUPS = [
     "timeindex_stop",
     "timeindex_resolution",
 ]
+
+
+@dataclass
+class Process:
+    scalars: pandas.DataFrame
+    timeseries: pandas.DataFrame
 
 
 class PreprocessingError(Exception):
@@ -38,16 +45,9 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: str):
     Returns
     -------
     pandas.DataFrame
-
-    Raises
-    ------
-    PreprocessingError
-        if error occurs while extracting dataframe from artifact
     """
     metadata = collection.get_metadata_from_artifact(artifact)
-    fl_table_schema = core.reformat_oep_to_frictionless_schema(
-        metadata["resources"][0]["schema"]
-    )
+    fl_table_schema = core.reformat_oep_to_frictionless_schema(metadata["resources"][0]["schema"])
     resource = frictionless.Resource(
         name=metadata["name"],
         profile="tabular-data-resource",
@@ -58,10 +58,9 @@ def __get_df_from_artifact(artifact: collection.Artifact, *parameters: str):
     df = resource.to_pandas()
     if len(parameters) > 0:
         df = _filter_parameters(df, parameters, artifact.datatype)
-    try:
-        return _merge_regions(df, datatype=artifact.datatype)
-    except PreprocessingError:
-        raise PreprocessingError(f"Error while merging regions in {artifact=}.")
+
+    # Unpack regions:
+    return df.explode("region")
 
 
 def _filter_parameters(
@@ -84,21 +83,15 @@ def _filter_parameters(
     pandas.DataFrame
         Filtered data frame with remaining columns from parameter list
     """
-    columns = (
-        set(core.SCALAR_COLUMNS)
-        if datatype is collection.DataType.Scalar
-        else set(core.TIMESERIES_COLUMNS)
-    )
+    columns = set(core.SCALAR_COLUMNS) if datatype is collection.DataType.Scalar else set(core.TIMESERIES_COLUMNS)
     columns.update(set(parameters))
     drop_columns = set(df.columns).difference(columns)
     return df.drop(drop_columns, axis=1)
 
 
-def _merge_regions(
-    df: pandas.DataFrame, datatype: collection.DataType
-) -> pandas.DataFrame:
+def _merge_parameters(*df: pandas.DataFrame, datatype: collection.DataType) -> pandas.DataFrame:
     """
-    Unpacks region lists and merges parameters into single regions.
+    Merges parameters.
 
     Parameters
     ----------
@@ -112,30 +105,17 @@ def _merge_regions(
     pandas.DataFrame
         Each region in the dataframe has its own row
     """
-    # Unpack regions
-    unpacked_regions = df.explode("region")
-    groups = (
-        SCALAR_MERGE_GROUPS
-        if datatype == collection.DataType.Scalar
-        else TIMESERIES_MERGE_GROUPS
-    )
-    merged_regions = unpacked_regions.groupby(groups).apply(
-        _apply_region_merge, datatype=datatype
-    )
+    if len(df) == 0:
+        return pandas.DataFrame(dtype=object)
+    concatenated_dfs = pandas.concat(df)
+    groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
+    merged_regions = concatenated_dfs.groupby(groups).apply(_apply_parameter_merge, datatype=datatype)
     return merged_regions.reset_index()
 
 
-def _apply_region_merge(data, datatype):
-    datamodel_columns = (
-        core.SCALAR_COLUMNS
-        if datatype == collection.DataType.Scalar
-        else core.TIMESERIES_COLUMNS
-    )
-    groups = (
-        SCALAR_MERGE_GROUPS
-        if datatype == collection.DataType.Scalar
-        else TIMESERIES_MERGE_GROUPS
-    )
+def _apply_parameter_merge(data, datatype):
+    datamodel_columns = core.SCALAR_COLUMNS if datatype == collection.DataType.Scalar else core.TIMESERIES_COLUMNS
+    groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
 
     series = pandas.Series(dtype=object)
     for column in data.columns:
@@ -145,9 +125,7 @@ def _apply_region_merge(data, datatype):
             series[column] = merge_column(column, data[column], datamodel_columns)
         except ValueError:
             region = data["region"].iloc[0]
-            raise PreprocessingError(
-                f"Merging of {region=} failed, due to duplicate value entries."
-            )
+            raise PreprocessingError(f"Merging of {region=} failed, due to duplicate value entries.")
     return series
 
 
@@ -167,18 +145,16 @@ def merge_column(column, values, datamodel_columns):
         if v is None or (isinstance(v, (float, int)) and math.isnan(v)):
             continue
         if v and value and v != value:
-            raise PreprocessingError(
-                f"Multiple values defined for {column=}: ({v}, {value})"
-            )
+            raise PreprocessingError(f"Multiple values defined for {column=}: ({v}, {value})")
         value = v
     return value
 
 
-def get_process_df(collection_name: str, process: str) -> dict[str, pandas.DataFrame]:
+def get_process(collection_name: str, process: str) -> Process:
     """
-    Loads data for given process from collection as pandas.DataFrame
+    Loads data for given process from collection.
 
-    Column headers are translated using ontology.
+    Column headers are translated using ontology. Multiple dataframes per datatype are merged.
 
     Parameters
     ----------
@@ -189,8 +165,8 @@ def get_process_df(collection_name: str, process: str) -> dict[str, pandas.DataF
 
     Returns
     -------
-    Dict[str, pandas.DataFrame]
-        Data for given process, keys represent related artifact. DataFrame column headers are translated by ontology.
+    Process
+        Scalars and timeseries for given process. DataFrame column headers are translated by ontology.
 
     Raises
     ------
@@ -201,19 +177,33 @@ def get_process_df(collection_name: str, process: str) -> dict[str, pandas.DataF
     """
     collection_folder = pathlib.Path(settings.COLLECTIONS_DIR) / collection_name
     if not collection_folder.exists():
-        raise FileNotFoundError(
-            f"Could not find {collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'."
-        )
+        raise FileNotFoundError(f"Could not find {collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'.")
     artifacts = collection.get_artifacts_from_collection(collection_name, process)
-    data = {}
+
+    # Get dataframes from processes by subject
+    scalar_dfs = []
+    timeseries_df = []
     for artifact in artifacts:
-        data[artifact.artifact] = __get_df_from_artifact(artifact)
+        df = __get_df_from_artifact(artifact)
+        if artifact.datatype == collection.DataType.Scalar:
+            scalar_dfs.append(df)
+        else:
+            timeseries_df.append(df)
+
+    # Get dataframes for processes from additional parameters
     for subject, parameters in structure.get_additional_parameters(process).items():
         artifacts = collection.get_artifacts_from_collection(collection_name, subject)
         if len(artifacts) > 1:
             raise structure.StructureError(
-                f"Additional parameter for process '{process}' "
-                f"points to subject '{subject}' which is not unique."
+                f"Additional parameter for process '{process}' " f"points to subject '{subject}' which is not unique."
             )
-        data[artifacts[0].artifact] = __get_df_from_artifact(artifacts[0], *parameters)
-    return data
+        df = __get_df_from_artifact(artifacts[0], *parameters)
+        if artifacts[0].datatype == collection.DataType.Scalar:
+            scalar_dfs.append(df)
+        else:
+            timeseries_df.append(df)
+
+    return Process(
+        _merge_parameters(*scalar_dfs, datatype=collection.DataType.Scalar),
+        _merge_parameters(*timeseries_df, datatype=collection.DataType.Timeseries),
+    )

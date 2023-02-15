@@ -6,38 +6,32 @@ from data_adapter import collection, core, preprocessing, structure
 
 
 def test_process():
-    artifacts = preprocessing.get_process_df("simple", "battery storage")
-    assert len(artifacts) == 1
-    assert "modex_tech_storage_battery" in artifacts
-    data = artifacts["modex_tech_storage_battery"]
-    assert len(data.columns) == 16
-    assert len(data) == 48
+    artifacts = preprocessing.get_process("simple", "battery storage")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 16
+    assert len(artifacts.scalars) == 48
 
 
 def test_process_with_additional_data():
-    artifacts = preprocessing.get_process_df("simple", "onshore wind farm")
-    assert len(artifacts) == 2
-    assert "modex_tech_wind_turbine_onshore" in artifacts
-    assert "modex_capacity_factor" in artifacts
-    assert len(artifacts["modex_tech_wind_turbine_onshore"].columns) == 12
-    assert len(artifacts["modex_tech_wind_turbine_onshore"]) == 48
-    assert len(artifacts["modex_capacity_factor"].columns) == 9
-    assert len(artifacts["modex_capacity_factor"]) == 4
-    assert len(artifacts["modex_capacity_factor"]["onshore"].dropna().iloc[0]) == 8760
+    artifacts = preprocessing.get_process("simple", "onshore wind farm")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 12
+    assert len(artifacts.scalars) == 48
+    assert len(artifacts.timeseries.columns) == 9
+    assert len(artifacts.timeseries) == 4
+    assert len(artifacts.timeseries["onshore"].dropna().iloc[0]) == 8760
 
 
 def test_process_with_multiple_artifacts_for_process():
     structure.ADDITONAL_PARAMETERS = {}
-    artifacts = preprocessing.get_process_df("multiple_processes", "onshore wind farm")
-    assert len(artifacts) == 2
-    assert "modex_tech_wind_turbine_onshore" in artifacts
-    assert "modex_tech_wind_turbine_onshore2" in artifacts
-    data = artifacts["modex_tech_wind_turbine_onshore"]
-    assert len(data.columns) == 12
-    assert len(data) == 48
-    data = artifacts["modex_tech_wind_turbine_onshore2"]
-    assert len(data.columns) == 8
-    assert len(data) == 16
+    artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 13
+    assert len(artifacts.scalars) == 48
+    assert len(artifacts.timeseries) == 0
 
 
 def test_filter_df():
@@ -77,7 +71,7 @@ def test_merge_regions():
             ],
         }
     )
-    merged_regions = preprocessing._merge_regions(df, datatype=collection.DataType.Scalar)
+    merged_regions = preprocessing._merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
     expected_df = pandas.DataFrame(
         {
             "region": ["a", "a", "b", "c", "d", "e"],
@@ -124,4 +118,4 @@ def test_duplicate_values_in_merge_regions():
         }
     )
     with pytest.raises(preprocessing.PreprocessingError):
-        preprocessing._merge_regions(df, datatype=collection.DataType.Scalar)
+        preprocessing._merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)

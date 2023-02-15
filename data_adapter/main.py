@@ -8,7 +8,7 @@ def download_collection(collection_url):
 
 
 def get_process(collection, process):
-    df = preprocessing.get_process_df(collection, process)
+    df = preprocessing.get_process(collection, process)
     print(df)
 
 

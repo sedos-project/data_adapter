@@ -24,6 +24,7 @@ Here is a template for new release sections
 - models for ES structure
 
 ### Changed
+- process dateframes are merged and returned as scalars and timeseries
 - regions are unpacked and merged in process dataframes
 - versioned collection metadata
 
