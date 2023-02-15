@@ -6,7 +6,7 @@ from data_adapter import collection, core, preprocessing
 
 
 def test_process():
-    artifacts = preprocessing.get_process_df("test_collection", "battery storage")
+    artifacts = preprocessing.get_process_df("simple", "battery storage")
     assert len(artifacts) == 1
     assert "modex_tech_storage_battery" in artifacts
     data = artifacts["modex_tech_storage_battery"]
@@ -15,7 +15,7 @@ def test_process():
 
 
 def test_process_with_additional_data():
-    artifacts = preprocessing.get_process_df("test_collection", "onshore wind farm")
+    artifacts = preprocessing.get_process_df("simple", "onshore wind farm")
     assert len(artifacts) == 2
     assert "modex_tech_wind_turbine_onshore" in artifacts
     assert "modex_capacity_factor" in artifacts
@@ -31,9 +31,7 @@ def test_filter_df():
     data["a"] = [3]
     data["b"] = [5]
     df = pandas.DataFrame(data)
-    filtered_df = preprocessing._filter_parameters(
-        df, ("a",), collection.DataType.Scalar
-    )
+    filtered_df = preprocessing._filter_parameters(df, ("a",), collection.DataType.Scalar)
     del data["b"]
     expected_df = pandas.DataFrame(data)
     assert_frame_equal(filtered_df, expected_df)
@@ -65,9 +63,7 @@ def test_merge_regions():
             ],
         }
     )
-    merged_regions = preprocessing._merge_regions(
-        df, datatype=collection.DataType.Scalar
-    )
+    merged_regions = preprocessing._merge_regions(df, datatype=collection.DataType.Scalar)
     expected_df = pandas.DataFrame(
         {
             "region": ["a", "a", "b", "c", "d", "e"],

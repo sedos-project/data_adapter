@@ -4,15 +4,13 @@ import tempfile
 from data_adapter import databus
 
 EXAMPLE_ARTIFACT = "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop"  # noqa: E501
-EXAMPLE_COLLECTION = (
-    "https://energy.databus.dbpedia.org/felixmaur/collections/modex_test_renewable"
-)
+EXAMPLE_COLLECTION = "https://energy.databus.dbpedia.org/felixmaur/collections/modex_test_renewable"
 CSV_ARTIFACT = "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
 
 
 def test_version():
     version = databus.get_latest_version_of_artifact(EXAMPLE_ARTIFACT)
-    assert version == "v2"
+    assert version == "v3"
 
 
 def test_collections():
