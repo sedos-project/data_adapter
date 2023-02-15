@@ -169,6 +169,9 @@ def download_collection(collection_url: str, force_download=False):
         )
 
     artifacts = get_artifacts_from_collection(collection_url)
+    logging.warning(
+        "Currently, version is fixed to 'v2', as version 'v3' is not working!"
+    )
     artifact_versions = {
         artifact: "v2"
         for artifact in artifacts  # FIXME: Hardcoded version to v2, as this version is correct!
