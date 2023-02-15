@@ -2,7 +2,7 @@ import pandas
 import pytest
 from pandas.testing import assert_frame_equal
 
-from data_adapter import collection, core, preprocessing
+from data_adapter import collection, core, preprocessing, structure
 
 
 def test_process():
@@ -24,6 +24,20 @@ def test_process_with_additional_data():
     assert len(artifacts["modex_capacity_factor"].columns) == 9
     assert len(artifacts["modex_capacity_factor"]) == 4
     assert len(artifacts["modex_capacity_factor"]["onshore"].dropna().iloc[0]) == 8760
+
+
+def test_process_with_multiple_artifacts_for_process():
+    structure.ADDITONAL_PARAMETERS = {}
+    artifacts = preprocessing.get_process_df("multiple_processes", "onshore wind farm")
+    assert len(artifacts) == 2
+    assert "modex_tech_wind_turbine_onshore" in artifacts
+    assert "modex_tech_wind_turbine_onshore2" in artifacts
+    data = artifacts["modex_tech_wind_turbine_onshore"]
+    assert len(data.columns) == 12
+    assert len(data) == 48
+    data = artifacts["modex_tech_wind_turbine_onshore2"]
+    assert len(data.columns) == 8
+    assert len(data) == 16
 
 
 def test_filter_df():
