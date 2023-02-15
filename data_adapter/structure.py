@@ -124,7 +124,7 @@ def get_energy_structure(process_parameter_path: str = None) -> dict:
     """
 
     process_parameter_in_out = pd.read_csv(
-        process_parameter_path,
+        filepath_or_buffer=process_parameter_path,
         delimiter=";",
         encoding="utf-8",
         usecols=["parameter", "process", "inputs", "outputs"],
