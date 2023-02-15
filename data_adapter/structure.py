@@ -118,18 +118,39 @@ def get_energy_structure(process_parameter_path: str = None) -> dict:
     -------
     ValueError
         if processes of parameters do not match character convention
+    ES_STRUCTURE: dict
+        Energy modelling processes, its parameters and inputs and output
 
     """
 
     process_parameter_in_out = pd.read_csv(
-        process_parameter_path, delimiter=";", encoding="utf-8"
+        process_parameter_path,
+        delimiter=";",
+        encoding="utf-8",
+        usecols=["parameter", "process", "inputs", "outputs"],
     )
     check_character_convention(process_parameter_in_out)
 
-    # create HARDCODED_ES_STRUCTURE dict from process_parameter_in_out
-    # do stuff
+    # create ES_STRUCTURE dict from process_parameter_in_out
+    list_dic = process_parameter_in_out.to_dict(orient="records")
 
-    return HARDCODED_ES_STRUCTURE
+    ES_STRUCTURE = {}
+
+    for dic in list_dic:
+
+        dic_para = {}
+        dic_para[dic.get("parameter")] = dict(
+            inputs=dic.get("inputs").split(",")
+        ) | dict(outputs=dic.get("outputs").split(","))
+
+        if dic.get("process") not in ES_STRUCTURE:
+            ES_STRUCTURE[dic.get("process")] = dic_para
+        else:
+            ES_STRUCTURE[dic.get("process")] = (
+                ES_STRUCTURE[dic.get("process")] | dic_para
+            )
+
+    return ES_STRUCTURE
 
 
 def get_processes():
