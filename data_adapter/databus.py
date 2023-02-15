@@ -87,7 +87,7 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX dcat:   <http://www.w3.org/ns/dcat#>
         PREFIX dct:    <http://purl.org/dc/terms/>
-        PREFIX dcv: <http://dataid.dbpedia.org/ns/cv#>
+        PREFIX dcv:    <http://dataid.dbpedia.org/ns/cv#>
         PREFIX dataid: <http://dataid.dbpedia.org/ns/core#>
         SELECT ?version WHERE
         {{
@@ -170,7 +170,8 @@ def download_collection(collection_url: str, force_download=False):
 
     artifacts = get_artifacts_from_collection(collection_url)
     artifact_versions = {
-        artifact: get_latest_version_of_artifact(artifact) for artifact in artifacts
+        artifact: "v2"
+        for artifact in artifacts  # FIXME: Hardcoded version to v2, as this version is correct!
     }
     __download_artifacts(
         artifact_versions, collection_dir, collection_meta, force_download

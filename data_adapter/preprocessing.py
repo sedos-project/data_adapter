@@ -137,7 +137,7 @@ def _apply_region_merge(data, datatype):
         else TIMESERIES_MERGE_GROUPS
     )
 
-    series = pandas.Series()
+    series = pandas.Series(dtype=object)
     for column in data.columns:
         if column in ["id"] + groups:
             continue  # Drop columns
