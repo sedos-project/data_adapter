@@ -1,4 +1,5 @@
 id;process;parameter;inputs;outputs
 1;chp;eff_heat;gas,  coal;heat,  co2
 2;chp;eff_elec;biomass, gas;elec,  co2
-3	;test;para3;in;out
+3	;empty_out;para;in 1, in 2;
+4;empty_in;para;;out
