@@ -99,6 +99,8 @@ def check_character_convention(dataframe=None):
     """
     for col in dataframe.columns[1:]:
         for element in dataframe[col]:
+            if not isinstance(element, str):
+                continue
             if not IDENTIFIER_PATTERN.match(element):
                 raise ValueError(
                     f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _"
@@ -139,9 +141,14 @@ def get_energy_structure(process_parameter_path: str = None) -> dict:
     for dic in list_dic:
 
         dic_para = {}
-        dic_para[dic.get("parameter")] = dict(
-            inputs=dic.get("inputs").replace(" ", "").split(",")
-        ) | dict(outputs=dic.get("outputs").replace(" ", "").split(","))
+        inputs = dict(inputs=[])
+        outputs = dict(outputs=[])
+        if isinstance(dic.get("inputs"), str):
+            inputs = dict(inputs=dic.get("inputs").replace(" ", "").split(","))
+        if isinstance(dic.get("outputs"), str):
+            outputs = dict(outputs=dic.get("outputs").replace(" ", "").split(","))
+
+        dic_para[dic.get("parameter")] = inputs | outputs
 
         if dic.get("process") not in ES_STRUCTURE:
             ES_STRUCTURE[dic.get("process")] = dic_para
