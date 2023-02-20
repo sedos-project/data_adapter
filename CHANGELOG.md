@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Changed
+- default parent directory for collections and structures dirs to current working dir
+
 ## [0.5.0] - 2023-02-15
 
 ### Added

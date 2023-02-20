@@ -11,18 +11,28 @@ logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent
 COLLECTIONS_DIR = (
-    pathlib.Path(os.environ["COLLECTION_DIR"])
-    if "COLLECTION_DIR" in os.environ
-    else pathlib.Path(__file__).parent.parent / "collections"
+    pathlib.Path(os.environ["COLLECTIONS_DIR"])
+    if "COLLECTIONS_DIR" in os.environ
+    else pathlib.Path.cwd() / "collections"
 )
+if not COLLECTIONS_DIR.exists():
+    raise FileNotFoundError(
+        f"Could not find collections directory '{COLLECTIONS_DIR}'. "
+        "You should either create the collections folder or "
+        "change path to collection folder by changing environment variable 'COLLECTIONS_DIR'."
+    )
 COLLECTION_JSON = "collection.json"
 COLLECTION_META_VERSION = "v1"
 
 STRUCTURES_DIR = (
-    pathlib.Path(os.environ["STRUCTURES_DIR"])
-    if "STRUCTURES_DIR" in os.environ
-    else pathlib.Path(__file__).parent.parent / "structures"
+    pathlib.Path(os.environ["STRUCTURES_DIR"]) if "STRUCTURES_DIR" in os.environ else pathlib.Path.cwd() / "structures"
 )
+if not STRUCTURES_DIR.exists():
+    raise FileNotFoundError(
+        f"Could not find structure directory '{STRUCTURES_DIR}'. "
+        "You should either create the structure folder or "
+        "change path to structure folder by changing environment variable 'STRUCTURES_DIR'."
+    )
 
 DATABUS_ENDPOINT = "https://energy.databus.dbpedia.org/sparql"
 DATABASE_URL = os.environ.get("DATABASE_URL")
