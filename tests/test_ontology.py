@@ -1,6 +1,11 @@
 from data_adapter import ontology
 
 
+def test_multiple_subject_entries():
+    metadata = {"name": "meta_name", "subject": [{"name": "test"}, {"name": "test2"}]}
+    assert ontology.get_subject(metadata) == "test_test2"
+
+
 def test_check_annotations():
     metadata_no_subject = {
         "name": "metadata with no subject",
