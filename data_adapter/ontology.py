@@ -24,13 +24,11 @@ class AnnotationError(Exception):
     """Raised if annotation is corrupted"""
 
 
-def get_subject(metadata: Union[str, pathlib.Path]) -> str:
+def get_subject(metadata: Union[str, pathlib.Path, dict]) -> str:
     metadata_dict = core.get_metadata(metadata)
     if "subject" not in metadata_dict:
         return metadata_dict["name"]
-    return get_name_from_annotation(
-        metadata_dict["subject"], default=metadata_dict["name"]
-    )
+    return get_name_from_annotation(metadata_dict["subject"], default=metadata_dict["name"])
 
 
 def get_name_from_ontology(oeo_path: str) -> str:
@@ -78,9 +76,7 @@ def get_name_from_annotation(annotation, default) -> str:
     return "_".join(names)
 
 
-def __check_quality_of_annotation(
-    annotation: list[dict[str, str]]
-) -> AnnotationQuality:
+def __check_quality_of_annotation(annotation: list[dict[str, str]]) -> AnnotationQuality:
     """
     Checks quality for given annotation.
 
@@ -134,9 +130,7 @@ def check_annotations_in_metadata(metadata: dict) -> Generator[Annotation, None,
         if "isAbout" not in field:
             yield Annotation(field["name"], AnnotationQuality.NoAnnotation)
         else:
-            yield Annotation(
-                field["name"], __check_quality_of_annotation(field["isAbout"])
-            )
+            yield Annotation(field["name"], __check_quality_of_annotation(field["isAbout"]))
 
 
 def check_annotations_in_collection(
