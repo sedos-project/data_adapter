@@ -4,13 +4,14 @@ import json
 from collections import defaultdict, namedtuple
 
 import re
-import pandas as pd
+from collections import defaultdict, namedtuple
+from pathlib import Path
 
+import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, relationship
 
 from data_adapter import settings
-
 
 # constants
 MAX_IDENTIFIER_LENGTH = 50
@@ -88,13 +89,19 @@ def get_additional_parameters(process: str):
     return parameters
 
 
-def check_character_convention(dataframe=None):
+def check_character_convention(dataframe: pd.DataFrame):
     """
     Check in parameter-, process-, input-and output-column for character convention.
 
     Parameters
     ----------
-    dataframe
+    dataframe: pandas.DataFrame
+        Parameters in dataframe are checked for convention
+
+    Raises
+    ------
+    ValueError
+        if element in dataframe does not fit character convention
 
     """
     for col in dataframe.columns[1:]:
@@ -107,22 +114,19 @@ def check_character_convention(dataframe=None):
                 )
 
 
-def get_energy_structure(process_parameter_path: str = None) -> dict:
+def get_energy_structure(process_parameter_path: str) -> dict:
     """
     Parse processes and its parameters with corresponding inputs and outputs to dict.
 
     Parameters
     ----------
-    parameter_process_path: str
+    process_parameter_path: str
         Path to process and parameter sheet.
 
     Returns
     -------
-    ValueError
-        if processes of parameters do not match character convention
-    ES_STRUCTURE: dict
+    dict
         Energy modelling processes, its parameters and inputs and output
-
     """
 
     process_parameter_in_out = pd.read_csv(
@@ -136,28 +140,30 @@ def get_energy_structure(process_parameter_path: str = None) -> dict:
     # create ES_STRUCTURE dict from process_parameter_in_out
     list_dic = process_parameter_in_out.to_dict(orient="records")
 
-    ES_STRUCTURE = {}
+    es_structure = {}
 
     for dic in list_dic:
-
         dic_para = {}
-        inputs = dict(inputs=[])
-        outputs = dict(outputs=[])
+
         if isinstance(dic.get("inputs"), str):
-            inputs = dict(inputs=dic.get("inputs").replace(" ", "").split(","))
+            inputs = {"inputs": dic.get("inputs").replace(" ", "").split(",")}
+        else:
+            inputs = {"inputs": []}
         if isinstance(dic.get("outputs"), str):
-            outputs = dict(outputs=dic.get("outputs").replace(" ", "").split(","))
+            outputs = {"outputs": dic.get("outputs").replace(" ", "").split(",")}
+        else:
+            outputs = {"outputs": []}
 
         dic_para[dic.get("parameter")] = inputs | outputs
 
-        if dic.get("process") not in ES_STRUCTURE:
-            ES_STRUCTURE[dic.get("process")] = dic_para
+        if dic.get("process") not in es_structure:
+            es_structure[dic.get("process")] = dic_para
         else:
-            ES_STRUCTURE[dic.get("process")] = (
-                ES_STRUCTURE[dic.get("process")] | dic_para
+            es_structure[dic.get("process")] = (
+                es_structure[dic.get("process")] | dic_para
             )
 
-    return ES_STRUCTURE
+    return es_structure
 
 
 def get_processes():
