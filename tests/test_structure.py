@@ -1,14 +1,15 @@
+import json
+import pathlib
+
 from data_adapter.structure import get_energy_structure
 
 
 def test_get_energy_structure():
-    dict_expected = {
-        "chp": {
-            "eff_heat": {"inputs": ["gas", "coal"], "outputs": ["heat", "co2"]},
-            "eff_elec": {"inputs": ["biomass", "gas"], "outputs": ["elec", "co2"]},
-        },
-        "empty_out": {"para": {"inputs": ["in1", "in2"], "outputs": []}},
-        "empty_in": {"para": {"inputs": [], "outputs": ["out"]}},
-    }
+    with open(
+        pathlib.Path(__file__).parent / "test_data" / "test_structures" / "modex_example.json",
+        "r",
+        encoding="utf-8",
+    ) as hardcoded_json:
+        dict_expected = json.load(hardcoded_json)
 
-    assert get_energy_structure(structure="user_mimos") == dict_expected
+    assert get_energy_structure(structure="modex_example") == dict_expected
