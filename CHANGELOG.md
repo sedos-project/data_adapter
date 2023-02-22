@@ -17,7 +17,10 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.6.0] - 2023-02-22
+### Added
+- structure containing modex example in tests
+
 ### Changed
 - default parent directory for collections and structures dirs to current working dir
 
