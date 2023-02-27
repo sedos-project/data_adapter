@@ -27,13 +27,7 @@ class Artifact:
     datatype: DataType
 
     def path(self):
-        return (
-            settings.COLLECTIONS_DIR
-            / self.collection
-            / self.group
-            / self.artifact
-            / self.version
-        )
+        return settings.COLLECTIONS_DIR / self.collection / self.group / self.artifact / self.version
 
 
 def check_collection_meta(collection_meta: dict):
@@ -51,9 +45,7 @@ def check_collection_meta(collection_meta: dict):
         if Collection metadata is invalid
     """
     if collection_meta.get("version", None) != settings.COLLECTION_META_VERSION:
-        raise CollectionError(
-            "Collection metadata is outdated. Please re-download collection and try again."
-        )
+        raise CollectionError("Collection metadata is outdated. Please re-download collection and try again.")
     # Check if artifact info keys are missing:
     for group, artifacts in collection_meta["artifacts"].items():
         for artifact, artifact_infos in artifacts.items():
@@ -79,9 +71,7 @@ def get_metadata_from_artifact(artifact: Artifact) -> dict:
     dict
         Metadata from artifact
     """
-    with open(
-        artifact.path() / f"{artifact.filename}.json", "r", encoding="utf-8"
-    ) as metadata_file:
+    with open(artifact.path() / f"{artifact.filename}.json", "r", encoding="utf-8") as metadata_file:
         return json.load(metadata_file)
 
 
@@ -124,9 +114,7 @@ def get_collection_meta(collection: str) -> dict:
     return metadata
 
 
-def get_artifacts_from_collection(
-    collection: str, process: Optional[str] = None
-) -> List[Artifact]:
+def get_artifacts_from_collection(collection: str, process: Optional[str] = None) -> List[Artifact]:
     """
     Returns list of artifacts belonging to given process (subject)
 
@@ -146,7 +134,8 @@ def get_artifacts_from_collection(
     artifacts = []
     for group in collection_meta["artifacts"]:
         for artifact, artifact_info in collection_meta["artifacts"][group].items():
-            if process and artifact_info["subject"] != process:
+            process_name = artifact_info["subject"] if settings.USE_ANNOTATIONS else artifact_info["name"]
+            if process and process_name != process:
                 continue
             filename = artifact
             artifacts.append(

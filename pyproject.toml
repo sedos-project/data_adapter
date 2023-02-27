@@ -52,7 +52,7 @@ line-length = 120
 max_line_length = 120
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin"
+exclude = "tests/utils.py"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]

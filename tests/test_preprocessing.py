@@ -2,19 +2,41 @@ import pandas
 import pytest
 from pandas.testing import assert_frame_equal
 
-from data_adapter import collection, core, preprocessing, structure
+from data_adapter import collection, core, preprocessing
+from tests import utils
 
 
 def test_process():
-    artifacts = preprocessing.get_process("simple", "battery storage", "hack-a-thon_links")
+    artifacts = preprocessing.get_process("simple", "modex_tech_storage_battery", "hack-a-thon_links")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 16
-    assert len(artifacts.scalars) == 48
+    assert len(artifacts.scalars.columns) == 17
+    assert len(artifacts.scalars) == 51
+
+
+def test_process_with_annotations():
+    with utils.turn_on_annotations():
+        artifacts = preprocessing.get_process("simple", "battery storage", "hack-a-thon_links_by_subject")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 17
+    assert len(artifacts.scalars) == 51
 
 
 def test_process_with_additional_data():
-    artifacts = preprocessing.get_process("simple", "onshore wind farm", "hack-a-thon_links_by_subject")
+    artifacts = preprocessing.get_process("simple", "modex_tech_wind_turbine_onshore", "hack-a-thon_links")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 13
+    assert len(artifacts.scalars) == 51
+    assert len(artifacts.timeseries.columns) == 9
+    assert len(artifacts.timeseries) == 4
+    assert len(artifacts.timeseries["onshore"].dropna().iloc[0]) == 8760
+
+
+def test_process_with_additional_data_with_annotations():
+    with utils.turn_on_annotations():
+        artifacts = preprocessing.get_process("simple", "onshore wind farm", "hack-a-thon_links_by_subject")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 13
@@ -25,13 +47,22 @@ def test_process_with_additional_data():
 
 
 def test_process_with_multiple_artifacts_for_process():
-    structure.ADDITONAL_PARAMETERS = {}
-    artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm", "hack-a-thon_links")
+    artifacts = preprocessing.get_process("multiple_processes", "modex_tech_wind_turbine_onshore", "hack-a-thon_links")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 13
-    assert len(artifacts.scalars) == 48
-    assert len(artifacts.timeseries) == 0
+    assert len(artifacts.scalars.columns) == 14
+    assert len(artifacts.scalars) == 51
+    assert len(artifacts.timeseries) == 4
+
+
+def test_process_with_multiple_artifacts_for_process_with_annotations():
+    with utils.turn_on_annotations():
+        artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm", "hack-a-thon_links_by_subject")
+    assert hasattr(artifacts, "scalars")
+    assert hasattr(artifacts, "timeseries")
+    assert len(artifacts.scalars.columns) == 14
+    assert len(artifacts.scalars) == 51
+    assert len(artifacts.timeseries) == 4
 
 
 def test_filter_df():

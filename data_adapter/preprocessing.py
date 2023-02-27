@@ -161,7 +161,7 @@ def get_process(collection_name: str, process: str, links: str) -> Process:
     collection_name : str
         Name of collection to get data from
     process : str
-        Name of process (from subject)
+        Name of process (from subject or metadata name, depends on USE_ANNOTATIONS)
     links : str
         Name of file to get linked parameters from
 
@@ -195,9 +195,11 @@ def get_process(collection_name: str, process: str, links: str) -> Process:
     # Get dataframes for processes from additional parameters
     for subject, parameters in structure.get_links_for_process(process, links_name=links).items():
         artifacts = collection.get_artifacts_from_collection(collection_name, subject)
+        if not artifacts:
+            raise structure.StructureError(f"Could not find linked parameter for {process=} and {subject=}.")
         if len(artifacts) > 1:
             raise structure.StructureError(
-                f"Additional parameter for process '{process}' " f"points to subject '{subject}' which is not unique."
+                f"Linked parameter for process '{process}' points to subject '{subject}' which is not unique."
             )
         df = __get_df_from_artifact(artifacts[0], *parameters)
         if artifacts[0].datatype == collection.DataType.Scalar:

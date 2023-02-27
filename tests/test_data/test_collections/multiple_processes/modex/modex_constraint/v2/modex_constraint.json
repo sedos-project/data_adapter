@@ -1,0 +1,246 @@
+{
+  "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/master/metadata/latest/context.json",
+  "_comment": {
+    "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss\u00b1hh)",
+    "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+    "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+    "metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+    "null": "If not applicable use: null",
+    "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+    "todo": "If a value is not yet available, use: todo",
+    "units": "Use a space between numbers and units (100 m)"
+  },
+  "context": {
+    "contact": "Felix.Maurer@rl-institut.de",
+    "documentation": "https://sedos-project.github.io/.github/",
+    "homepage": "https://sedos-project.github.io/.github/",
+    "sourceCode": "https://github.com/sedos-project/oedatamodel/tree/main/parameter_datamodel"
+  },
+  "contributors": [
+    {
+      "comment": "From modex concrete to uploadable parametermodel",
+      "date": "2022-11-13",
+      "object": "datapackage",
+      "title": "FelixMau"
+    }
+  ],
+  "description": "datamodel, metadata and examples provided as datapackage",
+  "id": "ID31modex_constraint",
+  "keywords": [
+    "oedatamodel",
+    "datapackage",
+    "general energy dataformat",
+    "modex",
+    "ID31",
+    "parameter_datamodel",
+    "modex",
+    "constraint"
+  ],
+  "language": [
+    "en-GB"
+  ],
+  "licenses": [
+    {
+      "name": "TestLicense",
+      "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode"
+    }
+  ],
+  "metaMetadata": {
+    "metadataLicense": {
+      "name": "CC0-1.0",
+      "path": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "title": "Creative Commons Zero v1.0 Universal"
+    },
+    "metadataVersion": "OEP-1.5.1"
+  },
+  "name": "modex_constraint",
+  "publicationDate": "2022-11-14",
+  "resources": [
+    {
+      "dialect": {
+        "decimalSeparator": ".",
+        "delimiter": ";"
+      },
+      "encoding": "UTF-8",
+      "format": "PostgreSQL",
+      "name": "model_draft.modex_constraint",
+      "path": "parameter_model_csv/scalar/modex_constraint.csv",
+      "profile": "tabular_data_resource",
+      "schema": {
+        "fields": [
+          {
+            "description": "Unique identifier",
+            "isAbout": [
+              {
+                "name": "unique individual identifier",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00010037"
+              }
+            ],
+            "name": "id",
+            "type": "int",
+            "valueReference": []
+          },
+          {
+            "description": "Region in Germany",
+            "isAbout": [
+              {
+                "name": "subregion",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020033"
+              }
+            ],
+            "name": "region",
+            "type": "text array",
+            "valueReference": []
+          },
+          {
+            "description": "Method",
+            "isAbout": [
+              {
+                "name": "methodology",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020166"
+              }
+            ],
+            "name": "method",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Source",
+            "isAbout": [
+              {
+                "name": "data source"
+              }
+            ],
+            "name": "source",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Comment",
+            "isAbout": [
+              {
+                "name": "comment",
+                "path": "None"
+              }
+            ],
+            "name": "comment",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Year",
+            "isAbout": [
+              {
+                "name": "year",
+                "path": "http://purl.obolibrary.org/obo/UO_0000036"
+              }
+            ],
+            "name": "year",
+            "type": "int",
+            "valueReference": []
+          },
+          {
+            "description": "Emission Costs",
+            "isAbout": [
+              {
+                "name": "social cost of emission",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020181"
+              }
+            ],
+            "name": "emission_costs",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "None",
+            "isAbout": [
+              {
+                "name": "theoretical stock potential",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00140063"
+              }
+            ],
+            "name": "emission_limit",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "None",
+            "isAbout": [
+              {
+                "name": "RE-share",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00140133"
+              }
+            ],
+            "name": "renewable_share",
+            "type": "float",
+            "valueReference": []
+          },
+          {
+            "description": "Bandwith Type",
+            "isAbout": [
+              {
+                "name": "bandwidth type"
+              }
+            ],
+            "name": "bandwidth_type",
+            "type": "json",
+            "valueReference": []
+          },
+          {
+            "description": "Version",
+            "isAbout": [
+              {
+                "name": "dataset version string"
+              }
+            ],
+            "name": "version",
+            "type": "text",
+            "valueReference": []
+          },
+          {
+            "description": "Weighted Average Cost of Capital",
+            "isAbout": [
+              {
+                "name": "investment cost",
+                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00020167"
+              }
+            ],
+            "name": "wacc",
+            "type": "float",
+            "valueReference": []
+          }
+        ],
+        "foreignKeys": [],
+        "primaryKey": [
+          "id"
+        ]
+      }
+    }
+  ],
+  "sources": [
+    {
+      "description": "Parameter data model for secondary input scalars and timeseries",
+      "licenses": [
+        {
+          "attribution": "\u00a9 Reiner Lemoine Institut",
+          "instruction": "You are free: To Share, To Create, To Adapt",
+          "name": "CC0-1.0",
+          "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "title": "Creative Commons Zero v1.0 Universal"
+        }
+      ],
+      "path": "https://github.com/sedos-project/oedatamodel/tree/main/parameter_datamodel",
+      "title": "Parameter datamodel"
+    }
+  ],
+  "subject": [
+    {
+      "name": "global variables",
+      "path": "None"
+    }
+  ],
+  "temporal": {
+    "timeseries": []
+  },
+  "title": "MODEX concrete Datamodel to Parameter"
+}

@@ -229,6 +229,7 @@ def __download_artifacts(
             download_artifact(artifact_filename, version_dir / filename)
             if suffix == "json":
                 metadata = core.get_metadata(version_dir / filename)
+                collection_meta["artifacts"][group_name][artifact_name]["name"] = metadata["name"]
                 collection_meta["artifacts"][group_name][artifact_name]["subject"] = ontology.get_subject(metadata)
                 collection_meta["artifacts"][group_name][artifact_name][
                     "datatype"

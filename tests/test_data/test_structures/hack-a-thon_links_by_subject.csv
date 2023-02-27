@@ -1,6 +1,6 @@
 process;table_name;column_name
-modex_tech_storage_battery;modex_constraint;wacc
-modex_tech_generator_gas;modex_constraint;emission_costs
-modex_tech_generator_gas;modex_constraint;wacc
+battery storage;global variables;wacc
+modex_tech_generator_gas;global variables;emission_costs
+modex_tech_generator_gas;global variables;wacc
 onshore wind farm;net capacity factor;onshore
 onshore wind farm;global variables;wacc

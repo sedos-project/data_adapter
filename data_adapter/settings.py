@@ -4,10 +4,12 @@ import pathlib
 
 import sqlalchemy as sa
 
-DEBUG = os.environ.get("DEBUG", "false") == "true"
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+
+USE_ANNOTATIONS = os.environ.get("USE_ANNOTATIONS", "False") == "True"
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent
 COLLECTIONS_DIR = (
@@ -22,7 +24,7 @@ if not COLLECTIONS_DIR.exists():
         "change path to collection folder by changing environment variable 'COLLECTIONS_DIR'."
     )
 COLLECTION_JSON = "collection.json"
-COLLECTION_META_VERSION = "v1"
+COLLECTION_META_VERSION = "v2"
 
 STRUCTURES_DIR = (
     pathlib.Path(os.environ["STRUCTURES_DIR"]) if "STRUCTURES_DIR" in os.environ else pathlib.Path.cwd() / "structures"

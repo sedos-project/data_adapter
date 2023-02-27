@@ -1,17 +1,31 @@
 {
   "artifacts": {
     "modex": {
+      "modex_capacity_factor": {
+        "datatype": 1,
+        "latest_version": "v2",
+        "name": "modex_capacity_factor",
+        "subject": "net capacity factor"
+      },
+      "modex_constraint": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "name": "modex_constraint",
+        "subject": "global variables"
+      },
       "modex_tech_wind_turbine_onshore": {
         "datatype": 0,
         "latest_version": "v2",
+        "name": "modex_tech_wind_turbine_onshore",
         "subject": "onshore wind farm"
       },
       "modex_tech_wind_turbine_onshore2": {
         "datatype": 0,
         "latest_version": "v2",
+        "name": "modex_tech_wind_turbine_onshore",
         "subject": "onshore wind farm"
       }
     }
   },
-  "version": "v1"
+  "version": "v2"
 }
