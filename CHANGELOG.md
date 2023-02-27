@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.8.0] - 2023-02-27
 ## Changed
 - by default, process and parameter names are not derived from annotations, but from name in metadata and column names
 
