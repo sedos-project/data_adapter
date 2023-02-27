@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Changed
+- "additional parameters" are renamed to "links" and are read-in from CSV
+
 ## [0.6.0] - 2023-02-22
 ### Added
 - structure containing modex example in tests

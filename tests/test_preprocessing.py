@@ -6,7 +6,7 @@ from data_adapter import collection, core, preprocessing, structure
 
 
 def test_process():
-    artifacts = preprocessing.get_process("simple", "battery storage")
+    artifacts = preprocessing.get_process("simple", "battery storage", "hack-a-thon_links")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 16
@@ -14,11 +14,11 @@ def test_process():
 
 
 def test_process_with_additional_data():
-    artifacts = preprocessing.get_process("simple", "onshore wind farm")
+    artifacts = preprocessing.get_process("simple", "onshore wind farm", "hack-a-thon_links_by_subject")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 12
-    assert len(artifacts.scalars) == 48
+    assert len(artifacts.scalars.columns) == 13
+    assert len(artifacts.scalars) == 51
     assert len(artifacts.timeseries.columns) == 9
     assert len(artifacts.timeseries) == 4
     assert len(artifacts.timeseries["onshore"].dropna().iloc[0]) == 8760
@@ -26,7 +26,7 @@ def test_process_with_additional_data():
 
 def test_process_with_multiple_artifacts_for_process():
     structure.ADDITONAL_PARAMETERS = {}
-    artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm")
+    artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm", "hack-a-thon_links")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 13

@@ -150,7 +150,7 @@ def merge_column(column, values, datamodel_columns):
     return value
 
 
-def get_process(collection_name: str, process: str) -> Process:
+def get_process(collection_name: str, process: str, links: str) -> Process:
     """
     Loads data for given process from collection.
 
@@ -162,6 +162,8 @@ def get_process(collection_name: str, process: str) -> Process:
         Name of collection to get data from
     process : str
         Name of process (from subject)
+    links : str
+        Name of file to get linked parameters from
 
     Returns
     -------
@@ -191,7 +193,7 @@ def get_process(collection_name: str, process: str) -> Process:
             timeseries_df.append(df)
 
     # Get dataframes for processes from additional parameters
-    for subject, parameters in structure.get_additional_parameters(process).items():
+    for subject, parameters in structure.get_links_for_process(process, links_name=links).items():
         artifacts = collection.get_artifacts_from_collection(collection_name, subject)
         if len(artifacts) > 1:
             raise structure.StructureError(
