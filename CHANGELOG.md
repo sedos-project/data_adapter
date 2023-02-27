@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.7.0] - 2023-02-27
 ### Changed
 - "additional parameters" are renamed to "links" and are read-in from CSV
 
