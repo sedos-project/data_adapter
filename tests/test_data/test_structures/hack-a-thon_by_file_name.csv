@@ -11,3 +11,4 @@ id;process;parameter;inputs;outputs
 9;modex_tech_generator_gas;output_ratio;ch4;electricity,heat
 10;modex_tech_wind_turbine_onshore;expansion_limit;onshore;electricity
 11;modex_tech_wind_turbine_onshore;installed_capacity;onshore;electricity
+12;modex_demand;unknown;electricity;electricity

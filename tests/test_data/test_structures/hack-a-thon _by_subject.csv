@@ -11,3 +11,4 @@ id;process;parameter;inputs;outputs
 9;energy transformation;output_ratio;ch4;electricity,heat
 10;onshore wind farm_wind energy transformation;expansion_limit;onshore;electricity
 11;onshore wind farm_wind energy transformation;installed_capacity;onshore;electricity
+12;energy demand;unknown;electricity;electricity
