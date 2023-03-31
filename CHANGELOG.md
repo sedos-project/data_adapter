@@ -17,8 +17,12 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Changed
+- introduced Adapter class to handle collection, structure and links in a centralized way
+
 ## [0.8.0] - 2023-02-27
-## Changed
+### Changed
 - by default, process and parameter names are not derived from annotations, but from name in metadata and column names
 
 ## [0.7.0] - 2023-02-27
