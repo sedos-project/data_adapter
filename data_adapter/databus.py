@@ -165,10 +165,7 @@ def download_collection(collection_url: str, force_download=False):
         )
 
     artifacts = get_artifacts_from_collection(collection_url)
-    logging.warning("Currently, version is fixed to 'v2', as version 'v3' is not working!")
-    artifact_versions = {
-        artifact: "v2" for artifact in artifacts  # FIXME: Hardcoded version to v2, as this version is correct!
-    }
+    artifact_versions = {artifact: get_latest_version_of_artifact(artifact) for artifact in artifacts}
     __download_artifacts(artifact_versions, collection_dir, collection_meta, force_download)
 
     with open(collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8") as collection_json_file:
