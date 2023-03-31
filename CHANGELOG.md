@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.9.0] - 2023-03-31
 ### Changed
 - introduced Adapter class to handle collection, structure and links in a centralized way
 
