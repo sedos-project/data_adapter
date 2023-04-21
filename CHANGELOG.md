@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.9.1] - 2023-04-21
+### Fixed
+- links in `get_process` function
+
 ## [0.9.0] - 2023-03-31
 ### Changed
 - introduced Adapter class to handle collection, structure and links in a centralized way

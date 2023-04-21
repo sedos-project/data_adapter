@@ -299,5 +299,5 @@ def get_process(collection_name: str, process: str, links: str) -> Process:
     )
     logging.warning(deprecated_msg)
     warnings.warn(deprecated_msg, DeprecationWarning)
-    adapter = Adapter(collection_name, links)
+    adapter = Adapter(collection_name, structure_name=None, links_name=links)
     return adapter.get_process(process)
