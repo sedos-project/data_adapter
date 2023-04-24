@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import List, Optional, Union
 
+import pandas
+
 from data_adapter import core, ontology, settings
 
 
@@ -27,18 +29,19 @@ class Artifact:
     datatype: DataType = DataType.Scalar
 
     @property
-    def path(self):
+    def path(self) -> pathlib.Path:
         return settings.COLLECTIONS_DIR / self.collection / self.group / self.artifact / self.version
 
     @property
-    def metadata(self):
-        filename = self.filename
-        if not filename:
-            for file in self.path.iterdir():
-                filename = file.stem
-                break
-        with open(self.path / f"{filename}.json", "r", encoding="utf-8") as metadata_file:
+    def metadata(self) -> dict:
+        with open(self.path / self.get_filename(".json"), "r", encoding="utf-8") as metadata_file:
             return json.load(metadata_file)
+
+    def get_filename(self, suffix: str) -> str:
+        for file in self.path.iterdir():
+            if file.suffix == suffix:
+                return file.name
+        raise FileNotFoundError(f"Artifact file with {suffix=} not found.")
 
 
 def check_collection_meta(collection_meta: dict):
@@ -68,30 +71,54 @@ def check_collection_meta(collection_meta: dict):
                     )
 
 
-def infer_collection_metadata(collection: str):
+def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
     """
     Interferes downloaded collection and updates names and subjects of artifacts in collection metadata file
 
     Parameters
     ----------
-    collection : str
-        Name of collection to get metadata from
-    """
-    collection_meta = get_collection_meta(collection)
+    collection: str
+        Name of collection
+    collection_meta : dict
+        Metadata of collection to be updated
 
+    Returns
+    -------
+    dict
+        Updated collection metadata
+    """
     for group_name, artifacts in collection_meta["artifacts"].items():
         for artifact_name in artifacts:
             version = collection_meta["artifacts"][group_name][artifact_name]["latest_version"]
 
             artifact = Artifact(collection, group_name, artifact_name, version)
             metadata = artifact.metadata
-            collection_meta["artifacts"][group_name][artifact_name]["name"] = metadata["name"]
-            collection_meta["artifacts"][group_name][artifact_name]["subject"] = ontology.get_subject(metadata)
+
+            # Check if artifact contains multiple (sub-)processes
+            try:
+                type_field = [
+                    field for field in metadata["resources"][0]["schema"]["fields"] if field["name"] == "type"
+                ][0]
+            except IndexError:
+                type_field = None
+
+            if type_field:
+                collection_meta["artifacts"][group_name][artifact_name]["multiple_types"] = True
+                collection_meta["artifacts"][group_name][artifact_name]["names"] = get_subprocesses_from_artifact(
+                    artifact
+                )
+                collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [
+                    ontology.get_name_from_annotation(value_reference, None)
+                    for value_reference in type_field["valueReference"]
+                ]
+            else:
+                collection_meta["artifacts"][group_name][artifact_name]["multiple_types"] = False
+                collection_meta["artifacts"][group_name][artifact_name]["names"] = [metadata["name"]]
+                collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [ontology.get_subject(metadata)]
+
             collection_meta["artifacts"][group_name][artifact_name]["datatype"] = get_data_type(metadata)
 
-    collection_meta_filename = pathlib.Path(settings.COLLECTIONS_DIR) / collection / "collection.json"
-    with collection_meta_filename.open("w", encoding="utf-8") as collection_meta_file:
-        json.dump(collection_meta, collection_meta_file)
+    return collection_meta
 
 
 def get_data_type(metadata: Union[str, pathlib.Path, dict]):
@@ -100,6 +127,25 @@ def get_data_type(metadata: Union[str, pathlib.Path, dict]):
         if field["name"].startswith("timeindex"):
             return DataType.Timeseries
     return DataType.Scalar
+
+
+def get_subprocesses_from_artifact(artifact: Artifact) -> List[str]:
+    """
+    Return list of subprocesses for given artifact
+
+    Returns entries of column "type" as list.
+
+    Parameters
+    ----------
+    artifact: Artifact
+        Read type column of given artifact
+
+    Returns
+    -------
+    List[str]
+        List of subprocesses in given artifact
+    """
+    return list(pandas.read_csv(artifact.path / artifact.get_filename(".csv"), usecols=("type",))["type"])
 
 
 def get_collection_meta(collection: str) -> dict:
