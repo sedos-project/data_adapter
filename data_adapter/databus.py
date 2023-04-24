@@ -9,8 +9,7 @@ from typing import List, Union
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
 
-import data_adapter.collection
-from data_adapter import core, ontology, settings
+from data_adapter import collection, settings
 
 
 def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
@@ -159,7 +158,7 @@ def download_collection(collection_url: str, force_download=False):
         collection_dir.mkdir()
 
     if collection_meta.get("version", None) != settings.COLLECTION_META_VERSION:
-        raise data_adapter.collection.CollectionError(
+        raise collection.CollectionError(
             "Collection metadata has changed. Please remove collection and re-download. "
             "Otherwise, strange behaviours could occur."
         )
@@ -170,6 +169,7 @@ def download_collection(collection_url: str, force_download=False):
 
     with open(collection_dir / settings.COLLECTION_JSON, "w", encoding="utf-8") as collection_json_file:
         json.dump(collection_meta, collection_json_file)
+    collection.infer_collection_metadata(collection_name)
 
 
 def __download_artifacts(
@@ -224,11 +224,4 @@ def __download_artifacts(
             suffix = artifact_filename.split(".")[-1]
             filename = f"{artifact_name}.{suffix}"
             download_artifact(artifact_filename, version_dir / filename)
-            if suffix == "json":
-                metadata = core.get_metadata(version_dir / filename)
-                collection_meta["artifacts"][group_name][artifact_name]["name"] = metadata["name"]
-                collection_meta["artifacts"][group_name][artifact_name]["subject"] = ontology.get_subject(metadata)
-                collection_meta["artifacts"][group_name][artifact_name][
-                    "datatype"
-                ] = data_adapter.collection.get_data_type(metadata)
         logging.info(f"Downloaded {artifact_name=} {version=}.")

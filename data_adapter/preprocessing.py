@@ -171,12 +171,12 @@ class Adapter:
         -------
         pandas.DataFrame
         """
-        metadata = collection.get_metadata_from_artifact(artifact)
+        metadata = artifact.metadata
         fl_table_schema = core.reformat_oep_to_frictionless_schema(metadata["resources"][0]["schema"])
         resource = frictionless.Resource(
             name=metadata["name"],
             profile="tabular-data-resource",
-            source=artifact.path() / f"{artifact.filename}.csv",
+            source=artifact.path / f"{artifact.filename}.csv",
             schema=fl_table_schema,
             format="csv",
         )

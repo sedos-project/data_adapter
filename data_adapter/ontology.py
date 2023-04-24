@@ -153,6 +153,5 @@ def check_annotations_in_collection(
     annotation_qualities: dict = defaultdict(list)
     artifacts = collection.get_artifacts_from_collection(collection_name)
     for artifact in artifacts:
-        metadata = collection.get_metadata_from_artifact(artifact)
-        annotation_qualities[artifact].extend(*check_annotations_in_metadata(metadata))
+        annotation_qualities[artifact].extend(*check_annotations_in_metadata(artifact.metadata))
     return annotation_qualities
