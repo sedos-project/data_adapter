@@ -25,7 +25,6 @@ class Artifact:
     artifact: str
     version: str
     filename: Optional[str] = None
-    subject: Optional[str] = None
     datatype: DataType = DataType.Scalar
 
     @property
@@ -108,7 +107,7 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
                     artifact
                 )
                 collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [
-                    ontology.get_name_from_annotation(value_reference, None)
+                    ontology.get_name_from_annotation(value_reference)
                     for value_reference in type_field["valueReference"]
                 ]
             else:
@@ -199,8 +198,8 @@ def get_artifacts_from_collection(collection: str, process: Optional[str] = None
     artifacts = []
     for group in collection_meta["artifacts"]:
         for artifact, artifact_info in collection_meta["artifacts"][group].items():
-            process_name = artifact_info["subject"] if settings.USE_ANNOTATIONS else artifact_info["name"]
-            if process and process_name != process:
+            process_names = artifact_info["subjects"] if settings.USE_ANNOTATIONS else artifact_info["names"]
+            if process and process not in process_names:
                 continue
             filename = artifact
             artifacts.append(
@@ -210,7 +209,6 @@ def get_artifacts_from_collection(collection: str, process: Optional[str] = None
                     artifact,
                     artifact_info["latest_version"],
                     filename,
-                    subject=process,
                     datatype=DataType(artifact_info["datatype"]),
                 )
             )

@@ -1,4 +1,3 @@
-import logging
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass
@@ -28,7 +27,10 @@ def get_subject(metadata: Union[str, pathlib.Path, dict]) -> str:
     metadata_dict = core.get_metadata(metadata)
     if "subject" not in metadata_dict:
         return metadata_dict["name"]
-    return get_name_from_annotation(metadata_dict["subject"], default=metadata_dict["name"])
+    try:
+        return get_name_from_annotation(metadata_dict["subject"])
+    except AnnotationError:
+        return metadata_dict["name"]
 
 
 def get_name_from_ontology(oeo_path: str) -> str:
@@ -57,23 +59,22 @@ def get_name_from_ontology(oeo_path: str) -> str:
     raise AnnotationError(f"No ontology concept found for {oeo_path=}.")
 
 
-def get_name_from_annotation(annotation, default) -> str:
-    names = []
-    if not annotation:
-        return default
-    for entry in annotation:
-        if "path" in entry:
+def get_name_from_annotation(annotation) -> str:
+    def name_from_item(annotation_item):
+        if "path" in annotation_item:
             try:
-                names.append(get_name_from_ontology(entry["path"]))
-                continue
+                return get_name_from_ontology(annotation_item["path"])
             except AnnotationError:
                 pass
-        if "name" in entry and entry["name"]:
-            names.append(entry["name"])
-            continue
-        logging.warning(f"Could not read annotation ({annotation=}) for '{default}'.")
-        return default
-    return "_".join(names)
+        if "name" in annotation_item and annotation_item["name"]:
+            return annotation_item["name"]
+        raise AnnotationError(f"Could not get name from annotation ({annotation_item})")
+
+    if isinstance(annotation, dict):
+        return name_from_item(annotation)
+    if isinstance(annotation, list):
+        return "_".join(name_from_item(item) for item in annotation)
+    raise AnnotationError(f"Invalid {annotation=}. Must be either annotation dict or list of annotation dicts.")
 
 
 def __check_quality_of_annotation(annotation: list[dict[str, str]]) -> AnnotationQuality:
