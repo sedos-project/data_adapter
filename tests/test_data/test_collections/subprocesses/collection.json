@@ -1,0 +1,87 @@
+{
+  "artifacts": {
+    "modex": {
+      "modex_capacity_factor": {
+        "datatype": 1,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "name": "modex_capacity_factor",
+        "names": [
+          "modex_capacity_factor"
+        ],
+        "subject": "net capacity factor",
+        "subjects": [
+          "net capacity factor"
+        ]
+      },
+      "modex_constraint": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "name": "modex_constraint",
+        "names": [
+          "modex_constraint"
+        ],
+        "subject": "global variables",
+        "subjects": [
+          "global variables"
+        ]
+      },
+      "modex_demand": {
+        "datatype": 1,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "name": "modex_demand",
+        "names": [
+          "modex_demand"
+        ],
+        "subject": "energy demand",
+        "subjects": [
+          "energy demand"
+        ]
+      },
+      "modex_tech_generator_gas": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "name": "modex_tech_generator_gas",
+        "names": [
+          "modex_tech_generator_gas"
+        ],
+        "subject": "energy transformation unit",
+        "subjects": [
+          "energy transformation unit"
+        ]
+      },
+      "modex_tech_storage_battery": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "name": "modex_tech_storage_battery",
+        "names": [
+          "modex_tech_storage_battery"
+        ],
+        "subject": "battery storage",
+        "subjects": [
+          "battery storage"
+        ]
+      },
+      "modex_tech_wind_turbine": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "multiple_types": true,
+        "name": "modex_tech_wind_turbine",
+        "names": [
+          "wind_onshore",
+          "wind_offshore"
+        ],
+        "subject": "onshore wind farm",
+        "subjects": [
+          "Wind Onshore",
+          "Wind Offshore"
+        ]
+      }
+    }
+  },
+  "version": "v3"
+}
