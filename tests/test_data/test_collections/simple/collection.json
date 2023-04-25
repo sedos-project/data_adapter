@@ -4,40 +4,66 @@
       "modex_capacity_factor": {
         "datatype": 1,
         "latest_version": "v2",
-        "name": "modex_capacity_factor",
-        "subject": "net capacity factor"
+        "multiple_types": false,
+        "names": "modex_capacity_factor",
+        "subjects": "net capacity factor"
       },
       "modex_constraint": {
         "datatype": 0,
         "latest_version": "v2",
-        "name": "modex_constraint",
-        "subject": "global variables"
+        "multiple_types": false,
+        "names": [
+          "modex_constraint"
+        ],
+        "subjects": [
+          "global variables"
+        ]
       },
       "modex_demand": {
         "datatype": 1,
         "latest_version": "v2",
-        "name": "modex_demand",
-        "subject": "energy demand"
+        "multiple_types": false,
+        "names": [
+          "modex_demand"
+        ],
+        "subjects": [
+          "energy demand"
+        ]
       },
       "modex_tech_generator_gas": {
         "datatype": 0,
         "latest_version": "v2",
-        "name": "modex_tech_generator_gas",
-        "subject": "energy transformation unit"
+        "multiple_types": false,
+        "names": [
+          "modex_tech_generator_gas"
+        ],
+        "subjects": [
+          "energy transformation unit"
+        ]
       },
       "modex_tech_storage_battery": {
         "datatype": 0,
         "latest_version": "v2",
-        "name": "modex_tech_storage_battery",
-        "subject": "battery storage"
+        "multiple_types": false,
+        "names": [
+          "modex_tech_storage_battery"
+        ],
+        "subjects": [
+          "battery storage"
+        ]
       },
       "modex_tech_wind_turbine_onshore": {
         "datatype": 0,
         "latest_version": "v2",
-        "name": "modex_tech_wind_turbine_onshore",
-        "subject": "onshore wind farm"
+        "multiple_types": false,
+        "names": [
+          "modex_tech_wind_turbine_onshore"
+        ],
+        "subjects": [
+          "onshore wind farm"
+        ]
       }
     }
   },
-  "version": "v2"
+  "version": "v3"
 }
