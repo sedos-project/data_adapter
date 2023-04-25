@@ -245,18 +245,6 @@
             "name": "version",
             "type": "text",
             "valueReference": []
-          },
-          {
-            "description": "None",
-            "isAbout": [
-              {
-                "name": "offshore wind farm",
-                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00000308"
-              }
-            ],
-            "name": "offshore",
-            "type": "float array",
-            "valueReference": []
           }
         ],
         "foreignKeys": [],
