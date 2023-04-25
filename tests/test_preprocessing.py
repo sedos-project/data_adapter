@@ -14,6 +14,15 @@ def test_process():
     assert len(artifacts.scalars) == 51
 
 
+def test_process_of_artifact_with_multiple_subprocesses():
+    adapter = preprocessing.Adapter("subprocesses", None, "subprocesses_links")
+    artifact = adapter.get_process("wind_onshore")
+    assert hasattr(artifact, "scalars")
+    assert hasattr(artifact, "timeseries")
+    assert len(artifact.scalars.columns) == 13
+    assert len(artifact.scalars) == 2
+
+
 def test_process_with_annotations():
     with utils.turn_on_annotations():
         artifacts = preprocessing.get_process("simple", "battery storage", "hack-a-thon_links_by_subject")
