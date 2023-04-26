@@ -1,0 +1,5 @@
+Input;Process;Output
+[biogas, natgas, SNG_ren, SNG_conv, hydrogen_ren, hydrogen_conv,heating_oil];pow_combustion_gt;[elec_ren, elec_conv+CO2]
+biogas;pow_combustion_gt_biogas;elec_ren
+natgas;pow_combustion_gt_natgas;elec_conv+CO2
+[SNG_ren, SNG_conv, nat.gas];pow_combustion_gt_SNG;[elec_ren, elec_conv+CO2]
