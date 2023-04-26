@@ -82,7 +82,7 @@ class Adapter:
         scalar_dfs = []
         timeseries_df = []
         for artifact in artifacts:
-            df = self.__get_df_from_artifact(artifact)
+            df = self.__get_df_from_artifact(artifact, process)
             if artifact.datatype == collection.DataType.Scalar:
                 scalar_dfs.append(df)
             else:
@@ -98,7 +98,7 @@ class Adapter:
                     raise structure.StructureError(
                         f"Linked parameter for process '{process}' points to subject '{subject}' which is not unique."
                     )
-                df = self.__get_df_from_artifact(artifacts[0], *parameters)
+                df = self.__get_df_from_artifact(artifacts[0], subject, *parameters)
                 if artifacts[0].datatype == collection.DataType.Scalar:
                     scalar_dfs.append(df)
                 else:
@@ -153,7 +153,7 @@ class Adapter:
                 "You have to init adapter class with structure name in order to use structure functions."
             )
 
-    def __get_df_from_artifact(self, artifact: collection.Artifact, *parameters: str):
+    def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str):
         """
         Returns DataFrame from given artifact.
 
@@ -164,6 +164,8 @@ class Adapter:
         ----------
         artifact: Artifact
             Artifact to get DataFrame from
+        process: str
+            Process to filter (needed in case of multiple subprocesses)
         parameters: tuple[str]
             Parameters to filter DataFrame
 
@@ -181,11 +183,19 @@ class Adapter:
             format="csv",
         )
         df = resource.to_pandas()
+
+        if artifact.multiple_types:
+            df = self.__filter_subprocess(df, process)
         if len(parameters) > 0:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
 
         # Unpack regions:
         return df.explode("region")
+
+    @staticmethod
+    def __filter_subprocess(df: pandas.DataFrame, subprocess: str) -> pandas.DataFrame:
+        df = df[df["type"] == subprocess]
+        return df.drop("type", axis=1)
 
     @staticmethod
     def __filter_parameters(

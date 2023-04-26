@@ -26,6 +26,7 @@ class Artifact:
     version: str
     filename: Optional[str] = None
     datatype: DataType = DataType.Scalar
+    multiple_types: bool = False
 
     @property
     def path(self) -> pathlib.Path:
@@ -210,6 +211,7 @@ def get_artifacts_from_collection(collection: str, process: Optional[str] = None
                     artifact_info["latest_version"],
                     filename,
                     datatype=DataType(artifact_info["datatype"]),
+                    multiple_types=artifact_info["multiple_types"],
                 )
             )
     return artifacts

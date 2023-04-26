@@ -20,7 +20,7 @@ def test_process_of_artifact_with_multiple_subprocesses():
     assert hasattr(artifact, "scalars")
     assert hasattr(artifact, "timeseries")
     assert len(artifact.scalars.columns) == 13
-    assert len(artifact.scalars) == 2
+    assert len(artifact.scalars) == 50
 
 
 def test_process_with_annotations():
