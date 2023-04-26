@@ -14,6 +14,15 @@ def test_process():
     assert len(artifacts.scalars) == 51
 
 
+def test_process_of_artifact_with_multiple_subprocesses():
+    adapter = preprocessing.Adapter("subprocesses", None, "subprocesses_links")
+    artifact = adapter.get_process("wind_onshore")
+    assert hasattr(artifact, "scalars")
+    assert hasattr(artifact, "timeseries")
+    assert len(artifact.scalars.columns) == 13
+    assert len(artifact.scalars) == 50
+
+
 def test_process_with_annotations():
     with utils.turn_on_annotations():
         artifacts = preprocessing.get_process("simple", "battery storage", "hack-a-thon_links_by_subject")
@@ -70,7 +79,8 @@ def test_filter_df():
     data["a"] = [3]
     data["b"] = [5]
     df = pandas.DataFrame(data)
-    filtered_df = preprocessing._filter_parameters(df, ("a",), collection.DataType.Scalar)
+    adapter = preprocessing.Adapter(None)
+    filtered_df = adapter._Adapter__filter_parameters(df, ("a",), collection.DataType.Scalar)
     del data["b"]
     expected_df = pandas.DataFrame(data)
     assert_frame_equal(filtered_df, expected_df)
@@ -102,7 +112,8 @@ def test_merge_regions():
             ],
         }
     )
-    merged_regions = preprocessing._merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
+    adapter = preprocessing.Adapter(None)
+    merged_regions = adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
     expected_df = pandas.DataFrame(
         {
             "region": ["a", "a", "b", "c", "d", "e"],
@@ -148,5 +159,6 @@ def test_duplicate_values_in_merge_regions():
             ],
         }
     )
+    adapter = preprocessing.Adapter(None)
     with pytest.raises(preprocessing.PreprocessingError):
-        preprocessing._merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
+        adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)

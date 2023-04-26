@@ -17,6 +17,13 @@ Here is a template for new release sections
 -
 ```
 
+## [0.10.0] - 2023-04-26
+### Added
+- allow multiple (sub-)processes per table
+
+### Changed
+- collection metadata can contain multiple names and subjects per artifact
+
 ## [0.9.1] - 2023-04-21
 ### Fixed
 - links in `get_process` function

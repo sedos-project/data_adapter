@@ -24,7 +24,7 @@ if not COLLECTIONS_DIR.exists():
         "change path to collection folder by changing environment variable 'COLLECTIONS_DIR'."
     )
 COLLECTION_JSON = "collection.json"
-COLLECTION_META_VERSION = "v2"
+COLLECTION_META_VERSION = "v3"
 
 STRUCTURES_DIR = (
     pathlib.Path(os.environ["STRUCTURES_DIR"]) if "STRUCTURES_DIR" in os.environ else pathlib.Path.cwd() / "structures"
