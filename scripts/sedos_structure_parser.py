@@ -39,7 +39,6 @@ def parse_es_structure(sedos_es_dict: dict) -> pd.DataFrame:
         Structure of energy system with default and parameter-specific inputs & outputs per process
     """
 
-    # structure_file = settings.STRUCTURES_DIR / f"{default_structure}.csv"
     processes = sedos_es_dict["processes"]
     input_output = sedos_es_dict["input_output"]
 
@@ -71,11 +70,3 @@ def write_es_structure_file(es_structure: pd.DataFrame, output_path: str) -> Non
 
     # save to excel
     es_structure.to_excel(rf"{output_path}", index=False)
-
-
-if __name__ == "__main__":
-    sedos_es_dict = read_sedos_bwshare_excel(file_path="SEDOS_Prozesse&Parameter.xlsx")
-
-    es_structure = parse_es_structure(sedos_es_dict=sedos_es_dict)
-
-    write_es_structure_file(es_structure=es_structure, output_path="SEDOS_es_structure.xlsx")
