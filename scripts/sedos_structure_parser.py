@@ -1,23 +1,18 @@
 import pandas as pd
 
 
-def parse_es_structure(file_path: str, output_path: str) -> None:
+def read_sedos_bwshare_excel(file_path: str) -> dict:
     """
-    Parses the es_structure in SEDOS project from two different B&W share tables.
+    Read SEDOS B&W-share excel file.
 
     Parameters
     ----------
-    file_path: str
-        Path to B&W raw xlsx
-    output_path: str
-        Path to output file
-
+    file_path
+        Path to downloaded B&W share file.
     Returns
     -------
-    None
+    dict of dataframes
     """
-
-    # structure_file = settings.STRUCTURES_DIR / f"{default_structure}.csv"
     processes = pd.read_excel(
         io=file_path, engine="openpyxl", sheet_name="Processes", usecols=["Input", "Process", "Output"]
     )
@@ -25,6 +20,28 @@ def parse_es_structure(file_path: str, output_path: str) -> None:
     input_output = pd.read_excel(
         io=file_path, engine="openpyxl", sheet_name="input_output", usecols=["parameter", "process", "input", "output"]
     )
+
+    return {"processes": processes, "input_output": input_output}
+
+
+def parse_es_structure(sedos_es_dict: dict) -> pd.DataFrame:
+    """
+    Parse the es_structure in SEDOS project from two different B&W share tables.
+
+    Parameters
+    ----------
+    sedos_es_dict: dict
+        Dict with dataframe of "processes" and "input_output" sheet
+
+    Returns
+    -------
+    es_structure: pd.Dataframe
+        Structure of energy system with default and parameter-specific inputs & outputs per process
+    """
+
+    # structure_file = settings.STRUCTURES_DIR / f"{default_structure}.csv"
+    processes = sedos_es_dict["processes"]
+    input_output = sedos_es_dict["input_output"]
 
     inputs_outputs_default = pd.DataFrame(
         data={
@@ -47,14 +64,18 @@ def parse_es_structure(file_path: str, output_path: str) -> None:
     es_structure.sort_values(by=["process", "parameter"], inplace=True)
     es_structure.reset_index(inplace=True, drop=True)
 
+    return es_structure
+
+
+def write_es_structure_file(es_structure: pd.DataFrame, output_path: str) -> None:
+
     # save to excel
     es_structure.to_excel(rf"{output_path}", index=False)
 
-    return None
-
 
 if __name__ == "__main__":
-    parse_es_structure(
-        file_path="SEDOS_Prozesse&Parameter.xlsx",
-        output_path="SEDOS_es_structure.xlsx",
-    )
+    sedos_es_dict = read_sedos_bwshare_excel(file_path="SEDOS_Prozesse&Parameter.xlsx")
+
+    es_structure = parse_es_structure(sedos_es_dict=sedos_es_dict)
+
+    write_es_structure_file(es_structure=es_structure, output_path="SEDOS_es_structure.xlsx")
