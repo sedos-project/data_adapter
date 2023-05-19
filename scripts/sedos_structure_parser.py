@@ -1,4 +1,58 @@
 import pandas as pd
+import re
+
+total_list = []
+
+df_com = pd.read_excel(
+    io=r"C:\Users\christoph.muschner\CWM\Python\SEDOS\SEDOS_Modellstruktur.xlsx",
+    engine="openpyxl",
+    sheet_name="Nomenclature_Commodities",
+    usecols=["old name", "new name suggestion"],
+)
+
+process_set = pd.read_excel(
+    io=r"C:\Users\christoph.muschner\CWM\Python\SEDOS\SEDOS_Modellstruktur.xlsx", engine="openpyxl",
+    sheet_name="Process_Set", usecols=["input", "process", "output"]
+)
+
+
+def replace_string(row):
+
+    if not isinstance(row, str):
+        print("Row is type:", type(row), row)
+        row = ""
+        return row
+
+    commodity_mapping = dict(zip(df_com["old name"], df_com["new name suggestion"]))
+
+    row_list = re.split(",|\+", row)
+
+    new_list = [commodity_mapping.get(value, value) for value in row_list]
+
+    common_list = list(set(row_list).intersection(new_list))
+
+    if common_list:
+        total_list.extend(common_list)
+
+    replaced_row = ", ".join([str(elem) for elem in new_list])
+
+    return replaced_row
+
+def map_old_to_new_commodity_names():
+
+    char_replace_dict = {"[": "", "]": "", "+": ",", " ": "", ".": "_", "  ": ""}
+    for col in process_set.columns:
+        for key, value in char_replace_dict.items():
+            process_set[f"{col}"] = process_set[f"{col}"].str.replace(key, value, regex=True)
+
+    cols = ["input", "output"]
+
+    for col in cols:
+        process_set[f"{col}"] = process_set[f"{col}"].apply(replace_string)
+
+    process_set.to_csv(r"C:\Users\christoph.muschner\CWM\Python\SEDOS_DB\process_set_new_com.csv", sep=";")
+
+    return process_set
 
 
 def read_sedos_bwshare_excel(file_path: str) -> dict:
