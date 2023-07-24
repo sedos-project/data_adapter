@@ -1,10 +1,11 @@
+"""Module to preprocess process data"""
 import logging
 import math
 import pathlib
 import warnings
 from collections import ChainMap
-from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Iterable
 
 import frictionless
 import pandas as pd
@@ -22,12 +23,14 @@ TIMESERIES_MERGE_GROUPS = [
 
 @dataclass
 class Process:
+    """Holds process data"""
+
     scalars: pd.DataFrame
     timeseries: pd.DataFrame
 
 
 class PreprocessingError(Exception):
-    """Raised if."""
+    """Raised if preprocessing fails"""
 
 
 class Adapter:
@@ -153,7 +156,7 @@ class Adapter:
                 "You have to init adapter class with structure name in order to use structure functions.",
             )
 
-    def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str):
+    def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str) -> pd.DataFrame:
         """Returns DataFrame from given artifact.
 
         If parameters are given, artifact columns are filtered for given parameters
@@ -189,7 +192,9 @@ class Adapter:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
 
         # Unpack regions:
-        return df.explode("region")
+        if artifact.datatype == collection.DataType.Scalar:
+            return df.explode("region")
+        return df
 
     @staticmethod
     def __filter_subprocess(df: pd.DataFrame, subprocess: str) -> pd.DataFrame:
@@ -241,6 +246,7 @@ class Adapter:
         if len(df) == 0:
             return pd.DataFrame(dtype=object)
         concatenated_dfs = pd.concat(df)
+        concatenated_dfs["region"] = concatenated_dfs["region"].apply(lambda x: tuple(x) if isinstance(x, list) else x)
         groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
         merged_regions = concatenated_dfs.groupby(groups).apply(self.__apply_parameter_merge, datatype=datatype)
         return merged_regions.reset_index()
