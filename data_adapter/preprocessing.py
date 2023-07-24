@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Iterable, List, Optional
 
 import frictionless
-import pandas
+import pandas as pd
 
 from data_adapter import collection, core, settings, structure
 
@@ -22,8 +22,8 @@ TIMESERIES_MERGE_GROUPS = [
 
 @dataclass
 class Process:
-    scalars: pandas.DataFrame
-    timeseries: pandas.DataFrame
+    scalars: pd.DataFrame
+    timeseries: pd.DataFrame
 
 
 class PreprocessingError(Exception):
@@ -171,7 +171,7 @@ class Adapter:
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
         """
         metadata = artifact.metadata
         fl_table_schema = core.reformat_oep_to_frictionless_schema(metadata["resources"][0]["schema"])
@@ -193,20 +193,20 @@ class Adapter:
         return df.explode("region")
 
     @staticmethod
-    def __filter_subprocess(df: pandas.DataFrame, subprocess: str) -> pandas.DataFrame:
+    def __filter_subprocess(df: pd.DataFrame, subprocess: str) -> pd.DataFrame:
         df = df[df["type"] == subprocess]
         return df.drop("type", axis=1)
 
     @staticmethod
     def __filter_parameters(
-        df: pandas.DataFrame, parameters: Iterable[str], datatype: collection.DataType
-    ) -> pandas.DataFrame:
+        df: pd.DataFrame, parameters: Iterable[str], datatype: collection.DataType
+    ) -> pd.DataFrame:
         """
         Filters dataframe columns by parameter list.
 
         Parameters
         ----------
-        df: pandas.DataFrame
+        df: pd.DataFrame
             Data to filter columns from
         parameters: Iterable[str]
             Tuple of parameters to filter columns
@@ -215,7 +215,7 @@ class Adapter:
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             Filtered data frame with remaining columns from parameter list
         """
         columns = set(core.SCALAR_COLUMNS) if datatype is collection.DataType.Scalar else set(core.TIMESERIES_COLUMNS)
@@ -223,25 +223,25 @@ class Adapter:
         drop_columns = set(df.columns).difference(columns)
         return df.drop(drop_columns, axis=1)
 
-    def __merge_parameters(self, *df: pandas.DataFrame, datatype: collection.DataType) -> pandas.DataFrame:
+    def __merge_parameters(self, *df: pd.DataFrame, datatype: collection.DataType) -> pd.DataFrame:
         """
         Merges parameters.
 
         Parameters
         ----------
-        df: pandas.DataFrame
+        df: pd.DataFrame
             Data holding list of strings as regions
         datatype: collection.DataType
             Scalar or timeseries
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             Each region in the dataframe has its own row
         """
         if len(df) == 0:
-            return pandas.DataFrame(dtype=object)
-        concatenated_dfs = pandas.concat(df)
+            return pd.DataFrame(dtype=object)
+        concatenated_dfs = pd.concat(df)
         groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
         merged_regions = concatenated_dfs.groupby(groups).apply(self.__apply_parameter_merge, datatype=datatype)
         return merged_regions.reset_index()
@@ -250,7 +250,7 @@ class Adapter:
         datamodel_columns = core.SCALAR_COLUMNS if datatype == collection.DataType.Scalar else core.TIMESERIES_COLUMNS
         groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
 
-        series = pandas.Series(dtype=object)
+        series = pd.Series(dtype=object)
         for column in data.columns:
             if column in ["id"] + groups:
                 continue  # Drop columns

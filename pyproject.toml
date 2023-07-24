@@ -47,6 +47,7 @@ line-length = 120
 
 [tool.ruff]
 line-length = 120
+select = "ALL"
 
 [tool.pylama.linter.pycodestyle]
 max_line_length = 120
