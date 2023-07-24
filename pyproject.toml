@@ -47,7 +47,6 @@ line-length = 120
 
 [tool.ruff]
 line-length = 120
-select = ["ALL"]
 exclude = ["tests/*"]
 
 [tool.pylama.linter.pycodestyle]

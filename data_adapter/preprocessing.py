@@ -66,6 +66,8 @@ class Adapter:
         ------
         FileNotFoundError
             if collection is not present in collection folder
+        KeyError
+            if process cannot be found in collection
         StructureError
             if additional parameters of process are related to multiple subjects
         """
@@ -75,6 +77,8 @@ class Adapter:
                 f"Could not find {self.collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'.",
             )
         artifacts = collection.get_artifacts_from_collection(self.collection_name, process)
+        if not artifacts:
+            raise KeyError(f"Could not find {process=} in collection '{self.collection_name}'.")
 
         # Get dataframes from processes by subject
         scalar_dfs = []
