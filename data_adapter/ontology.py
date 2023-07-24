@@ -1,8 +1,8 @@
 import pathlib
 from collections import defaultdict
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Generator, Union
 
 from data_adapter import collection, core
 
@@ -20,10 +20,10 @@ class Annotation:
 
 
 class AnnotationError(Exception):
-    """Raised if annotation is corrupted"""
+    """Raised if annotation is corrupted."""
 
 
-def get_subject(metadata: Union[str, pathlib.Path, dict]) -> str:
+def get_subject(metadata: str | pathlib.Path | dict) -> str:
     metadata_dict = core.get_metadata(metadata)
     if "subject" not in metadata_dict:
         return metadata_dict["name"]
@@ -34,8 +34,7 @@ def get_subject(metadata: Union[str, pathlib.Path, dict]) -> str:
 
 
 def get_name_from_ontology(oeo_path: str) -> str:
-    """
-    Looks up ontology API and returns name of concept
+    """Looks up ontology API and returns name of concept.
 
     Parameters
     ----------
@@ -78,8 +77,7 @@ def get_name_from_annotation(annotation) -> str:
 
 
 def __check_quality_of_annotation(annotation: list[dict[str, str]]) -> AnnotationQuality:
-    """
-    Checks quality for given annotation.
+    """Checks quality for given annotation.
 
     Parameters
     ----------
@@ -110,8 +108,7 @@ def __check_quality_of_annotation(annotation: list[dict[str, str]]) -> Annotatio
 
 
 def check_annotations_in_metadata(metadata: dict) -> Generator[Annotation, None, None]:
-    """
-    Checks annotations for every field+subject in given metadata
+    """Checks annotations for every field+subject in given metadata.
 
     Parameters
     ----------
@@ -119,7 +116,7 @@ def check_annotations_in_metadata(metadata: dict) -> Generator[Annotation, None,
         Metadata
 
     Yields
-    -------
+    ------
     Annotation
         includes name of annotation and its quality
     """
@@ -137,8 +134,7 @@ def check_annotations_in_metadata(metadata: dict) -> Generator[Annotation, None,
 def check_annotations_in_collection(
     collection_name: str,
 ) -> dict[str, list[Annotation]]:
-    """
-    Checks annotations for every field+subject in artifacts of given collection.
+    """Checks annotations for every field+subject in artifacts of given collection.
 
     Parameters
     ----------
@@ -150,7 +146,6 @@ def check_annotations_in_collection(
     dict[str, list[Annotation]]
         Dictionary of artifacts (key) with its annotations and annotation quality for each field and subject.
     """
-
     annotation_qualities: dict = defaultdict(list)
     artifacts = collection.get_artifacts_from_collection(collection_name)
     for artifact in artifacts:

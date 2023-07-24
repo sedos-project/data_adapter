@@ -3,8 +3,8 @@ import math
 import pathlib
 import warnings
 from collections import ChainMap
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List, Optional
 
 import frictionless
 import pandas as pd
@@ -27,13 +27,12 @@ class Process:
 
 
 class PreprocessingError(Exception):
-    """Raised if"""
+    """Raised if."""
 
 
 class Adapter:
-    def __init__(self, collection_name: str, structure_name: Optional[str] = None, links_name: Optional[str] = None):
-        """
-        The adapter is used to handle collection, structure and links centralized.
+    def __init__(self, collection_name: str, structure_name: str | None = None, links_name: str | None = None) -> None:
+        """The adapter is used to handle collection, structure and links centralized.
 
         Parameters
         ----------
@@ -49,8 +48,7 @@ class Adapter:
         self.links_name = links_name
 
     def get_process(self, process: str) -> Process:
-        """
-        Loads data for given process from collection.
+        """Loads data for given process from collection.
 
         Column headers are translated using ontology. Multiple dataframes per datatype are merged.
 
@@ -74,7 +72,7 @@ class Adapter:
         collection_folder = pathlib.Path(settings.COLLECTIONS_DIR) / self.collection_name
         if not collection_folder.exists():
             raise FileNotFoundError(
-                f"Could not find {self.collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'."
+                f"Could not find {self.collection_name=} in collection folder '{settings.COLLECTIONS_DIR}'.",
             )
         artifacts = collection.get_artifacts_from_collection(self.collection_name, process)
 
@@ -96,7 +94,7 @@ class Adapter:
                     raise structure.StructureError(f"Could not find linked parameter for {process=} and {subject=}.")
                 if len(artifacts) > 1:
                     raise structure.StructureError(
-                        f"Linked parameter for process '{process}' points to subject '{subject}' which is not unique."
+                        f"Linked parameter for process '{process}' points to subject '{subject}' which is not unique.",
                     )
                 df = self.__get_df_from_artifact(artifacts[0], subject, *parameters)
                 if artifacts[0].datatype == collection.DataType.Scalar:
@@ -110,8 +108,7 @@ class Adapter:
         )
 
     def get_structure(self) -> dict:
-        """
-        Return energy structure for structure name of adapter
+        """Return energy structure for structure name of adapter.
 
         Returns
         -------
@@ -128,12 +125,11 @@ class Adapter:
         else:
             raise structure.StructureError(
                 "No structure name given. "
-                "You have to init adapter class with structure name in order to use structure functions."
+                "You have to init adapter class with structure name in order to use structure functions.",
             )
 
-    def get_process_list(self) -> List[str]:
-        """
-        Return all processes from given structure
+    def get_process_list(self) -> list[str]:
+        """Return all processes from given structure.
 
         Returns
         -------
@@ -150,12 +146,11 @@ class Adapter:
         else:
             raise structure.StructureError(
                 "No structure name given. "
-                "You have to init adapter class with structure name in order to use structure functions."
+                "You have to init adapter class with structure name in order to use structure functions.",
             )
 
     def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str):
-        """
-        Returns DataFrame from given artifact.
+        """Returns DataFrame from given artifact.
 
         If parameters are given, artifact columns are filtered for given parameters
         and default columns from datatype.
@@ -199,10 +194,11 @@ class Adapter:
 
     @staticmethod
     def __filter_parameters(
-        df: pd.DataFrame, parameters: Iterable[str], datatype: collection.DataType
+        df: pd.DataFrame,
+        parameters: Iterable[str],
+        datatype: collection.DataType,
     ) -> pd.DataFrame:
-        """
-        Filters dataframe columns by parameter list.
+        """Filters dataframe columns by parameter list.
 
         Parameters
         ----------
@@ -224,8 +220,7 @@ class Adapter:
         return df.drop(drop_columns, axis=1)
 
     def __merge_parameters(self, *df: pd.DataFrame, datatype: collection.DataType) -> pd.DataFrame:
-        """
-        Merges parameters.
+        """Merges parameters.
 
         Parameters
         ----------
@@ -252,7 +247,7 @@ class Adapter:
 
         series = pd.Series(dtype=object)
         for column in data.columns:
-            if column in ["id"] + groups:
+            if column in ["id", *groups]:
                 continue  # Drop columns
             try:
                 series[column] = self.__merge_column(column, data[column], datamodel_columns)
@@ -283,9 +278,70 @@ class Adapter:
         return value
 
 
-def get_process(collection_name: str, process: str, links: str) -> Process:
+def refactor_timeseries(timeseries: pd.DataFrame) -> pd.DataFrame:
+    """Takes timeseries in single line parameter-model format (start, end, freq,
+    region, ts-array...) and turns into Tabular matching format with timeindex
+    as timeseries timestamps, technology-region as header and columns
+    containing data.
+
+    Parameters
+    ----------
+    timeseries : pd.Dataframe
+        Raw timeseries containing columns with start, end and resolution of timeseries and array
+        containing related data.
+
+    Returns
+    -------
+    pd.DataFrame:
+        Tabular form of timeseries for multiple periods of similar
+        technologies and regions.
     """
-    Loads data for given process from collection. (Deprecated! Use Adapter class instead)
+    # Combine all time series into one DataFrame
+    df_timeseries = pd.DataFrame()
+    if timeseries.empty:
+        return df_timeseries
+    # Iterate over different time periods/years
+    for (start, end, freq), df in timeseries.groupby(
+        ["timeindex_start", "timeindex_stop", "timeindex_resolution"],
+    ):
+        # Get column names of timeseries only
+        ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
+
+        # Iterate over timeseries columns/technologies
+        # e.g. multiple efficiencies, onshore/offshore
+        df_timeseries_year = pd.DataFrame()
+        for profile_name in ts_columns:
+            # Unnest timeseries arrays for all regions
+            profile_column = df[["region", profile_name]].explode(profile_name)
+            # Creating cumcount index as fake-timeindex for every region
+            profile_column["index"] = profile_column.groupby("region").cumcount()
+            # Pivot table to have regions as columns
+            profile_column_pivot = pd.pivot_table(
+                profile_column,
+                values=profile_name,
+                index=["index"],
+                columns=["region"],
+            )
+            profile_column_pivot.reset_index(drop=True)
+            # Rename column to: profile_name/technology + region
+            profile_column_pivot.columns = [f"{profile_name}_{region}" for region in profile_column_pivot.columns]
+            # Add additional timeseries for same timeindex as columns
+            df_timeseries_year = pd.concat(
+                [df_timeseries_year, profile_column_pivot],
+                axis=1,
+            )
+
+        # Replace timeindex with actual date range
+        timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
+        df_timeseries_year.index = timeindex
+        # Append additional date ranges
+        df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
+
+    return df_timeseries
+
+
+def get_process(collection_name: str, process: str, links: str) -> Process:
+    """Loads data for given process from collection. (Deprecated! Use Adapter class instead).
 
     Column headers are translated using ontology. Multiple dataframes per datatype are merged.
 

@@ -1,7 +1,6 @@
 import datetime
 import json
 import pathlib
-from typing import Union
 
 SCALAR_COLUMNS = {
     "id": int,
@@ -37,10 +36,10 @@ OEP_TO_FRICTIONLESS_CONVERSION = {
 }
 
 
-def get_metadata(metadata: Union[str, pathlib.Path, dict]):
+def get_metadata(metadata: str | pathlib.Path | dict):
     if isinstance(metadata, dict):
         return metadata
-    with open(metadata, "r", encoding="utf-8") as metadata_file:
+    with open(metadata, encoding="utf-8") as metadata_file:
         return json.load(metadata_file)
 
 

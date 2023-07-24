@@ -4,7 +4,6 @@ import os
 import pathlib
 import re
 import urllib.parse
-from typing import List, Union
 
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
@@ -12,9 +11,8 @@ from SPARQLWrapper import JSON, SPARQLWrapper2
 from data_adapter import collection, settings
 
 
-def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
-    """
-    Downloads an artifact file and stores it under given filename
+def download_artifact(artifact_file: str, filename: pathlib.Path | str):
+    """Downloads an artifact file and stores it under given filename.
 
     Parameters
     ----------
@@ -36,7 +34,7 @@ def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
         f.write(re.sub(b"'", b'""', response.content))
 
 
-def get_artifact_filenames(artifact: str, version: str) -> List[str]:
+def get_artifact_filenames(artifact: str, version: str) -> list[str]:
     sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
     sparql.setReturnFormat(JSON)
 
@@ -57,15 +55,14 @@ def get_artifact_filenames(artifact: str, version: str) -> List[str]:
                 ?distribution dataid:file ?file .
             }}
         }}
-        """
+        """,
     )
     result = sparql.query()
     return [file["file"].value for file in result.bindings]
 
 
 def get_latest_version_of_artifact(artifact: str) -> str:
-    """
-    Returns the latest version of given artifact
+    """Returns the latest version of given artifact.
 
     Parameters
     ----------
@@ -96,15 +93,14 @@ def get_latest_version_of_artifact(artifact: str) -> str:
                 ?dataset dct:hasVersion ?version .
             }}
         }} ORDER BY DESC (?version) LIMIT 1
-        """
+        """,
     )
     result = sparql.query()
     return result.bindings[0]["version"].value
 
 
-def get_artifacts_from_collection(collection: str) -> List[str]:
-    """
-    Returns list of all artifacts found in given collection
+def get_artifacts_from_collection(collection: str) -> list[str]:
+    """Returns list of all artifacts found in given collection.
 
     Parameters
     ----------
@@ -131,8 +127,7 @@ def get_artifacts_from_collection(collection: str) -> List[str]:
 
 
 def download_collection(collection_url: str, force_download=False):
-    """
-    Downloads all artifact files for given collection and saves it to local output directory
+    """Downloads all artifact files for given collection and saves it to local output directory.
 
     Parameters
     ----------
@@ -152,7 +147,7 @@ def download_collection(collection_url: str, force_download=False):
     collection_meta = {"name": collection_url, "version": settings.COLLECTION_META_VERSION, "artifacts": {}}
     if collection_dir.exists():
         if (collection_dir / settings.COLLECTION_JSON).exists():
-            with open(collection_dir / settings.COLLECTION_JSON, "r", encoding="utf-8") as collection_json_file:
+            with open(collection_dir / settings.COLLECTION_JSON, encoding="utf-8") as collection_json_file:
                 collection_meta = json.load(collection_json_file)
     else:
         collection_dir.mkdir()
@@ -160,7 +155,7 @@ def download_collection(collection_url: str, force_download=False):
     if collection_meta.get("version", None) != settings.COLLECTION_META_VERSION:
         raise collection.CollectionError(
             "Collection metadata has changed. Please remove collection and re-download. "
-            "Otherwise, strange behaviours could occur."
+            "Otherwise, strange behaviours could occur.",
         )
 
     artifacts = get_artifacts_from_collection(collection_url)
@@ -178,8 +173,7 @@ def __download_artifacts(
     collection_meta: dict,
     force_download: bool,
 ):
-    """
-    Download artifacts from collection.
+    """Download artifacts from collection.
 
     Downloads artifacts into collection folder and updates/creates collection metadata.
 

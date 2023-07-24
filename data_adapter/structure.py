@@ -15,7 +15,7 @@ IDENTIFIER_PATTERN = re.compile("^[a-z][a-z0-9_, ]{0,%s}$" % (MAX_IDENTIFIER_LEN
 
 
 class StructureError(Exception):
-    """Raised if structure is corrupted"""
+    """Raised if structure is corrupted."""
 
 
 Link = namedtuple("Link", ("linked_process", "parameter"))
@@ -23,7 +23,7 @@ Link = namedtuple("Link", ("linked_process", "parameter"))
 
 def get_links(links_name: str):
     link_filename = settings.STRUCTURES_DIR / f"{links_name}.csv"
-    with open(link_filename, "r", encoding="utf-8") as link_file:
+    with open(link_filename, encoding="utf-8") as link_file:
         link_csv = csv.DictReader(link_file, delimiter=";")
         links = defaultdict(list)
         for line in link_csv:
@@ -42,8 +42,7 @@ def get_links_for_process(process: str, links_name: str):
 
 
 def check_character_convention(dataframe: pd.DataFrame):
-    """
-    Check in parameter-, process-, input-and output-column for character convention.
+    """Check in parameter-, process-, input-and output-column for character convention.
 
     Parameters
     ----------
@@ -65,8 +64,7 @@ def check_character_convention(dataframe: pd.DataFrame):
 
 
 def get_energy_structure(structure: str) -> dict:
-    """
-    Parse processes and its parameters with corresponding inputs and outputs to dict.
+    """Parse processes and its parameters with corresponding inputs and outputs to dict.
 
     Parameters
     ----------

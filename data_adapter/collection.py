@@ -1,30 +1,34 @@
+"""Module handles extraction of processes from databus collection."""
 import json
 import pathlib
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, Optional, Union
 
-import pandas
+import pandas as pd
 
 from data_adapter import core, ontology, settings
 
 
 class CollectionError(Exception):
-    """Raised if collection data or metadata is invalid"""
+    """Raised if collection data or metadata is invalid."""
 
 
 class DataType(IntEnum):
+    """Distinguishes between scalar and timeseries data type."""
+
     Scalar = 0
     Timeseries = 1
 
 
 @dataclass
 class Artifact:
+    """Holds information on artifact."""
+
     collection: str
     group: str
     artifact: str
     version: str
-    filename: Optional[str] = None
+    filename: str | None = None
     datatype: DataType = DataType.Scalar
     multiple_types: bool = False
 
@@ -34,7 +38,7 @@ class Artifact:
 
     @property
     def metadata(self) -> dict:
-        with open(self.path / self.get_filename(".json"), "r", encoding="utf-8") as metadata_file:
+        with open(self.path / self.get_filename(".json"), encoding="utf-8") as metadata_file:
             return json.load(metadata_file)
 
     def get_filename(self, suffix: str) -> str:
@@ -45,8 +49,7 @@ class Artifact:
 
 
 def check_collection_meta(collection_meta: dict):
-    """
-    Simple checks if collection metadata is up-to-date
+    """Simple checks if collection metadata is up-to-date.
 
     Parameters
     ----------
@@ -67,13 +70,12 @@ def check_collection_meta(collection_meta: dict):
                 if key not in artifact_infos:
                     raise CollectionError(
                         f"Collection metadata is invalid ({group=}, {artifact=} misses {key=}). "
-                        "Collection metadata may changed. Please re-download collection and try again."
+                        "Collection metadata may changed. Please re-download collection and try again.",
                     )
 
 
 def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
-    """
-    Interferes downloaded collection and updates names and subjects of artifacts in collection metadata file
+    """Interferes downloaded collection and updates names and subjects of artifacts in collection metadata file.
 
     Parameters
     ----------
@@ -105,7 +107,7 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
             if type_field:
                 collection_meta["artifacts"][group_name][artifact_name]["multiple_types"] = True
                 collection_meta["artifacts"][group_name][artifact_name]["names"] = get_subprocesses_from_artifact(
-                    artifact
+                    artifact,
                 )
                 collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [
                     ontology.get_name_from_annotation(value_reference)
@@ -121,7 +123,7 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
     return collection_meta
 
 
-def get_data_type(metadata: Union[str, pathlib.Path, dict]):
+def get_data_type(metadata: str | pathlib.Path | dict):
     metadata_dict: dict = core.get_metadata(metadata)
     for field in metadata_dict["resources"][0]["schema"]["fields"]:
         if field["name"].startswith("timeindex"):
@@ -129,9 +131,8 @@ def get_data_type(metadata: Union[str, pathlib.Path, dict]):
     return DataType.Scalar
 
 
-def get_subprocesses_from_artifact(artifact: Artifact) -> List[str]:
-    """
-    Return list of subprocesses for given artifact
+def get_subprocesses_from_artifact(artifact: Artifact) -> list[str]:
+    """Return list of subprocesses for given artifact.
 
     Returns entries of column "type" as list.
 
@@ -145,12 +146,11 @@ def get_subprocesses_from_artifact(artifact: Artifact) -> List[str]:
     List[str]
         List of subprocesses in given artifact
     """
-    return list(pandas.read_csv(artifact.path / artifact.get_filename(".csv"), usecols=("type",))["type"])
+    return list(pd.read_csv(artifact.path / artifact.get_filename(".csv"), usecols=("type",))["type"])
 
 
 def get_collection_meta(collection: str) -> dict:
-    """
-    Returns collection meta file if present
+    """Returns collection meta file if present.
 
     Parameters
     ----------
@@ -171,17 +171,17 @@ def get_collection_meta(collection: str) -> dict:
     collection_meta_file = collection_folder / settings.COLLECTION_JSON
     if not collection_meta_file.exists():
         raise FileNotFoundError(
-            f"Could not find collection meta ('{settings.COLLECTION_JSON}') in collection folder '{collection_folder}'."
+            f"Could not find collection meta ('{settings.COLLECTION_JSON}') "
+            f"in collection folder '{collection_folder}'.",
         )
-    with open(collection_meta_file, "r", encoding="utf-8") as meta_file:
+    with open(collection_meta_file, encoding="utf-8") as meta_file:
         metadata = json.load(meta_file)
     check_collection_meta(metadata)
     return metadata
 
 
-def get_artifacts_from_collection(collection: str, process: Optional[str] = None) -> List[Artifact]:
-    """
-    Returns list of artifacts belonging to given process (subject)
+def get_artifacts_from_collection(collection: str, process: str | None = None) -> list[Artifact]:
+    """Returns list of artifacts belonging to given process (subject).
 
     Parameters
     ----------
@@ -212,6 +212,6 @@ def get_artifacts_from_collection(collection: str, process: Optional[str] = None
                     filename,
                     datatype=DataType(artifact_info["datatype"]),
                     multiple_types=artifact_info["multiple_types"],
-                )
+                ),
             )
     return artifacts

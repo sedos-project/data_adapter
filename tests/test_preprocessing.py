@@ -110,7 +110,7 @@ def test_merge_regions():
                 {"v1": "a"},
                 {},
             ],
-        }
+        },
     )
     adapter = preprocessing.Adapter(None)
     merged_regions = adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
@@ -136,7 +136,7 @@ def test_merge_regions():
                 {"v1": "a"},
                 {"v1": "a"},
             ],
-        }
+        },
     )
     assert_frame_equal(merged_regions, expected_df)
 
@@ -157,7 +157,7 @@ def test_duplicate_values_in_merge_regions():
                 {},
                 {"v1": "a"},
             ],
-        }
+        },
     )
     adapter = preprocessing.Adapter(None)
     with pytest.raises(preprocessing.PreprocessingError):

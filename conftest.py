@@ -1,4 +1,4 @@
-"""This module exists, so that tests are started from root folder"""
+"""Module exists, so that tests are started from root folder."""
 
 from dotenv import load_dotenv
 

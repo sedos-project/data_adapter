@@ -21,7 +21,7 @@ if not COLLECTIONS_DIR.exists():
     raise FileNotFoundError(
         f"Could not find collections directory '{COLLECTIONS_DIR}'. "
         "You should either create the collections folder or "
-        "change path to collection folder by changing environment variable 'COLLECTIONS_DIR'."
+        "change path to collection folder by changing environment variable 'COLLECTIONS_DIR'.",
     )
 COLLECTION_JSON = "collection.json"
 COLLECTION_META_VERSION = "v3"
@@ -33,7 +33,7 @@ if not STRUCTURES_DIR.exists():
     raise FileNotFoundError(
         f"Could not find structure directory '{STRUCTURES_DIR}'. "
         "You should either create the structure folder or "
-        "change path to structure folder by changing environment variable 'STRUCTURES_DIR'."
+        "change path to structure folder by changing environment variable 'STRUCTURES_DIR'.",
     )
 
 DATABUS_ENDPOINT = "https://energy.databus.dbpedia.org/sparql"

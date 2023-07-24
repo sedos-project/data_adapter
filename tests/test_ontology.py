@@ -60,9 +60,9 @@ def test_check_annotations():
                                 {"name": "name2", "path": "oeo"},
                             ],
                         },
-                    ]
-                }
-            }
+                    ],
+                },
+            },
         ],
     }
     checks = list(ontology.check_annotations_in_metadata(metadata_with_multiple_fields))
@@ -77,5 +77,3 @@ def test_check_annotations():
     assert checks[3].quality == ontology.AnnotationQuality.NameAnnotation
     assert checks[4].field == "name"
     assert checks[4].quality == ontology.AnnotationQuality.NameAnnotation
-    # assert checks[5].field == "oeo"
-    # assert checks[5].quality == ontology.AnnotationQuality.OEOAnnotation
