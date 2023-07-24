@@ -162,3 +162,9 @@ def test_duplicate_values_in_merge_regions():
     adapter = preprocessing.Adapter(None)
     with pytest.raises(preprocessing.PreprocessingError):
         adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
+
+
+def test_refactor_timeseries():
+    adapter = preprocessing.Adapter("refactor_timeseries")
+    artifact = adapter.get_process("modex_capacity_factor")
+    assert len(artifact.timeseries) == 4
