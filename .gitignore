@@ -1,2 +1,4 @@
 /collections/*
 /structures/*
+/.venv/
+/.idea/
