@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Changed
+- timeseries are turned into dataframes with timeindex and multiindex columns containing name and regions
+
 ## [0.10.0] - 2023-04-26
 ### Added
 - allow multiple (sub-)processes per table

@@ -111,7 +111,9 @@ class Adapter:
 
         return Process(
             self.__merge_parameters(*scalar_dfs, datatype=collection.DataType.Scalar),
-            self.__merge_parameters(*timeseries_df, datatype=collection.DataType.Timeseries),
+            self.__refactor_timeseries(
+                self.__merge_parameters(*timeseries_df, datatype=collection.DataType.Timeseries)
+            ),
         )
 
     def get_structure(self) -> dict:
@@ -287,67 +289,38 @@ class Adapter:
             value = v
         return value
 
+    @staticmethod
+    def __refactor_timeseries(timeseries_raw: pd.DataFrame) -> pd.DataFrame:
+        """Takes timeseries in single line parameter-model format (start, end, freq,
+        region, ts-array...) and turns into Tabular matching format with timeindex
+        as timeseries timestamps, technology-region as header and columns
+        containing data.
 
-def refactor_timeseries(timeseries: pd.DataFrame) -> pd.DataFrame:
-    """Takes timeseries in single line parameter-model format (start, end, freq,
-    region, ts-array...) and turns into Tabular matching format with timeindex
-    as timeseries timestamps, technology-region as header and columns
-    containing data.
+        Parameters
+        ----------
+        timeseries_raw : pd.Dataframe
+            Raw timeseries containing columns with start, end and resolution of timeseries and array
+            containing related data.
 
-    Parameters
-    ----------
-    timeseries : pd.Dataframe
-        Raw timeseries containing columns with start, end and resolution of timeseries and array
-        containing related data.
-
-    Returns
-    -------
-    pd.DataFrame:
-        Tabular form of timeseries for multiple periods of similar
-        technologies and regions.
-    """
-    # Combine all time series into one DataFrame
-    df_timeseries = pd.DataFrame()
-    if timeseries.empty:
-        return df_timeseries
-    # Iterate over different time periods/years
-    for (start, end, freq), df in timeseries.groupby(
-        ["timeindex_start", "timeindex_stop", "timeindex_resolution"],
-    ):
-        # Get column names of timeseries only
-        ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
-
-        # Iterate over timeseries columns/technologies
-        # e.g. multiple efficiencies, onshore/offshore
-        df_timeseries_year = pd.DataFrame()
-        for profile_name in ts_columns:
-            # Unnest timeseries arrays for all regions
-            profile_column = df[["region", profile_name]].explode(profile_name)
-            # Creating cumcount index as fake-timeindex for every region
-            profile_column["index"] = profile_column.groupby("region").cumcount()
-            # Pivot table to have regions as columns
-            profile_column_pivot = pd.pivot_table(
-                profile_column,
-                values=profile_name,
-                index=["index"],
-                columns=["region"],
+        Returns
+        -------
+        pd.DataFrame:
+            Tabular form of timeseries for multiple periods of similar
+            technologies and regions.
+        """
+        if timeseries_raw.empty:
+            return timeseries_raw
+        ts_columns = set(timeseries_raw.columns).difference(core.TIMESERIES_COLUMNS.keys())
+        timeseries = []
+        for _, row in timeseries_raw.iterrows():
+            timeindex = pd.date_range(
+                start=row["timeindex_start"], end=row["timeindex_stop"], freq=pd.Timedelta(row["timeindex_resolution"])
             )
-            profile_column_pivot.reset_index(drop=True)
-            # Rename column to: profile_name/technology + region
-            profile_column_pivot.columns = [f"{profile_name}_{region}" for region in profile_column_pivot.columns]
-            # Add additional timeseries for same timeindex as columns
-            df_timeseries_year = pd.concat(
-                [df_timeseries_year, profile_column_pivot],
-                axis=1,
-            )
-
-        # Replace timeindex with actual date range
-        timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
-        df_timeseries_year.index = timeindex
-        # Append additional date ranges
-        df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
-
-    return df_timeseries
+            for ts_column in ts_columns:
+                timeseries.append(pd.Series(row[ts_column], index=timeindex, name=(ts_column, row["region"])))
+        merged_timeseries = pd.concat(timeseries, axis=1)
+        merged_timeseries.columns.names = ("name", "region")
+        return merged_timeseries
 
 
 def get_process(collection_name: str, process: str, links: str) -> Process:

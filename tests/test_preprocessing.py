@@ -38,9 +38,10 @@ def test_process_with_additional_data():
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 13
     assert len(artifacts.scalars) == 51
-    assert len(artifacts.timeseries.columns) == 9
-    assert len(artifacts.timeseries) == 4
-    assert len(artifacts.timeseries["onshore"].dropna().iloc[0]) == 8760
+    assert len(artifacts.timeseries.columns) == 4
+    assert len(artifacts.timeseries) == 8760
+    assert set(artifacts.timeseries.columns.get_level_values("name")) == {"onshore"}
+    assert {item[0] for item in artifacts.timeseries.columns.get_level_values("region")} == {"HH", "HE", "NI", "MV"}
 
 
 def test_process_with_additional_data_with_annotations():
@@ -50,9 +51,10 @@ def test_process_with_additional_data_with_annotations():
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 13
     assert len(artifacts.scalars) == 51
-    assert len(artifacts.timeseries.columns) == 9
-    assert len(artifacts.timeseries) == 4
-    assert len(artifacts.timeseries["onshore"].dropna().iloc[0]) == 8760
+    assert len(artifacts.timeseries.columns) == 4
+    assert len(artifacts.timeseries) == 8760
+    assert set(artifacts.timeseries.columns.get_level_values("name")) == {"onshore"}
+    assert {item[0] for item in artifacts.timeseries.columns.get_level_values("region")} == {"HH", "HE", "NI", "MV"}
 
 
 def test_process_with_multiple_artifacts_for_process():
@@ -61,7 +63,6 @@ def test_process_with_multiple_artifacts_for_process():
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 14
     assert len(artifacts.scalars) == 51
-    assert len(artifacts.timeseries) == 4
 
 
 def test_process_with_multiple_artifacts_for_process_with_annotations():
@@ -71,7 +72,6 @@ def test_process_with_multiple_artifacts_for_process_with_annotations():
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 14
     assert len(artifacts.scalars) == 51
-    assert len(artifacts.timeseries) == 4
 
 
 def test_filter_df():
@@ -167,4 +167,5 @@ def test_duplicate_values_in_merge_regions():
 def test_refactor_timeseries():
     adapter = preprocessing.Adapter("refactor_timeseries")
     artifact = adapter.get_process("modex_capacity_factor")
-    assert len(artifact.timeseries) == 4
+    assert len(artifact.timeseries) == 8760 * 2
+    assert len(artifact.timeseries.columns) == 16

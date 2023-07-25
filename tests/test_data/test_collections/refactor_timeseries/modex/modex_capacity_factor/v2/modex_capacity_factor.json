@@ -213,17 +213,6 @@
             "valueReference": []
           },
           {
-            "description": "Bandwith Type",
-            "isAbout": [
-              {
-                "name": "bandwidth type"
-              }
-            ],
-            "name": "bandwidth_type",
-            "type": "json",
-            "valueReference": []
-          },
-          {
             "description": "Version",
             "isAbout": [
               {
@@ -232,18 +221,6 @@
             ],
             "name": "version",
             "type": "text",
-            "valueReference": []
-          },
-          {
-            "description": "None",
-            "isAbout": [
-              {
-                "name": "offshore wind farm",
-                "path": "http://openenergy-platform.org/ontology/oeo/OEO_00000308"
-              }
-            ],
-            "name": "offshore",
-            "type": "float array",
             "valueReference": []
           }
         ],
