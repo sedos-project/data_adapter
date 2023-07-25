@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.11.0] - 2023-07-25
 ### Changed
 - timeseries are turned into dataframes with timeindex and multiindex columns containing name and regions
 
