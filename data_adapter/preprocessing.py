@@ -313,14 +313,19 @@ class Adapter:
         if timeseries_raw.empty:
             return timeseries_raw
         ts_columns = set(timeseries_raw.columns).difference(core.TIMESERIES_COLUMNS.keys())
-        timeseries = []
+        timeseries: dict[tuple, pd.Series] = {}
         for _, row in timeseries_raw.iterrows():
             timeindex = pd.date_range(
                 start=row["timeindex_start"], end=row["timeindex_stop"], freq=pd.Timedelta(row["timeindex_resolution"])
             )
             for ts_column in ts_columns:
-                timeseries.append(pd.Series(row[ts_column], index=timeindex, name=(ts_column, row["region"])))
-        merged_timeseries = pd.concat(timeseries, axis=1)
+                ts_index = (ts_column, row["region"])
+                ts_series = pd.Series(row[ts_column], index=timeindex, name=ts_index)
+                if ts_index in timeseries:
+                    timeseries[ts_index] = pd.concat([timeseries[ts_index], ts_series])
+                else:
+                    timeseries[ts_index] = ts_series
+        merged_timeseries = pd.concat(timeseries.values(), axis=1)
         merged_timeseries.columns.names = ("name", "region")
         return merged_timeseries
 

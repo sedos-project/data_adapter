@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Fixed
+- timeseries refactoring for multiple periods
+
 ## [0.11.1] - 2023-08-17
 ### Fixed
 - typing error for python versions <3.10
