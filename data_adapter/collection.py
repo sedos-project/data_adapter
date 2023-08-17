@@ -3,6 +3,7 @@ import json
 import pathlib
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -28,7 +29,7 @@ class Artifact:
     group: str
     artifact: str
     version: str
-    filename: str | None = None
+    filename: Optional[str] = None
     datatype: DataType = DataType.Scalar
     multiple_types: bool = False
 
@@ -123,7 +124,7 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
     return collection_meta
 
 
-def get_data_type(metadata: str | pathlib.Path | dict):
+def get_data_type(metadata: Union[str, pathlib.Path, dict]):
     metadata_dict: dict = core.get_metadata(metadata)
     for field in metadata_dict["resources"][0]["schema"]["fields"]:
         if field["name"].startswith("timeindex"):
@@ -180,7 +181,7 @@ def get_collection_meta(collection: str) -> dict:
     return metadata
 
 
-def get_artifacts_from_collection(collection: str, process: str | None = None) -> list[Artifact]:
+def get_artifacts_from_collection(collection: str, process: Optional[str] = None) -> list[Artifact]:
     """Returns list of artifacts belonging to given process (subject).
 
     Parameters

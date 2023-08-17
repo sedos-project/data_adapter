@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections.abc import Generator
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import Union
 
 from data_adapter import collection, core
 
@@ -23,7 +24,7 @@ class AnnotationError(Exception):
     """Raised if annotation is corrupted."""
 
 
-def get_subject(metadata: str | pathlib.Path | dict) -> str:
+def get_subject(metadata: Union[str, pathlib.Path, dict]) -> str:
     metadata_dict = core.get_metadata(metadata)
     if "subject" not in metadata_dict:
         return metadata_dict["name"]

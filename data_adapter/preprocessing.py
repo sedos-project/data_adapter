@@ -5,7 +5,7 @@ import pathlib
 import warnings
 from collections import ChainMap
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Optional
 
 import frictionless
 import pandas as pd
@@ -34,7 +34,9 @@ class PreprocessingError(Exception):
 
 
 class Adapter:
-    def __init__(self, collection_name: str, structure_name: str | None = None, links_name: str | None = None) -> None:
+    def __init__(
+        self, collection_name: str, structure_name: Optional[str] = None, links_name: Optional[str] = None
+    ) -> None:
         """The adapter is used to handle collection, structure and links centralized.
 
         Parameters

@@ -4,6 +4,7 @@ import os
 import pathlib
 import re
 import urllib.parse
+from typing import Union
 
 import requests
 from SPARQLWrapper import JSON, SPARQLWrapper2
@@ -11,7 +12,7 @@ from SPARQLWrapper import JSON, SPARQLWrapper2
 from data_adapter import collection, settings
 
 
-def download_artifact(artifact_file: str, filename: pathlib.Path | str):
+def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
     """Downloads an artifact file and stores it under given filename.
 
     Parameters
