@@ -21,7 +21,7 @@ class StructureError(Exception):
 Link = namedtuple("Link", ("linked_process", "parameter"))
 
 
-def get_links(links_name: str):
+def get_links(links_name: str) -> dict[str, list[Link]]:
     link_filename = settings.STRUCTURES_DIR / f"{links_name}.csv"
     with open(link_filename, encoding="utf-8") as link_file:
         link_csv = csv.DictReader(link_file, delimiter=";")
