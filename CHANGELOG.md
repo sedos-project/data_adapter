@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.12.0] - 2023-11-02
 ### Changed
 - foreign keys are given in datasets instead of links
 
