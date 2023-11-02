@@ -270,6 +270,13 @@
             "name": "expansion_limit",
             "type": "float",
             "valueReference": []
+          },
+          {
+            "description": "WACC",
+            "isAbout": [],
+            "name": "wacc",
+            "type": "text",
+            "valueReference": []
           }
         ],
         "foreignKeys": [],

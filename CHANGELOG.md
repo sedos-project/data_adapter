@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.12.0] - 2023-11-02
+### Changed
+- foreign keys are given in datasets instead of links
+
 ## [0.11.2] - 2023-08-17
 ### Fixed
 - timeseries refactoring for multiple periods

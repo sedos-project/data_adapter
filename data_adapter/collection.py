@@ -181,7 +181,9 @@ def get_collection_meta(collection: str) -> dict:
     return metadata
 
 
-def get_artifacts_from_collection(collection: str, process: Optional[str] = None) -> list[Artifact]:
+def get_artifacts_from_collection(
+    collection: str, process: Optional[str] = None, use_annotation: Optional[bool] = None
+) -> list[Artifact]:
     """Returns list of artifacts belonging to given process (subject).
 
     Parameters
@@ -190,17 +192,20 @@ def get_artifacts_from_collection(collection: str, process: Optional[str] = None
         Collection name
     process : Optional[str]
         Name of process to search collection metadata for. If not set, all artifacts will be returned.
+    use_annotation: Optional[bool]
+        If set annotations are used or not used depending on value, otherwise settings value USE_ANNOTATIONS is used.
 
     Returns
     -------
     List[ArtifactPath]
         List of artifacts in collection (belonging to given process, if set)
     """
+    use_annotation = settings.USE_ANNOTATIONS if use_annotation is None else use_annotation
     collection_meta = get_collection_meta(collection)
     artifacts = []
     for group in collection_meta["artifacts"]:
         for artifact, artifact_info in collection_meta["artifacts"][group].items():
-            process_names = artifact_info["subjects"] if settings.USE_ANNOTATIONS else artifact_info["names"]
+            process_names = artifact_info["subjects"] if use_annotation else artifact_info["names"]
             if process and process not in process_names:
                 continue
             filename = artifact

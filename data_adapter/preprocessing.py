@@ -3,7 +3,7 @@ import logging
 import math
 import pathlib
 import warnings
-from collections import ChainMap
+from collections import ChainMap, namedtuple
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
@@ -20,6 +20,8 @@ TIMESERIES_MERGE_GROUPS = [
     "timeindex_resolution",
 ]
 
+ForeignKey = namedtuple("ForeignKey", ("process", "parameter"))
+
 
 @dataclass
 class Process:
@@ -34,9 +36,7 @@ class PreprocessingError(Exception):
 
 
 class Adapter:
-    def __init__(
-        self, collection_name: str, structure_name: Optional[str] = None, links_name: Optional[str] = None
-    ) -> None:
+    def __init__(self, collection_name: str, structure_name: Optional[str] = None) -> None:
         """The adapter is used to handle collection, structure and links centralized.
 
         Parameters
@@ -45,12 +45,9 @@ class Adapter:
             Name of collection from collection folder to get data from
         structure_name : Optional[str]
             Name of structure in structure folder to read energysystem structure from
-        links_name : Optional[str]
-            Name of links in structure folder to read additional links for processes
         """
         self.collection_name = collection_name
         self.structure_name = structure_name
-        self.links_name = links_name
 
     def get_process(self, process: str) -> Process:
         """Loads data for given process from collection.
@@ -91,25 +88,30 @@ class Adapter:
         for artifact in artifacts:
             df = self.__get_df_from_artifact(artifact, process)
             if artifact.datatype == collection.DataType.Scalar:
+                # Handle foreign keys (only possible in scalar data)
+                foreign_keys = self._get_foreign_keys(process, df)
+                for fk_column, foreign_key in foreign_keys.items():
+                    artifacts = collection.get_artifacts_from_collection(
+                        self.collection_name, foreign_key.process, use_annotation=False
+                    )
+                    if not artifacts:
+                        continue  # no candidate
+                    if len(artifacts) > 1:
+                        raise structure.StructureError(
+                            f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
+                            "which is not unique.",
+                        )
+                    foreign_df = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    foreign_df = foreign_df.rename({foreign_key.parameter: fk_column}, axis=1)
+                    if artifacts[0].datatype == collection.DataType.Scalar:
+                        scalar_dfs.append(foreign_df)
+                    else:
+                        timeseries_df.append(foreign_df)
+                    # Remove FK column from original process
+                    df = df.drop(fk_column, axis=1)
                 scalar_dfs.append(df)
             else:
                 timeseries_df.append(df)
-
-        # Get dataframes for processes from additional parameters
-        if self.links_name:
-            for subject, parameters in structure.get_links_for_process(process, links_name=self.links_name).items():
-                artifacts = collection.get_artifacts_from_collection(self.collection_name, subject)
-                if not artifacts:
-                    raise structure.StructureError(f"Could not find linked parameter for {process=} and {subject=}.")
-                if len(artifacts) > 1:
-                    raise structure.StructureError(
-                        f"Linked parameter for process '{process}' points to subject '{subject}' which is not unique.",
-                    )
-                df = self.__get_df_from_artifact(artifacts[0], subject, *parameters)
-                if artifacts[0].datatype == collection.DataType.Scalar:
-                    scalar_dfs.append(df)
-                else:
-                    timeseries_df.append(df)
 
         return Process(
             self.__merge_parameters(*scalar_dfs, datatype=collection.DataType.Scalar),
@@ -329,8 +331,41 @@ class Adapter:
         merged_timeseries.columns.names = ("name", "region")
         return merged_timeseries
 
+    @staticmethod
+    def _get_foreign_keys(process: str, df: pd.DataFrame) -> dict[str, ForeignKey]:
+        """
+        Detect and check foreign keys in scalar data and return related columns and references
 
-def get_process(collection_name: str, process: str, links: str) -> Process:
+        Parameters
+        ----------
+        process: str
+            Name of process
+        df
+            Process data in scalar format (only scalar data holds FKs)
+
+        Returns
+        -------
+        Dict of columns which hold foreign keys and related foreign key
+        """
+        # Column must contain string
+        converted_df = df.convert_dtypes()
+        string_columns = set(converted_df.dtypes[converted_df.dtypes == "string"].index)
+        fk_column_candidates = string_columns - set(core.SCALAR_COLUMNS)
+        logging.info(f"Possible FK candidates for {process=}: {fk_column_candidates}")
+
+        # Check if Fks are unique (cannot have different FKs per process/subprocess)
+        fk_candidates = {}
+        for fk_column in fk_column_candidates:
+            if len(df[fk_column].unique()) > 1:
+                continue  # no candidate
+            fk = df[fk_column].iloc[0]
+            if "." not in fk:
+                continue  # no candidate
+            fk_candidates[fk_column] = ForeignKey(*fk.split("."))
+        return fk_candidates
+
+
+def get_process(collection_name: str, process: str) -> Process:
     """Loads data for given process from collection. (Deprecated! Use Adapter class instead).
 
     Column headers are translated using ontology. Multiple dataframes per datatype are merged.
@@ -341,8 +376,6 @@ def get_process(collection_name: str, process: str, links: str) -> Process:
         Name of collection to get data from
     process : str
         Name of process (from subject or metadata name, depends on USE_ANNOTATIONS)
-    links : str
-        Name of file to get linked parameters from
 
     Returns
     -------
@@ -355,5 +388,5 @@ def get_process(collection_name: str, process: str, links: str) -> Process:
     )
     logging.warning(deprecated_msg)
     warnings.warn(deprecated_msg, DeprecationWarning)
-    adapter = Adapter(collection_name, structure_name=None, links_name=links)
+    adapter = Adapter(collection_name, structure_name=None)
     return adapter.get_process(process)

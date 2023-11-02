@@ -132,6 +132,20 @@
             "name": "version",
             "type": "text",
             "valueReference": []
+          },
+          {
+            "description": "Wacc",
+            "isAbout": [],
+            "name": "wacc",
+            "type": "text",
+            "valueReference": []
+          },
+          {
+            "description": "Wind",
+            "isAbout": [],
+            "name": "wind_speed",
+            "type": "text",
+            "valueReference": []
           }
         ],
         "foreignKeys": [],
