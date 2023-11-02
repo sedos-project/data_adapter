@@ -202,6 +202,20 @@
             "name": "lifetime",
             "type": "float",
             "valueReference": []
+          },
+          {
+            "description": "WACC",
+            "isAbout": [],
+            "name": "wacc",
+            "type": "text",
+            "valueReference": []
+          },
+          {
+            "description": "Wind Speed",
+            "isAbout": [],
+            "name": "wind_speed",
+            "type": "text",
+            "valueReference": []
           }
         ],
         "foreignKeys": [],

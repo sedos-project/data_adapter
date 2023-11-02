@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import csv
 import re
-from collections import defaultdict, namedtuple
 
 import pandas as pd
 
@@ -16,29 +14,6 @@ IDENTIFIER_PATTERN = re.compile("^[a-z][a-z0-9_, ]{0,%s}$" % (MAX_IDENTIFIER_LEN
 
 class StructureError(Exception):
     """Raised if structure is corrupted."""
-
-
-Link = namedtuple("Link", ("linked_process", "parameter"))
-
-
-def get_links(links_name: str) -> dict[str, list[Link]]:
-    link_filename = settings.STRUCTURES_DIR / f"{links_name}.csv"
-    with open(link_filename, encoding="utf-8") as link_file:
-        link_csv = csv.DictReader(link_file, delimiter=";")
-        links = defaultdict(list)
-        for line in link_csv:
-            links[line["process"]].append(Link(line["table_name"], line["column_name"]))
-    return links
-
-
-def get_links_for_process(process: str, links_name: str):
-    links = get_links(links_name)
-    if process not in links:
-        return {}
-    parameters = defaultdict(list)
-    for parameter in links[process]:
-        parameters[parameter.linked_process].append(parameter.parameter)
-    return parameters
 
 
 def check_character_convention(dataframe: pd.DataFrame):
