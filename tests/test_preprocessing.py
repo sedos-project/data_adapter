@@ -67,7 +67,7 @@ def test_process_with_additional_data_with_annotations():
     assert len(artifacts.scalars) == 51
     assert len(artifacts.timeseries.columns) == 4
     assert len(artifacts.timeseries) == 8760
-    assert set(artifacts.timeseries.columns.get_level_values("name")) == {"onshore"}
+    assert set(artifacts.timeseries.columns.get_level_values("name")) == {"wind_speed"}
     assert {item[0] for item in artifacts.timeseries.columns.get_level_values("region")} == {"HH", "HE", "NI", "MV"}
 
 
@@ -81,7 +81,7 @@ def test_process_with_multiple_artifacts_for_process():
 
 def test_process_with_multiple_artifacts_for_process_with_annotations():
     with utils.turn_on_annotations():
-        artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm", "hack-a-thon_links_by_subject")
+        artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
     assert len(artifacts.scalars.columns) == 14

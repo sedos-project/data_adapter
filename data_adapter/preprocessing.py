@@ -91,7 +91,9 @@ class Adapter:
                 # Handle foreign keys (only possible in scalar data)
                 foreign_keys = self._get_foreign_keys(process, df)
                 for fk_column, foreign_key in foreign_keys.items():
-                    artifacts = collection.get_artifacts_from_collection(self.collection_name, foreign_key.process)
+                    artifacts = collection.get_artifacts_from_collection(
+                        self.collection_name, foreign_key.process, use_annotation=False
+                    )
                     if not artifacts:
                         continue  # no candidate
                     if len(artifacts) > 1:
