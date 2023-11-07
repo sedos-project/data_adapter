@@ -5,7 +5,7 @@ from data_adapter import databus
 
 EXAMPLE_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop"
 EXAMPLE_COLLECTION = "https://databus.openenergyplatform.org/felixmaur/collections/modex_test_renewable"
-CSV_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
+CSV_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v11/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
 
 
 def test_version():
