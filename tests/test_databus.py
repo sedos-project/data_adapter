@@ -3,9 +3,9 @@ import tempfile
 
 from data_adapter import databus
 
-EXAMPLE_ARTIFACT = "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop"
-EXAMPLE_COLLECTION = "https://energy.databus.dbpedia.org/felixmaur/collections/modex_test_renewable"
-CSV_ARTIFACT = "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
+EXAMPLE_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop"
+EXAMPLE_COLLECTION = "https://databus.openenergyplatform.org/felixmaur/collections/modex_test_renewable"
+CSV_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
 
 
 def test_version():
@@ -22,11 +22,11 @@ def test_artifact_file():
     databus_files = databus.get_artifact_filenames(EXAMPLE_ARTIFACT, "v1")
     assert len(databus_files) == 2
     assert (
-        "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
+        "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=data.csv"  # noqa: E501
         in databus_files
     )
     assert (
-        "https://energy.databus.dbpedia.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=metadata.json"  # noqa: E501
+        "https://databus.openenergyplatform.org/felixmaur/modex/modex_tech_photovoltaics_rooftop/v1/modex_tech_photovoltaics_rooftop_type=metadata.json"  # noqa: E501
         in databus_files
     )
 

@@ -3,7 +3,6 @@ import logging
 import os
 import pathlib
 import re
-import urllib.parse
 from typing import Union
 
 import requests
@@ -45,8 +44,8 @@ def get_artifact_filenames(artifact: str, version: str) -> list[str]:
         PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX dcat:   <http://www.w3.org/ns/dcat#>
         PREFIX dct:    <http://purl.org/dc/terms/>
-        PREFIX dcv: <http://dataid.dbpedia.org/ns/cv#>
-        PREFIX dataid: <http://dataid.dbpedia.org/ns/core#>
+        PREFIX dcv:    <https://dataid.dbpedia.org/databus-cv#>
+        PREFIX dataid: <https://dataid.dbpedia.org/databus#>
         SELECT ?file WHERE
         {{
             GRAPH ?g
@@ -84,8 +83,8 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX dcat:   <http://www.w3.org/ns/dcat#>
         PREFIX dct:    <http://purl.org/dc/terms/>
-        PREFIX dcv:    <http://dataid.dbpedia.org/ns/cv#>
-        PREFIX dataid: <http://dataid.dbpedia.org/ns/core#>
+        PREFIX dcv:    <https://dataid.dbpedia.org/databus-cv#>
+        PREFIX dataid: <https://dataid.dbpedia.org/databus#>
         SELECT ?version WHERE
         {{
             GRAPH ?g
@@ -114,17 +113,17 @@ def get_artifacts_from_collection(collection: str) -> list[str]:
         List of artifacts in collection
     """
 
-    def find_artifact(node):
-        if len(node["childNodes"]) == 0:
-            yield node["uri"]
-        for child in node["childNodes"]:
-            yield from find_artifact(child)
+    def extract_artifact_from_uri(uri: str):
+        https, _, host, user, group, artifact, version, name = uri.split("/")
+        return "/".join((https, _, host, user, group, artifact))
 
-    response = requests.get(collection, headers={"Content-Type": "text/sparql"}, timeout=90)
-    data = response.json()
-    content_raw = urllib.parse.unquote(data["@graph"][0]["content"])
-    content = json.loads(content_raw)
-    return list(find_artifact(content["root"]))
+    response = requests.get(collection, headers={"Accept": "text/sparql"}, timeout=90)
+    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
+    sparql.setReturnFormat(JSON)
+    sparql.setQuery(response.text)
+    data = sparql.query()
+    files = {extract_artifact_from_uri(file["file"].value) for file in data.bindings}
+    return list(files)
 
 
 def download_collection(collection_url: str, force_download=False):

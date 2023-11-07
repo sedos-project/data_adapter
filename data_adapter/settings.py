@@ -36,7 +36,7 @@ if not STRUCTURES_DIR.exists():
         "change path to structure folder by changing environment variable 'STRUCTURES_DIR'.",
     )
 
-DATABUS_ENDPOINT = "https://energy.databus.dbpedia.org/sparql"
+DATABUS_ENDPOINT = "https://databus.openenergyplatform.org/sparql"
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:

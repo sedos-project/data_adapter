@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.13.0] - 2023-11-07
+### Fixed
+- databus endpoint, SPARQLing and related tests
+
 ## [0.12.0] - 2023-11-02
 ### Changed
 - foreign keys are given in datasets instead of links
