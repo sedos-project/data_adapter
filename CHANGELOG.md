@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.13.1] - 2023-11-08
+### Fixed
+- latest version for versions > v9
+
 ## [0.13.0] - 2023-11-07
 ### Fixed
 - databus endpoint, SPARQLing and related tests

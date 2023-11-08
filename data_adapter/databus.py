@@ -74,6 +74,28 @@ def get_latest_version_of_artifact(artifact: str) -> str:
     str
         Latest version of given artifact
     """
+
+    def get_version_number(v: str) -> str | int:
+        """
+        Try to read version number from version string
+
+        Parameters
+        ----------
+        v: str
+            Version as string
+
+        Returns
+        -------
+        str | int
+            If version number can be extracted int is returned, otherwise version is returned as is
+        """
+        if "v" not in v:
+            return v
+        try:
+            return int(v[1:])
+        except ValueError:
+            return v
+
     sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
     sparql.setReturnFormat(JSON)
 
@@ -92,11 +114,12 @@ def get_latest_version_of_artifact(artifact: str) -> str:
                 ?dataset dataid:artifact <{artifact}> .
                 ?dataset dct:hasVersion ?version .
             }}
-        }} ORDER BY DESC (?version) LIMIT 1
+        }} ORDER BY DESC (?version)
         """,
     )
     result = sparql.query()
-    return result.bindings[0]["version"].value
+    versions = [version["version"].value for version in result.bindings]
+    return sorted(versions, key=get_version_number)[-1]
 
 
 def get_artifacts_from_collection(collection: str) -> list[str]:

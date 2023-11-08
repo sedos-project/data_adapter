@@ -10,7 +10,7 @@ CSV_ARTIFACT = "https://databus.openenergyplatform.org/felixmaur/modex/modex_tec
 
 def test_version():
     version = databus.get_latest_version_of_artifact(EXAMPLE_ARTIFACT)
-    assert version == "v8"
+    assert version == "v11"
 
 
 def test_collections():
