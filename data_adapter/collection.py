@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import Optional, Union
 
+import frictionless
 import pandas as pd
 
 from data_adapter import core, ontology, settings
@@ -47,6 +48,19 @@ class Artifact:
             if file.suffix == suffix:
                 return file.name
         raise FileNotFoundError(f"Artifact file with {suffix=} not found.")
+
+    @property
+    def data(self) -> pd.DataFrame:
+        metadata = self.metadata
+        fl_table_schema = core.reformat_oep_to_frictionless_schema(metadata["resources"][0]["schema"])
+        resource = frictionless.Resource(
+            name=metadata["name"],
+            profile="tabular-data-resource",
+            source=self.path / f"{self.filename}.csv",
+            schema=fl_table_schema,
+            format="csv",
+        )
+        return resource.to_pandas()
 
 
 def check_collection_meta(collection_meta: dict):

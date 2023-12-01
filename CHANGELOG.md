@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.15.0] - 2023-12-01
+### Added
+- refactored data collection from artifact
+
 ## [0.14.0] - 2023-12-01
 ### Added
 - collection function to get artifact by name

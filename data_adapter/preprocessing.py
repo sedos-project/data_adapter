@@ -7,7 +7,6 @@ from collections import ChainMap, namedtuple
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-import frictionless
 import pandas as pd
 
 from data_adapter import collection, core, settings, structure
@@ -181,16 +180,7 @@ class Adapter:
         -------
         pd.DataFrame
         """
-        metadata = artifact.metadata
-        fl_table_schema = core.reformat_oep_to_frictionless_schema(metadata["resources"][0]["schema"])
-        resource = frictionless.Resource(
-            name=metadata["name"],
-            profile="tabular-data-resource",
-            source=artifact.path / f"{artifact.filename}.csv",
-            schema=fl_table_schema,
-            format="csv",
-        )
-        df = resource.to_pandas()
+        df = artifact.data
 
         if artifact.multiple_types:
             df = self.__filter_subprocess(df, process)
