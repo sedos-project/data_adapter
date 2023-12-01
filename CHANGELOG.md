@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.14.0] - 2023-12-01
+### Added
+- collection function to get artifact by name
+
 ## [0.13.2] - 2023-12-01
 ### Fixed
 - removed legacy sqlalchemy engine

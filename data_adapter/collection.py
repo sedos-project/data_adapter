@@ -197,7 +197,7 @@ def get_artifacts_from_collection(
 
     Returns
     -------
-    List[ArtifactPath]
+    List[Artifact]
         List of artifacts in collection (belonging to given process, if set)
     """
     use_annotation = settings.USE_ANNOTATIONS if use_annotation is None else use_annotation
@@ -221,3 +221,36 @@ def get_artifacts_from_collection(
                 ),
             )
     return artifacts
+
+
+def get_artifact_from_collection(collection: str, group: str, artifact: str, version: Optional[str] = None) -> Artifact:
+    """
+    Return artifact from collection.
+
+    Parameters
+    ----------
+    collection: str
+        Collection name
+    group: str
+        Group name
+    artifact: str
+        Artifact name
+    version: Optional[str]
+        Version of artifact, if not given, latest version found in collection meta is used
+
+    Returns
+    -------
+    Artifact
+        related artifact
+    """
+    collection_meta = get_collection_meta(collection)
+    artifact_info = collection_meta["artifacts"][group][artifact]
+    return Artifact(
+        collection,
+        group,
+        artifact,
+        version=artifact_info["latest_version"] if version is None else version,
+        filename=artifact,
+        datatype=DataType(artifact_info["datatype"]),
+        multiple_types=artifact_info["multiple_types"],
+    )

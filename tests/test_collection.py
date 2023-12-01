@@ -7,6 +7,13 @@ def test_get_artifacts_from_collection():
     assert len(artifacts) == 6
 
 
+def test_get_artifact_from_collection():
+    artifact = collection.get_artifact_from_collection("simple", "modex", "modex_tech_generator_gas", "v2")
+    artifact_latest = collection.get_artifact_from_collection("simple", "modex", "modex_tech_generator_gas")
+    assert artifact.datatype == 0
+    assert artifact == artifact_latest
+
+
 def test_filter_process_from_collection():
     artifacts = collection.get_artifacts_from_collection("simple", "modex_capacity_factor")
     assert len(artifacts) == 1
