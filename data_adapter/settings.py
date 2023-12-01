@@ -35,4 +35,3 @@ if not STRUCTURES_DIR.exists():
     )
 
 DATABUS_ENDPOINT = "https://databus.openenergyplatform.org/sparql"
-DATABASE_URL = os.environ.get("DATABASE_URL")
