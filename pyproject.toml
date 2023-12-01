@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-adapter"
-version = "0.15.0"
+version = "0.16.0"
 description = "Provides general functionality for other data adapters"
 authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
 license = "AGPL-3.0 license"

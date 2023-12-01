@@ -14,6 +14,11 @@ def test_get_artifact_from_collection():
     assert artifact == artifact_latest
 
 
+def test_get_processes_from_collection():
+    processes = collection.get_processes_from_collection("subprocesses")
+    assert len(processes) == 7
+
+
 def test_filter_process_from_collection():
     artifacts = collection.get_artifacts_from_collection("simple", "modex_capacity_factor")
     assert len(artifacts) == 1

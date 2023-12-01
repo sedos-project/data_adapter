@@ -62,6 +62,19 @@ class Artifact:
         )
         return resource.to_pandas()
 
+    def get_subprocesses(self):
+        """
+        Return list of subprocesses for given artifact.
+
+        Returns entries of column "type" as list.
+
+        Returns
+        -------
+        List[str]
+            List of subprocesses in given artifact
+        """
+        return list(pd.read_csv(self.path / self.get_filename(".csv"), usecols=("type",))["type"])
+
 
 def check_collection_meta(collection_meta: dict):
     """Simple checks if collection metadata is up-to-date.
@@ -121,9 +134,7 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
 
             if type_field:
                 collection_meta["artifacts"][group_name][artifact_name]["multiple_types"] = True
-                collection_meta["artifacts"][group_name][artifact_name]["names"] = get_subprocesses_from_artifact(
-                    artifact,
-                )
+                collection_meta["artifacts"][group_name][artifact_name]["names"] = artifact.get_subprocesses()
                 collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [
                     ontology.get_name_from_annotation(value_reference)
                     for value_reference in type_field["valueReference"]
@@ -144,24 +155,6 @@ def get_data_type(metadata: Union[str, pathlib.Path, dict]):
         if field["name"].startswith("timeindex"):
             return DataType.Timeseries
     return DataType.Scalar
-
-
-def get_subprocesses_from_artifact(artifact: Artifact) -> list[str]:
-    """Return list of subprocesses for given artifact.
-
-    Returns entries of column "type" as list.
-
-    Parameters
-    ----------
-    artifact: Artifact
-        Read type column of given artifact
-
-    Returns
-    -------
-    List[str]
-        List of subprocesses in given artifact
-    """
-    return list(pd.read_csv(artifact.path / artifact.get_filename(".csv"), usecols=("type",))["type"])
 
 
 def get_collection_meta(collection: str) -> dict:
@@ -268,3 +261,25 @@ def get_artifact_from_collection(collection: str, group: str, artifact: str, ver
         datatype=DataType(artifact_info["datatype"]),
         multiple_types=artifact_info["multiple_types"],
     )
+
+
+def get_processes_from_collection(collection: str) -> set[str]:
+    """
+    Return all (sub-)processes of a collection
+
+    Parameters
+    ----------
+    collection: str
+        Name of collection
+
+    Returns
+    -------
+    list[str]
+        List of processes
+    """
+    collection_meta = get_collection_meta(collection)
+    processes = set()
+    for artifacts in collection_meta["artifacts"].values():
+        for artifact in artifacts.values():
+            processes |= set(artifact["names"])
+    return processes
