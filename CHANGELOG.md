@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.13.2] - 2023-12-01
+### Fixed
+- removed legacy sqlalchemy engine
+
 ## [0.13.1] - 2023-11-08
 ### Fixed
 - latest version for versions > v9

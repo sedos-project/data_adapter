@@ -2,8 +2,6 @@ import logging
 import os
 import pathlib
 
-import sqlalchemy as sa
-
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 logger = logging.getLogger()
@@ -38,6 +36,3 @@ if not STRUCTURES_DIR.exists():
 
 DATABUS_ENDPOINT = "https://databus.openenergyplatform.org/sparql"
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
-if DATABASE_URL:
-    engine = sa.create_engine(DATABASE_URL)
