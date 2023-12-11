@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import List, Optional
 
 import pandas as pd
 
@@ -16,13 +17,15 @@ class StructureError(Exception):
     """Raised if structure is corrupted."""
 
 
-def check_character_convention(dataframe: pd.DataFrame):
+def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]] = None) -> pd.DataFrame:
     """Check in parameter-, process-, input-and output-column for character convention.
 
     Parameters
     ----------
     dataframe: pandas.DataFrame
         Parameters in dataframe are checked for convention
+    cols: Optional[List[str]]
+        Columns to check for
 
     Raises
     ------
@@ -30,7 +33,8 @@ def check_character_convention(dataframe: pd.DataFrame):
         if element in dataframe does not fit character convention
 
     """
-    for col in dataframe.columns[1:]:
+    cols = dataframe.columns if cols is None else cols
+    for col in cols:
         for element in dataframe[col]:
             if not isinstance(element, str):
                 continue
@@ -38,54 +42,74 @@ def check_character_convention(dataframe: pd.DataFrame):
                 raise ValueError(f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _")
 
 
-def get_energy_structure(structure: str) -> dict:
-    """Parse processes and its parameters with corresponding inputs and outputs to dict.
+class Structure:
+    def __init__(self, structure_name: str):
+        self.structure_file = settings.STRUCTURES_DIR / f"{structure_name}.xlsx"
+        self.processes = self._init_processes()
+        self.parameters = self._init_parameters()
 
-    Parameters
-    ----------
-    structure: str
-        Name of structure to look up in structure folder
+    def _init_processes(self):
+        def get_nodes(nodes_raw):
+            nodes_raw_stripped = nodes_raw.replace(" ", "")
+            grouped_nodes_raw = re.findall(r"\[[\w*,\,]*]", nodes_raw_stripped)
 
-    Returns
-    -------
-    dict
-        Energy modelling processes, its parameters and inputs and output
-    """
-    structure_file = settings.STRUCTURES_DIR / f"{structure}.csv"
-    process_parameter_in_out = pd.read_csv(
-        filepath_or_buffer=structure_file,
-        delimiter=";",
-        encoding="utf-8",
-        usecols=["parameter", "process", "inputs", "outputs"],
-    )
-    check_character_convention(process_parameter_in_out)
+            nodes = []
+            for group in grouped_nodes_raw:
+                nodes.append(get_nodes(group[1:-1]))  # without brackets
+                # Remove groups
+                nodes_raw_stripped = nodes_raw_stripped.replace(group, "")
+            nodes += [node for node in nodes_raw_stripped.split(",") if node != ""]
+            return nodes
 
-    # create ES_STRUCTURE dict from process_parameter_in_out
-    list_dic = process_parameter_in_out.to_dict(orient="records")
+        process_parameter_in_out = pd.read_excel(
+            io=self.structure_file,
+            sheet_name="Process_Set",
+            usecols=("process", "input", "output"),
+        )
+        check_character_convention(process_parameter_in_out, ["process"])
+        processes = process_parameter_in_out.to_dict(orient="records")
+        return {
+            process["process"]: {"inputs": get_nodes(process["input"]), "outputs": get_nodes(process["output"])}
+            for process in processes
+        }
 
-    es_structure = {}
+    def _init_parameters(self):
+        """Parse processes and its parameters with corresponding inputs and outputs to dict.
 
-    for dic in list_dic:
-        dic_para = {}
+        Returns
+        -------
+        dict
+            Energy modelling processes, its parameters and inputs and output
+        """
+        process_parameter_in_out = pd.read_excel(
+            io=self.structure_file,
+            sheet_name="Parameter_Input-Output",
+            usecols=("parameter", "process", "inputs", "outputs"),
+        )
+        check_character_convention(process_parameter_in_out, ["process", "inputs", "outputs"])
 
-        if isinstance(dic.get("inputs"), str):
-            inputs = {"inputs": dic.get("inputs").replace(" ", "").split(",")}
-        else:
-            inputs = {"inputs": []}
-        if isinstance(dic.get("outputs"), str):
-            outputs = {"outputs": dic.get("outputs").replace(" ", "").split(",")}
-        else:
-            outputs = {"outputs": []}
+        # create ES_STRUCTURE dict from process_parameter_in_out
+        list_dic = process_parameter_in_out.to_dict(orient="records")
 
-        dic_para[dic.get("parameter")] = inputs | outputs
+        es_structure = {}
 
-        if dic.get("process") not in es_structure:
-            es_structure[dic.get("process")] = dic_para
-        else:
-            es_structure[dic.get("process")] = es_structure[dic.get("process")] | dic_para
+        for dic in list_dic:
+            dic_para = {}
 
-    return es_structure
+            if isinstance(dic.get("inputs"), str):
+                inputs = {"inputs": dic.get("inputs").replace(" ", "").split(",")}
+            else:
+                inputs = {"inputs": []}
+            if isinstance(dic.get("outputs"), str):
+                outputs = {"outputs": dic.get("outputs").replace(" ", "").split(",")}
+            else:
+                outputs = {"outputs": []}
 
+            dic_para[dic.get("parameter")] = inputs | outputs
 
-def get_processes(structure: str):
-    return list(get_energy_structure(structure))
+            if dic.get("process") not in es_structure:
+                es_structure[dic.get("process")] = dic_para
+            else:
+                es_structure[dic.get("process")] = es_structure[dic.get("process")] | dic_para
+
+        return es_structure
