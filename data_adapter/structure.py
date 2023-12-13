@@ -17,7 +17,7 @@ class StructureError(Exception):
     """Raised if structure is corrupted."""
 
 
-def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]] = None) -> pd.DataFrame:
+def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]] = None):
     """Check in parameter-, process-, input-and output-column for character convention.
 
     Parameters
@@ -43,12 +43,30 @@ def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]
 
 
 class Structure:
-    def __init__(self, structure_name: str):
+    def __init__(
+        self,
+        structure_name: str,
+        process_sheet: str = "Process_Set",
+        parameter_sheet: str = "Parameter_Input-Output",
+    ):
         self.structure_file = settings.STRUCTURES_DIR / f"{structure_name}.xlsx"
-        self.processes = self._init_processes()
-        self.parameters = self._init_parameters()
+        self.processes = self._init_processes(process_sheet)
+        self.parameters = self._init_parameters(parameter_sheet)
 
-    def _init_processes(self):
+    def _init_processes(self, process_sheet: str) -> dict:
+        """Parse processes with corresponding inputs and outputs to dict.
+
+        Parameters
+        ----------
+        process_sheet: str
+            Sheet to read processes from
+
+        Returns
+        -------
+        dict
+            Energy modelling processes and related inputs and outputs
+        """
+
         def get_nodes(nodes_raw):
             nodes_raw_stripped = nodes_raw.replace(" ", "")
             grouped_nodes_raw = re.findall(r"\[[\w*,\,]*]", nodes_raw_stripped)
@@ -61,20 +79,26 @@ class Structure:
             nodes += [node for node in nodes_raw_stripped.split(",") if node != ""]
             return nodes
 
-        process_parameter_in_out = pd.read_excel(
+        process_in_out = pd.read_excel(
             io=self.structure_file,
-            sheet_name="Process_Set",
+            sheet_name=process_sheet,
             usecols=("process", "input", "output"),
         )
-        check_character_convention(process_parameter_in_out, ["process"])
-        processes = process_parameter_in_out.to_dict(orient="records")
+        process_in_out = process_in_out.fillna("")
+        check_character_convention(process_in_out, ["process"])
+        processes = process_in_out.to_dict(orient="records")
         return {
             process["process"]: {"inputs": get_nodes(process["input"]), "outputs": get_nodes(process["output"])}
             for process in processes
         }
 
-    def _init_parameters(self):
+    def _init_parameters(self, parameter_sheet: str) -> dict:
         """Parse processes and its parameters with corresponding inputs and outputs to dict.
+
+        Parameters
+        ----------
+        parameter_sheet: str
+            Sheet to read parameters from
 
         Returns
         -------
@@ -83,10 +107,11 @@ class Structure:
         """
         process_parameter_in_out = pd.read_excel(
             io=self.structure_file,
-            sheet_name="Parameter_Input-Output",
+            sheet_name=parameter_sheet,
             usecols=("parameter", "process", "inputs", "outputs"),
         )
-        check_character_convention(process_parameter_in_out, ["process", "inputs", "outputs"])
+        process_parameter_in_out = process_parameter_in_out.fillna("")
+        check_character_convention(process_parameter_in_out, ["process", "parameter"])
 
         # create ES_STRUCTURE dict from process_parameter_in_out
         list_dic = process_parameter_in_out.to_dict(orient="records")
