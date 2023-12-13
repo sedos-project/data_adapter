@@ -9,7 +9,8 @@ from typing import Iterable, Optional
 
 import pandas as pd
 
-from data_adapter import collection, core, settings, structure
+from data_adapter import collection, core, settings
+from data_adapter.structure import Structure, StructureError
 
 SCALAR_MERGE_GROUPS = ["region", "year"]
 TIMESERIES_MERGE_GROUPS = [
@@ -35,18 +36,18 @@ class PreprocessingError(Exception):
 
 
 class Adapter:
-    def __init__(self, collection_name: str, structure_name: Optional[str] = None) -> None:
+    def __init__(self, collection_name: str, structure: Optional[Structure] = None) -> None:
         """The adapter is used to handle collection, structure and links centralized.
 
         Parameters
         ----------
         collection_name : str
             Name of collection from collection folder to get data from
-        structure_name : Optional[str]
-            Name of structure in structure folder to read energysystem structure from
+        structure : Structure
+            holding processes and parameters from Excel-file
         """
         self.collection_name = collection_name
-        self.structure_name = structure_name
+        self.structure = structure
 
     def get_process(self, process: str) -> Process:
         """Loads data for given process from collection.
@@ -96,7 +97,7 @@ class Adapter:
                     if not artifacts:
                         continue  # no candidate
                     if len(artifacts) > 1:
-                        raise structure.StructureError(
+                        raise StructureError(
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
@@ -130,36 +131,34 @@ class Adapter:
         Raises
         ------
         StructureError
-            if structure name is not given
+            if structure is not given
         """
-        if self.structure_name:
-            return structure.get_energy_structure(self.structure_name)
-        else:
-            raise structure.StructureError(
-                "No structure name given. "
-                "You have to init adapter class with structure name in order to use structure functions.",
+        if self.structure is None:
+            raise StructureError(
+                "No structure given. "
+                "You have to init adapter class with structure in order to use structure functions."
             )
+        return self.structure.parameters
 
-    def get_process_list(self) -> list[str]:
-        """Return all processes from given structure.
+    def get_process_list(self) -> dict[str, dict[str, list[str]]]:
+        """Return all processes from given structure, including inputs and outputs.
 
         Returns
         -------
-        List[str]
-            List of processes
+        dict[str, dict[str, list[str]]]
+            holding processes and related inputs and outputs
 
         Raises
         ------
         StructureError
             if structure name is not given
         """
-        if self.structure_name:
-            return structure.get_processes(self.structure_name)
-        else:
-            raise structure.StructureError(
-                "No structure name given. "
-                "You have to init adapter class with structure name in order to use structure functions.",
+        if self.structure is None:
+            raise StructureError(
+                "No structure given. "
+                "You have to init adapter class with structure in order to use structure functions."
             )
+        return self.structure.processes
 
     def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str) -> pd.DataFrame:
         """Returns DataFrame from given artifact.
@@ -378,5 +377,5 @@ def get_process(collection_name: str, process: str) -> Process:
     )
     logging.warning(deprecated_msg)
     warnings.warn(deprecated_msg, DeprecationWarning)
-    adapter = Adapter(collection_name, structure_name=None)
+    adapter = Adapter(collection_name, structure=None)
     return adapter.get_process(process)
