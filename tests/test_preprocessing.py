@@ -93,7 +93,7 @@ def test_filter_df():
     data["a"] = [3]
     data["b"] = [5]
     df = pandas.DataFrame(data)
-    adapter = preprocessing.Adapter(None)
+    adapter = preprocessing.Adapter(None, None)
     filtered_df = adapter._Adapter__filter_parameters(df, ("a",), collection.DataType.Scalar)
     del data["b"]
     expected_df = pandas.DataFrame(data)
@@ -126,7 +126,7 @@ def test_merge_regions():
             ],
         },
     )
-    adapter = preprocessing.Adapter(None)
+    adapter = preprocessing.Adapter(None, None)
     merged_regions = adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
     expected_df = pandas.DataFrame(
         {
@@ -173,13 +173,13 @@ def test_duplicate_values_in_merge_regions():
             ],
         },
     )
-    adapter = preprocessing.Adapter(None)
+    adapter = preprocessing.Adapter(None, None)
     with pytest.raises(preprocessing.PreprocessingError):
         adapter._Adapter__merge_parameters(df.explode("region"), datatype=collection.DataType.Scalar)
 
 
 def test_refactor_timeseries():
-    adapter = preprocessing.Adapter("refactor_timeseries")
+    adapter = preprocessing.Adapter("refactor_timeseries", None)
     artifact = adapter.get_process("modex_capacity_factor")
     assert len(artifact.timeseries) == 8760 * 2
     assert len(artifact.timeseries.columns) == 16
