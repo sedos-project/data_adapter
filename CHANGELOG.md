@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.17.0] - 2023-12-13
+### Changed
+- structure is read from Excel file
+
 ## [0.16.0] - 2023-12-01
 ### Added
 - function to get all processes from collection
