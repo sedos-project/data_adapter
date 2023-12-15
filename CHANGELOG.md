@@ -17,6 +17,13 @@ Here is a template for new release sections
 -
 ```
 
+## [0.18.0] - 2023-12-15
+### Added
+- structure information to process
+
+### Fixed
+- merging of parameters if cell contains np.nan
+
 ## [0.17.0] - 2023-12-13
 ### Changed
 - structure is read from Excel file

@@ -29,6 +29,9 @@ class Process:
 
     scalars: pd.DataFrame
     timeseries: pd.DataFrame
+    inputs: list[str] | None = None
+    outputs: list[str] | None = None
+    parameters: dict[str, list[str]] | None = None
 
 
 class PreprocessingError(Exception):
@@ -114,10 +117,13 @@ class Adapter:
                 timeseries_df.append(df)
 
         return Process(
-            self.__merge_parameters(*scalar_dfs, datatype=collection.DataType.Scalar),
-            self.__refactor_timeseries(
+            scalars=self.__merge_parameters(*scalar_dfs, datatype=collection.DataType.Scalar),
+            timeseries=self.__refactor_timeseries(
                 self.__merge_parameters(*timeseries_df, datatype=collection.DataType.Timeseries)
             ),
+            inputs=self.structure.processes[process]["inputs"] if self.structure else None,
+            outputs=self.structure.processes[process]["outputs"] if self.structure else None,
+            parameters=self.structure.parameters[process] if self.structure else None,
         )
 
     def get_structure(self) -> dict:
@@ -266,7 +272,7 @@ class Adapter:
         if column in datamodel_columns and datamodel_columns[column] is dict:
             dicts = []
             for dict_value in values:
-                if dict_value is None or math.isnan(dict_value):
+                if dict_value is None or (isinstance(dict_value, float) and math.isnan(dict_value)):
                     continue
                 if isinstance(dict_value, dict):
                     dicts.append(dict_value)
