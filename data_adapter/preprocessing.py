@@ -266,7 +266,7 @@ class Adapter:
         if column in datamodel_columns and datamodel_columns[column] is dict:
             dicts = []
             for dict_value in values:
-                if dict_value is None:
+                if dict_value is None or math.isnan(dict_value):
                     continue
                 if isinstance(dict_value, dict):
                     dicts.append(dict_value)
