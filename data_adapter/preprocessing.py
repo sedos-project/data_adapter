@@ -8,9 +8,11 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 import pandas as pd
+from units.exception import IncompatibleUnitsError
 
 from data_adapter import collection, core, settings
 from data_adapter.structure import Structure, StructureError
+from data_adapter.units import UnitConversionError, get_conversion_factor
 
 SCALAR_MERGE_GROUPS = ["region", "year"]
 TIMESERIES_MERGE_GROUPS = [
@@ -39,7 +41,9 @@ class PreprocessingError(Exception):
 
 
 class Adapter:
-    def __init__(self, collection_name: str, structure: Optional[Structure] = None) -> None:
+    def __init__(
+        self, collection_name: str, structure: Optional[Structure] = None, units: Optional[list[str]] = None
+    ) -> None:
         """The adapter is used to handle collection, structure and links centralized.
 
         Parameters
@@ -48,9 +52,12 @@ class Adapter:
             Name of collection from collection folder to get data from
         structure : Structure
             holding processes and parameters from Excel-file
+        units : list[str]
+            try to convert data with units in metadata into given units
         """
         self.collection_name = collection_name
         self.structure = structure
+        self.units = [] if units is None else units
 
     def get_process(self, process: str) -> Process:
         """Loads data for given process from collection.
@@ -191,10 +198,52 @@ class Adapter:
             df = self.__filter_subprocess(df, process)
         if len(parameters) > 0:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
+        df = self.__convert_units(df, artifact.metadata)
 
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
             return df.explode("region")
+        return df
+
+    def __convert_units(self, df: pd.DataFrame, metadata: dict) -> pd.DataFrame:  # noqa: C901
+        """
+        Converts units
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Multiply columns with related conversion factor
+        metadata : dict
+            Find units of data in metadata
+
+        Returns
+        -------
+        pd.DataFrame
+            with converted units, if unit conversion is possible
+        """
+
+        def convert_series(series: list[float], factor: float) -> list[float]:
+            return [item * factor for item in series]
+
+        if df.empty:
+            return df
+        for field in metadata["resources"][0]["schema"]["fields"]:
+            if "unit" not in field:
+                continue
+            if field["name"] not in df.columns:
+                continue
+            conversion_factor = None
+            for unit in self.units:
+                try:
+                    conversion_factor = get_conversion_factor(field["unit"], unit)
+                except (UnitConversionError, IncompatibleUnitsError):
+                    continue
+                break
+            if conversion_factor:
+                if "array" in field["type"]:
+                    df[field["name"]] = df[field["name"]].apply(convert_series, factor=conversion_factor)
+                else:
+                    df[field["name"]] = df[field["name"]] * conversion_factor
         return df
 
     @staticmethod

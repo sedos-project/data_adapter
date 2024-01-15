@@ -135,6 +135,7 @@
             ],
             "name": "installed_capacity",
             "type": "float",
+            "unit": "MW",
             "valueReference": []
           },
           {

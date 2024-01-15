@@ -183,3 +183,17 @@ def test_refactor_timeseries():
     artifact = adapter.get_process("modex_capacity_factor")
     assert len(artifact.timeseries) == 8760 * 2
     assert len(artifact.timeseries.columns) == 16
+
+
+def test_unit_conversion_in_scalar_data():
+    adapter = preprocessing.Adapter("simple", units=["GW"])
+    artifact = adapter.get_process("modex_tech_wind_turbine_onshore")
+    assert artifact.scalars[artifact.scalars["region"] == "BE"].iloc[0]["installed_capacity"] == pytest.approx(
+        11 / 1000
+    )
+
+
+def test_unit_conversion_in_timeseries_data():
+    adapter = preprocessing.Adapter("simple", units=["GW"])
+    artifact = adapter.get_process("modex_capacity_factor")
+    assert artifact.timeseries[("onshore", ("HE",))].iloc[0] == pytest.approx(0.032336 / 1000, rel=1e-3)

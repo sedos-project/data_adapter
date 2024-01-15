@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Added
+- unit conversion to scalar and timeseries data
+
 ## [0.18.0] - 2023-12-15
 ### Added
 - structure information to process

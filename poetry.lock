@@ -2348,6 +2348,16 @@ files = [
 ]
 
 [[package]]
+name = "units"
+version = "0.07"
+description = "Python support for quantities with units"
+optional = false
+python-versions = "*"
+files = [
+    {file = "units-0.07.tar.gz", hash = "sha256:43eb3e073e1b11289df7b1c3f184b5b917ccad178b717b03933298716f200e14"},
+]
+
+[[package]]
 name = "urllib3"
 version = "2.1.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -2516,4 +2526,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0.0"
-content-hash = "407d3d97f60ae51315ec94db43c109a25512edb871e3e59bb16e8556b548bd77"
+content-hash = "a9812513ff1695a8840cd91b98ae66b8dae60941e4f0b4bb4136a1e1ccc62a56"
