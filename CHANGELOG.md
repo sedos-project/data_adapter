@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.19.0] - 2024-01-15
 ### Added
 - unit conversion to scalar and timeseries data
 
