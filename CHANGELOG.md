@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.20.0] - 2024-02-19
+### Added
+- helper set processes to process list
+
 ## [0.19.0] - 2024-01-15
 ### Added
 - unit conversion to scalar and timeseries data
