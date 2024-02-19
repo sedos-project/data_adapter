@@ -1,4 +1,5 @@
 from units import NamedComposedUnit, scaled_unit, unit
+from units.exception import IncompatibleUnitsError
 from units.predefined import define_units
 from units.registry import REGISTRY
 
@@ -39,4 +40,7 @@ def get_conversion_factor(convert_from, convert_to):
         raise UnitConversionError(f"Unknown unit '{convert_from}'.")
     if convert_to not in REGISTRY:
         raise UnitConversionError(f"Unknown unit '{convert_to}'.")
-    return unit(convert_to)(unit(convert_from)(1)).get_num()
+    try:
+        return unit(convert_to)(unit(convert_from)(1)).get_num()
+    except IncompatibleUnitsError:
+        raise IncompatibleUnitsError(f"Cannot convert from unit '{convert_from}' to unit '{convert_to}'")

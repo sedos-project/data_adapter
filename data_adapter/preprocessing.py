@@ -8,11 +8,14 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 import pandas as pd
-from units.exception import IncompatibleUnitsError
 
 from data_adapter import collection, core, settings
 from data_adapter.structure import Structure, StructureError
-from data_adapter.units import UnitConversionError, get_conversion_factor
+from data_adapter.unit_conversion import (
+    IncompatibleUnitsError,
+    UnitConversionError,
+    get_conversion_factor,
+)
 
 SCALAR_MERGE_GROUPS = ["region", "year"]
 TIMESERIES_MERGE_GROUPS = [
