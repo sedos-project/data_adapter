@@ -133,7 +133,9 @@ class Adapter:
             ),
             inputs=self.structure.processes[process]["inputs"] if self.structure else None,
             outputs=self.structure.processes[process]["outputs"] if self.structure else None,
-            parameters=self.structure.parameters[process] if self.structure else None,
+            parameters=self.structure.parameters[process]
+            if self.structure and "process" in self.structure.parameters
+            else None,
         )
 
     def get_structure(self) -> dict:
