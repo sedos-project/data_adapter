@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.20.2] - 2024-03-06
 ### Fixed
 - merging parameters of empty dataframe
 
