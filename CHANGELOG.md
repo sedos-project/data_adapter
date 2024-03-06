@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Fixed
+- merging parameters of empty dataframe
+
 ## [0.20.1] - 2024-02-28
 ### Fixed
 - reading parameters of process if no parameters are set for a process in structure

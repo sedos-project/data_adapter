@@ -304,6 +304,9 @@ class Adapter:
         concatenated_dfs["region"] = concatenated_dfs["region"].apply(lambda x: tuple(x) if isinstance(x, list) else x)
         groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
         merged_regions = concatenated_dfs.groupby(groups).apply(self.__apply_parameter_merge, datatype=datatype)
+        if merged_regions.empty:
+            # This must be done, otherwise grouped columns appear in index and columns and cannot be reset afterwards
+            merged_regions = merged_regions.drop(SCALAR_MERGE_GROUPS, axis=1)
         return merged_regions.reset_index()
 
     def __apply_parameter_merge(self, data, datatype):
