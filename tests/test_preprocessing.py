@@ -15,7 +15,7 @@ def test_process():
     artifacts = preprocessing.get_process("simple", "modex_tech_storage_battery")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 17
+    assert len(artifacts.scalars.columns) == 16
     assert len(artifacts.scalars) == 51
 
 
@@ -26,13 +26,13 @@ def test_process_of_artifact_with_multiple_subprocesses():
 
     assert hasattr(onshore, "scalars")
     assert hasattr(onshore, "timeseries")
-    assert len(onshore.scalars.columns) == 13
+    assert len(onshore.scalars.columns) == 12
     assert len(onshore.scalars) == 50
     assert onshore.timeseries["wind_speed", ("HE",)][0] == 1003
 
     assert hasattr(offshore, "scalars")
     assert hasattr(offshore, "timeseries")
-    assert len(offshore.scalars.columns) == 13
+    assert len(offshore.scalars.columns) == 12
     assert len(offshore.scalars) == 50
     assert offshore.timeseries["wind_speed", ("HE",)][0] == 10003
 
@@ -42,7 +42,7 @@ def test_process_with_annotations():
         artifacts = preprocessing.get_process("simple", "battery storage")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 17
+    assert len(artifacts.scalars.columns) == 16
     assert len(artifacts.scalars) == 51
 
 
@@ -50,7 +50,7 @@ def test_process_with_additional_data():
     artifacts = preprocessing.get_process("simple", "modex_tech_wind_turbine_onshore")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 13
+    assert len(artifacts.scalars.columns) == 12
     assert len(artifacts.scalars) == 51
     assert len(artifacts.timeseries.columns) == 4
     assert len(artifacts.timeseries) == 8760
@@ -63,7 +63,7 @@ def test_process_with_additional_data_with_annotations():
         artifacts = preprocessing.get_process("simple", "onshore wind farm")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 13
+    assert len(artifacts.scalars.columns) == 12
     assert len(artifacts.scalars) == 51
     assert len(artifacts.timeseries.columns) == 4
     assert len(artifacts.timeseries) == 8760
@@ -75,7 +75,7 @@ def test_process_with_multiple_artifacts_for_process():
     artifacts = preprocessing.get_process("multiple_processes", "modex_tech_wind_turbine_onshore")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 14
+    assert len(artifacts.scalars.columns) == 13
     assert len(artifacts.scalars) == 51
 
 
@@ -84,7 +84,7 @@ def test_process_with_multiple_artifacts_for_process_with_annotations():
         artifacts = preprocessing.get_process("multiple_processes", "onshore wind farm")
     assert hasattr(artifacts, "scalars")
     assert hasattr(artifacts, "timeseries")
-    assert len(artifacts.scalars.columns) == 14
+    assert len(artifacts.scalars.columns) == 13
     assert len(artifacts.scalars) == 51
 
 
