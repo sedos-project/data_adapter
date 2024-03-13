@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.20.3] - 2024-03-13
 ### Fixed
 - multiple versions error when merging FKs into process
 
