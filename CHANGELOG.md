@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Fixed
+- multiple versions error when merging FKs into process
+
 ## [0.20.2] - 2024-03-06
 ### Fixed
 - merging parameters of empty dataframe

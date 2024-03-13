@@ -1,0 +1,183 @@
+{
+  "artifacts": {
+    "Industry_test": {
+      "ind_steel_boiler_0": {
+        "datatype": 0,
+        "latest_version": "v1",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0",
+          "ind_steel_boiler_0"
+        ],
+        "subjects": []
+      },
+      "ind_steel_casting_0": {
+        "datatype": 0,
+        "latest_version": "v1",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0"
+        ],
+        "subjects": []
+      },
+      "ind_steel_casting_1": {
+        "datatype": 0,
+        "latest_version": "v1",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1",
+          "ind_steel_casting_1"
+        ],
+        "subjects": []
+      },
+      "ind_steel_hyddri_1": {
+        "datatype": 0,
+        "latest_version": "v1",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1"
+        ],
+        "subjects": []
+      }
+    },
+    "global_emissions": {
+      "global_emission_factors": {
+        "datatype": 0,
+        "latest_version": "v2",
+        "multiple_types": false,
+        "names": [
+          "global_emission_factors"
+        ],
+        "subjects": [
+          "global_emission_factors"
+        ]
+      }
+    },
+    "sedos_template": {
+      "excess_ch4": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "excess_ch4"
+        ],
+        "subjects": [
+          "excess_ch4"
+        ]
+      },
+      "excess_co2": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "excess_co2"
+        ],
+        "subjects": [
+          "excess_co2"
+        ]
+      },
+      "excess_n2o": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "excess_n2o"
+        ],
+        "subjects": [
+          "excess_n2o"
+        ]
+      },
+      "ind_test_steel_demand": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "ind_test_steel_demand"
+        ],
+        "subjects": [
+          "ind_test_steel_demand"
+        ]
+      },
+      "x2x_import_coke_oven_gas": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "x2x_import_coke_oven_gas"
+        ],
+        "subjects": [
+          "x2x_import_coke_oven_gas"
+        ]
+      },
+      "x2x_import_elec": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "x2x_import_elec"
+        ],
+        "subjects": [
+          "x2x_import_elec"
+        ]
+      },
+      "x2x_import_h2": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "x2x_import_h2"
+        ],
+        "subjects": [
+          "x2x_import_h2"
+        ]
+      },
+      "x2x_import_natural_gas": {
+        "datatype": 0,
+        "latest_version": "v3",
+        "multiple_types": false,
+        "names": [
+          "x2x_import_natural_gas"
+        ],
+        "subjects": [
+          "x2x_import_natural_gas"
+        ]
+      }
+    }
+  },
+  "name": "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test",
+  "version": "v3"
+}
