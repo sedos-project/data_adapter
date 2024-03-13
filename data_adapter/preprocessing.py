@@ -315,7 +315,7 @@ class Adapter:
 
         series = pd.Series(dtype=object)
         for column in data.columns:
-            if column in ["id", *groups]:
+            if column in ["id", "version", *groups]:
                 continue  # Drop columns
             try:
                 series[column] = self.__merge_column(column, data[column], datamodel_columns)
