@@ -197,3 +197,10 @@ def test_unit_conversion_in_timeseries_data():
     adapter = preprocessing.Adapter("simple", units=["GW"])
     artifact = adapter.get_process("modex_capacity_factor")
     assert artifact.timeseries[("onshore", ("HE",))].iloc[0] == pytest.approx(0.032336 / 1000, rel=1e-3)
+
+
+def test_fks_with_multiple_versions():
+    adapter = preprocessing.Adapter("fk_multiple_versions")
+    artifact = adapter.get_process("ind_steel_casting_0")
+    assert artifact.scalars["emissions_factor_sec_methane_ch4"][0] == 1
+    assert artifact.scalars["emissions_factor_sec_methane_co2"][0] == 28
