@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.20.4] - 2024-04-16
 ### Fixed
 - SPARQL queries
 
