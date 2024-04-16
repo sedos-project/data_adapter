@@ -6,9 +6,32 @@ import re
 from typing import Union
 
 import requests
-from SPARQLWrapper import JSON, SPARQLWrapper2
 
 from data_adapter import collection, settings
+
+
+def query_sparql(query: str) -> dict:
+    """
+    Query SPARQL endpoint and return data as dict.
+
+    Parameters
+    ----------
+    query: str
+        SPARQL query to be executed
+
+    Returns
+    -------
+    dict
+        SPARQL results as dict
+    """
+    response = requests.post(
+        settings.DATABUS_ENDPOINT,
+        headers={"Accept": "application/json, text/plain, */*", "Content-Type": "application/x-www-form-urlencoded"},
+        data={"query": query},
+        timeout=90,
+    )
+    data = response.json()
+    return data["results"]["bindings"]
 
 
 def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
@@ -35,11 +58,7 @@ def download_artifact(artifact_file: str, filename: Union[pathlib.Path, str]):
 
 
 def get_artifact_filenames(artifact: str, version: str) -> list[str]:
-    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
-    sparql.setReturnFormat(JSON)
-
-    sparql.setQuery(
-        f"""
+    query = f"""
         PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX dcat:   <http://www.w3.org/ns/dcat#>
@@ -55,10 +74,9 @@ def get_artifact_filenames(artifact: str, version: str) -> list[str]:
                 ?distribution dataid:file ?file .
             }}
         }}
-        """,
-    )
-    result = sparql.query()
-    return [file["file"].value for file in result.bindings]
+        """
+    result = query_sparql(query)
+    return [file["file"]["value"] for file in result]
 
 
 def get_latest_version_of_artifact(artifact: str) -> str:
@@ -96,11 +114,7 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         except ValueError:
             return v
 
-    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
-    sparql.setReturnFormat(JSON)
-
-    sparql.setQuery(
-        f"""
+    query = f"""
         PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX dcat:   <http://www.w3.org/ns/dcat#>
@@ -115,10 +129,9 @@ def get_latest_version_of_artifact(artifact: str) -> str:
                 ?dataset dct:hasVersion ?version .
             }}
         }} ORDER BY DESC (?version)
-        """,
-    )
-    result = sparql.query()
-    versions = [version["version"].value for version in result.bindings]
+        """
+    result = query_sparql(query)
+    versions = [version["version"]["value"] for version in result]
     return sorted(versions, key=get_version_number)[-1]
 
 
@@ -141,11 +154,8 @@ def get_artifacts_from_collection(collection: str) -> list[str]:
         return "/".join((https, _, host, user, group, artifact))
 
     response = requests.get(collection, headers={"Accept": "text/sparql"}, timeout=90)
-    sparql = SPARQLWrapper2(settings.DATABUS_ENDPOINT)
-    sparql.setReturnFormat(JSON)
-    sparql.setQuery(response.text)
-    data = sparql.query()
-    files = {extract_artifact_from_uri(file["file"].value) for file in data.bindings}
+    result = query_sparql(response.text)
+    files = {extract_artifact_from_uri(file["file"]["value"]) for file in result}
     return list(files)
 
 
