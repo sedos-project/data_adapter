@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Added
+- if no type is given in type column, table process name is used
+
 ## [0.20.4] - 2024-04-16
 ### Fixed
 - SPARQL queries

@@ -200,6 +200,8 @@ class Adapter:
         df = artifact.data
 
         if artifact.multiple_types:
+            # Fill empty types with table process name
+            df["type"] = df["type"].fillna(artifact.metadata["name"])
             df = self.__filter_subprocess(df, process)
         if len(parameters) > 0:
             df = self.__filter_parameters(df, parameters, artifact.datatype)

@@ -134,8 +134,12 @@ def infer_collection_metadata(collection: str, collection_meta: dict) -> dict:
 
             if type_field:
                 collection_meta["artifacts"][group_name][artifact_name]["multiple_types"] = True
-                collection_meta["artifacts"][group_name][artifact_name]["names"] = artifact.get_subprocesses()
+                collection_meta["artifacts"][group_name][artifact_name]["names"] = [
+                    metadata["name"]
+                ] + artifact.get_subprocesses()
                 collection_meta["artifacts"][group_name][artifact_name]["subjects"] = [
+                    ontology.get_subject(metadata)
+                ] + [
                     ontology.get_name_from_annotation(value_reference)
                     for value_reference in type_field["valueReference"]
                 ]

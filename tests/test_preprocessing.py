@@ -204,3 +204,11 @@ def test_fks_with_multiple_versions():
     artifact = adapter.get_process("ind_steel_casting_0")
     assert artifact.scalars["emissions_factor_sec_methane_ch4"][0] == 1
     assert artifact.scalars["emissions_factor_sec_methane_co2"][0] == 28
+
+
+def test_fks_with_none_type():
+    adapter = preprocessing.Adapter("process_type_none")
+    artifact = adapter.get_process("ind_steel_casting_0")
+    assert artifact.scalars["emissions_factor_sec_methane_co2"][0] == 28
+    assert artifact.scalars["emissions_factor_sec_methane_ch4"][0] == 3
+    assert artifact.scalars["emissions_factor_sec_methane_ch4"][1] == 2

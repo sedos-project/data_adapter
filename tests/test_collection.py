@@ -35,9 +35,11 @@ def test_infer_collection_metadata():
     metadata = collection.get_collection_meta(collection_name)
     collection.infer_collection_metadata(collection_name, metadata)
     wind_turbine = metadata["artifacts"]["modex"]["modex_tech_wind_turbine"]
-    assert len(wind_turbine["names"]) == 2
+    assert len(wind_turbine["names"]) == 3
+    assert "modex_tech_wind_turbine_onshore" in wind_turbine["names"]
     assert "wind_onshore" in wind_turbine["names"]
     assert "wind_offshore" in wind_turbine["names"]
-    assert len(wind_turbine["subjects"]) == 2
+    assert len(wind_turbine["subjects"]) == 3
+    assert "onshore wind farm" in wind_turbine["subjects"]
     assert "Wind Onshore" in wind_turbine["subjects"]
     assert "Wind Offshore" in wind_turbine["subjects"]
