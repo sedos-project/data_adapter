@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.21.0] - 2024-04-24
 ### Added
 - if no type is given in type column, table process name is used
 
