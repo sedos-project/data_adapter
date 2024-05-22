@@ -5,7 +5,9 @@ from typing import List, Optional
 
 import pandas as pd
 from openpyxl import load_workbook
-
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 from data_adapter import settings
 
 MAX_IDENTIFIER_LENGTH = 50
@@ -150,3 +152,118 @@ class Structure:
                 es_structure[dic.get("process")] = es_structure[dic.get("process")] | dic_para
 
         return es_structure
+
+    def plot_commodity_interfaces(self, categories: list = ['pri', 'sec', 'iip', 'exo', 'emi'], sectors: list = ['pow', 'x2x', 'ind', 'mob', 'hea', "helper"]):
+
+        cols = len(categories)
+
+        # Create plotting object
+        fig, axes = plt.subplots(nrows=1, ncols=cols, figsize=(cols * 10, 16), sharey=False)
+        if len(categories) == 1:
+            axes = [axes]  # Wrap the single AxesSubplot object in a list for indexing
+
+        # Initialize dictionaries to store the commodities for each sector
+        for i, category in enumerate(categories):
+            input_commodities = {sector: set() for sector in sectors}
+            output_commodities = {sector: set() for sector in sectors}
+
+            # Iterate over the rows and populate the dictionaries
+            for process_name, io_dict in self.processes.items():
+                row_sectors = [process_name.split("_")[0]]
+                inputs = [num for item in io_dict["inputs"] for num in (item if isinstance(item, list) else (item,))]
+                outputs = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
+                categories_set = set([category.split("_")[0] for category in inputs + outputs])
+                # level io dict values
+                for sector in row_sectors:
+                    if category in categories_set:
+                        input_commodities[sector] |= set(
+                            [commodity for commodity in inputs if commodity.startswith(category)])
+                        output_commodities[sector] |= set(
+                            [commodity for commodity in outputs if commodity.startswith(category)])
+
+            # Create the matrix visualization for the current category
+            combined = {sector: list(input_commodities[sector] | output_commodities[sector]) for sector in sectors}
+            unique_commodity_list = sorted(list(set(commodity for sector in combined.values() for commodity in sector)))
+
+            # Create a DataFrame with initial values of 0
+            matrix_data = pd.DataFrame(np.NaN, index=unique_commodity_list, columns=sectors)
+
+            # Update the DataFrame with -1 for input, 1 for output, and 0 for both
+            for sector in sectors:
+                for commodity in combined[sector]:
+                    if commodity in input_commodities[sector] and commodity in output_commodities[sector]:
+                        matrix_data.at[commodity, sector] = 0
+                    elif commodity in input_commodities[sector]:
+                        matrix_data.at[commodity, sector] = -1
+                    elif commodity in output_commodities[sector]:
+                        matrix_data.at[commodity, sector] = 1
+
+            # Plot the matric information
+            ax = axes[i]
+            im = ax.imshow(matrix_data.values, cmap='RdYlGn', vmin=-1, vmax=1)
+
+            # Create a frame around each cell in the matrix for better readability
+            for j in range(len(matrix_data.index)):
+                for k in range(len(matrix_data.columns)):
+                    value = matrix_data.values[j, k]
+                    color = 'white' if np.isnan(
+                        value) else 'red' if value == -1 else 'green' if value == 1 else 'yellow'
+                    rect = plt.Rectangle((k - 0.5, j - 0.5), 1, 1, fill=True, facecolor=color, edgecolor='black',
+                                         linewidth=1)
+                    ax.add_patch(rect)
+
+            # Labeling
+            plt.sca(axes[i])
+            ax.set_xticks(range(len(matrix_data.columns)), matrix_data.columns)
+            ax.set_yticks(range(len(matrix_data.index)), matrix_data.index)
+            ax.set_xlabel('Sectors', fontsize=12)
+            ax.set_title(category.upper(), fontsize=16)
+
+        # Create a legend for the colors
+        legend_elements = [
+            Patch(facecolor='white', edgecolor='black', label='No Relation'),
+            Patch(facecolor='red', edgecolor='black', label='Input'),
+            Patch(facecolor='green', edgecolor='black', label='Output'),
+            Patch(facecolor='yellow', edgecolor='black', label='Input & Output')]
+        fig.legend(handles=legend_elements, loc='upper left', fontsize=12)
+        plt.tight_layout()
+
+        # Save the plot as svg
+        plt.show()
+
+    def get_commodity_diff(self, input_processes:list = ["source", "import"], output_processes:list= ["sink"]):
+        d = {"inputs": [], "outputs": []}
+        for x in self.processes.values():
+            inputs = x["inputs"]
+            outputs = x["outputs"]
+
+            # If nested value level and add to io_dict
+            for i in inputs:
+                if isinstance(i, list):
+                    for in_list in i:
+                        d["inputs"].append(in_list)
+                else:
+                    d["inputs"].append(i)
+            for o in outputs:
+                if isinstance(o, list):
+                    for out_list in o:
+                        d["outputs"].append(out_list)
+                else:
+                    d["outputs"].append(o)
+
+        # delete duplicates
+        d["inputs"] = np.unique(np.array(d["inputs"]))
+        d["outputs"] = np.unique(d["outputs"])
+
+        needed_from_external_source = [x for x in d["inputs"] if x not in d["outputs"]]
+        sink_is_necessary = [x for x in d["outputs"] if x not in d["inputs"]]
+
+        for process, io in self.processes.items():
+            for count, x in enumerate(needed_from_external_source):
+                if x in io["inputs"] and any([ip in process for ip in input_processes]):
+                    needed_from_external_source.pop(count)
+            for x in sink_is_necessary:
+                if x in io["outputs"] and any([op in process for op in output_processes]):
+                    sink_is_necessary = sink_is_necessary - x
+
+        return {"sink_is_necessary": sink_is_necessary, "needed_from_external_source": needed_from_external_source}
