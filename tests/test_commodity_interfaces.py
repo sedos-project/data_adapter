@@ -1,9 +1,4 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-from  data_adapter.preprocessing import Structure
-
+from data_adapter.preprocessing import Structure
 
 
 structure = Structure(
@@ -16,4 +11,3 @@ structure = Structure(
 structure.plot_commodity_interfaces()
 
 print(structure.get_commodity_diff())
-

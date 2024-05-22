@@ -153,7 +153,11 @@ class Structure:
 
         return es_structure
 
-    def plot_commodity_interfaces(self, categories: list = ['pri', 'sec', 'iip', 'exo', 'emi'], sectors: list = ['pow', 'x2x', 'ind', 'mob', 'hea', "helper"]):
+    def plot_commodity_interfaces(
+        self,
+        categories: list = ["pri", "sec", "iip", "exo", "emi"],
+        sectors: list = ["pow", "x2x", "ind", "mob", "hea", "helper"],
+    ):
 
         cols = len(categories)
 
@@ -177,9 +181,11 @@ class Structure:
                 for sector in row_sectors:
                     if category in categories_set:
                         input_commodities[sector] |= set(
-                            [commodity for commodity in inputs if commodity.startswith(category)])
+                            [commodity for commodity in inputs if commodity.startswith(category)]
+                        )
                         output_commodities[sector] |= set(
-                            [commodity for commodity in outputs if commodity.startswith(category)])
+                            [commodity for commodity in outputs if commodity.startswith(category)]
+                        )
 
             # Create the matrix visualization for the current category
             combined = {sector: list(input_commodities[sector] | output_commodities[sector]) for sector in sectors}
@@ -200,38 +206,41 @@ class Structure:
 
             # Plot the matric information
             ax = axes[i]
-            im = ax.imshow(matrix_data.values, cmap='RdYlGn', vmin=-1, vmax=1)
+            ax.imshow(matrix_data.values, cmap="RdYlGn", vmin=-1, vmax=1)
 
             # Create a frame around each cell in the matrix for better readability
             for j in range(len(matrix_data.index)):
                 for k in range(len(matrix_data.columns)):
                     value = matrix_data.values[j, k]
-                    color = 'white' if np.isnan(
-                        value) else 'red' if value == -1 else 'green' if value == 1 else 'yellow'
-                    rect = plt.Rectangle((k - 0.5, j - 0.5), 1, 1, fill=True, facecolor=color, edgecolor='black',
-                                         linewidth=1)
+                    color = (
+                        "white" if np.isnan(value) else "red" if value == -1 else "green" if value == 1 else "yellow"
+                    )
+                    rect = plt.Rectangle(
+                        (k - 0.5, j - 0.5), 1, 1, fill=True, facecolor=color, edgecolor="black", linewidth=1
+                    )
                     ax.add_patch(rect)
 
             # Labeling
             plt.sca(axes[i])
             ax.set_xticks(range(len(matrix_data.columns)), matrix_data.columns)
             ax.set_yticks(range(len(matrix_data.index)), matrix_data.index)
-            ax.set_xlabel('Sectors', fontsize=12)
+            ax.set_xlabel("Sectors", fontsize=12)
             ax.set_title(category.upper(), fontsize=16)
 
         # Create a legend for the colors
         legend_elements = [
-            Patch(facecolor='white', edgecolor='black', label='No Relation'),
-            Patch(facecolor='red', edgecolor='black', label='Input'),
-            Patch(facecolor='green', edgecolor='black', label='Output'),
-            Patch(facecolor='yellow', edgecolor='black', label='Input & Output')]
-        fig.legend(handles=legend_elements, loc='upper left', fontsize=12)
+            Patch(facecolor="white", edgecolor="black", label="No Relation"),
+            Patch(facecolor="red", edgecolor="black", label="Input"),
+            Patch(facecolor="green", edgecolor="black", label="Output"),
+            Patch(facecolor="yellow", edgecolor="black", label="Input & Output"),
+        ]
+        fig.legend(handles=legend_elements, loc="upper left", fontsize=12)
         plt.tight_layout()
 
         # Save the plot as svg
         plt.show()
 
-    def get_commodity_diff(self, input_processes:list = ["source", "import"], output_processes:list= ["sink"]):
+    def get_commodity_diff(self, input_processes: list = ["source", "import"], output_processes: list = ["sink"]):
         d = {"inputs": [], "outputs": []}
         for x in self.processes.values():
             inputs = x["inputs"]
