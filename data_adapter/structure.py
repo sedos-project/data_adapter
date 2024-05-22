@@ -158,6 +158,13 @@ class Structure:
         categories: list = ["pri", "sec", "iip", "exo", "emi"],
         sectors: list = ["pow", "x2x", "ind", "mob", "hea", "helper"],
     ):
+        """
+        This function helps intends to help understanding
+         the Structure and its Comodities.
+
+         The Image will show what Commodities are used in which sectors
+         respectively to their Input/Output
+        """
 
         cols = len(categories)
 
@@ -241,6 +248,16 @@ class Structure:
         plt.show()
 
     def get_commodity_diff(self, input_processes: list = ["source", "import"], output_processes: list = ["sink"]):
+        """
+        This Function intends to help the user quickly identify missing
+        sources or sinks in the Energy system
+
+        input_processes allows the user to set names for processes that are
+        'creating' Commodities
+
+        output_processes allow the user to set names for processes that
+        `destroy` Commodities
+        """
         d = {"inputs": [], "outputs": []}
         for x in self.processes.values():
             inputs = x["inputs"]
