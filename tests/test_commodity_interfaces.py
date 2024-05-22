@@ -8,6 +8,6 @@ structure = Structure(
     helper_sheet="Helper_O1",
 )
 
-structure.plot_commodity_interfaces()
+# structure.plot_commodity_interfaces()
 
 print(structure.get_commodity_diff())

@@ -258,31 +258,36 @@ class Structure:
         output_processes allow the user to set names for processes that
         `destroy` Commodities
         """
-        d = {"inputs": [], "outputs": []}
-        for x in self.processes.values():
-            inputs = x["inputs"]
-            outputs = x["outputs"]
 
+        def _add_values_to_io_dict(io_dict, inputs, outputs):
             # If nested value level and add to io_dict
             for i in inputs:
                 if isinstance(i, list):
                     for in_list in i:
-                        d["inputs"].append(in_list)
+                        io_dict["inputs"].append(in_list)
                 else:
-                    d["inputs"].append(i)
+                    io_dict["inputs"].append(i)
             for o in outputs:
                 if isinstance(o, list):
                     for out_list in o:
-                        d["outputs"].append(out_list)
+                        io_dict["outputs"].append(out_list)
                 else:
-                    d["outputs"].append(o)
+                    io_dict["outputs"].append(o)
+            return io_dict
+
+        io_dict = {"inputs": [], "outputs": []}
+
+        for x in self.processes.values():
+            inputs = x["inputs"]
+            outputs = x["outputs"]
+            io_dict = _add_values_to_io_dict(io_dict, inputs, outputs)
 
         # delete duplicates
-        d["inputs"] = np.unique(np.array(d["inputs"]))
-        d["outputs"] = np.unique(d["outputs"])
+        io_dict["inputs"] = np.unique(np.array(io_dict["inputs"]))
+        io_dict["outputs"] = np.unique(io_dict["outputs"])
 
-        needed_from_external_source = [x for x in d["inputs"] if x not in d["outputs"]]
-        sink_is_necessary = [x for x in d["outputs"] if x not in d["inputs"]]
+        needed_from_external_source = [x for x in io_dict["inputs"] if x not in io_dict["outputs"]]
+        sink_is_necessary = [x for x in io_dict["outputs"] if x not in io_dict["inputs"]]
 
         for process, io in self.processes.items():
             for count, x in enumerate(needed_from_external_source):
