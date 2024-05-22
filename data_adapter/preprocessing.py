@@ -11,6 +11,11 @@ import pandas as pd
 
 from data_adapter import collection, core, settings
 from data_adapter.structure import Structure, StructureError
+from data_adapter.unit_conversion import (
+    IncompatibleUnitsError,
+    UnitConversionError,
+    get_conversion_factor,
+)
 
 SCALAR_MERGE_GROUPS = ["region", "year"]
 TIMESERIES_MERGE_GROUPS = [
@@ -39,7 +44,9 @@ class PreprocessingError(Exception):
 
 
 class Adapter:
-    def __init__(self, collection_name: str, structure: Optional[Structure] = None) -> None:
+    def __init__(
+        self, collection_name: str, structure: Optional[Structure] = None, units: Optional[list[str]] = None
+    ) -> None:
         """The adapter is used to handle collection, structure and links centralized.
 
         Parameters
@@ -48,9 +55,12 @@ class Adapter:
             Name of collection from collection folder to get data from
         structure : Structure
             holding processes and parameters from Excel-file
+        units : list[str]
+            try to convert data with units in metadata into given units
         """
         self.collection_name = collection_name
         self.structure = structure
+        self.units = [] if units is None else units
 
     def get_process(self, process: str) -> Process:
         """Loads data for given process from collection.
@@ -123,7 +133,9 @@ class Adapter:
             ),
             inputs=self.structure.processes[process]["inputs"] if self.structure else None,
             outputs=self.structure.processes[process]["outputs"] if self.structure else None,
-            parameters=self.structure.parameters[process] if self.structure else None,
+            parameters=self.structure.parameters[process]
+            if self.structure and "process" in self.structure.parameters
+            else None,
         )
 
     def get_structure(self) -> dict:
@@ -191,10 +203,52 @@ class Adapter:
             df = self.__filter_subprocess(df, process)
         if len(parameters) > 0:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
+        df = self.__convert_units(df, artifact.metadata)
 
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
             return df.explode("region")
+        return df
+
+    def __convert_units(self, df: pd.DataFrame, metadata: dict) -> pd.DataFrame:  # noqa: C901
+        """
+        Converts units
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Multiply columns with related conversion factor
+        metadata : dict
+            Find units of data in metadata
+
+        Returns
+        -------
+        pd.DataFrame
+            with converted units, if unit conversion is possible
+        """
+
+        def convert_series(series: list[float], factor: float) -> list[float]:
+            return [item * factor for item in series]
+
+        if df.empty:
+            return df
+        for field in metadata["resources"][0]["schema"]["fields"]:
+            if "unit" not in field:
+                continue
+            if field["name"] not in df.columns:
+                continue
+            conversion_factor = None
+            for unit in self.units:
+                try:
+                    conversion_factor = get_conversion_factor(field["unit"], unit)
+                except (UnitConversionError, IncompatibleUnitsError):
+                    continue
+                break
+            if conversion_factor:
+                if "array" in field["type"]:
+                    df[field["name"]] = df[field["name"]].apply(convert_series, factor=conversion_factor)
+                else:
+                    df[field["name"]] = df[field["name"]] * conversion_factor
         return df
 
     @staticmethod
@@ -250,6 +304,9 @@ class Adapter:
         concatenated_dfs["region"] = concatenated_dfs["region"].apply(lambda x: tuple(x) if isinstance(x, list) else x)
         groups = SCALAR_MERGE_GROUPS if datatype == collection.DataType.Scalar else TIMESERIES_MERGE_GROUPS
         merged_regions = concatenated_dfs.groupby(groups).apply(self.__apply_parameter_merge, datatype=datatype)
+        if merged_regions.empty:
+            # This must be done, otherwise grouped columns appear in index and columns and cannot be reset afterwards
+            merged_regions = merged_regions.drop(SCALAR_MERGE_GROUPS, axis=1)
         return merged_regions.reset_index()
 
     def __apply_parameter_merge(self, data, datatype):
@@ -258,7 +315,7 @@ class Adapter:
 
         series = pd.Series(dtype=object)
         for column in data.columns:
-            if column in ["id", *groups]:
+            if column in ["id", "version", *groups]:
                 continue  # Drop columns
             try:
                 series[column] = self.__merge_column(column, data[column], datamodel_columns)

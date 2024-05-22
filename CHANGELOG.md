@@ -17,6 +17,30 @@ Here is a template for new release sections
 -
 ```
 
+## [0.20.4] - 2024-04-16
+### Fixed
+- SPARQL queries
+
+## [0.20.3] - 2024-03-13
+### Fixed
+- multiple versions error when merging FKs into process
+
+## [0.20.2] - 2024-03-06
+### Fixed
+- merging parameters of empty dataframe
+
+## [0.20.1] - 2024-02-28
+### Fixed
+- reading parameters of process if no parameters are set for a process in structure
+
+## [0.20.0] - 2024-02-19
+### Added
+- helper set processes to process list
+
+## [0.19.0] - 2024-01-15
+### Added
+- unit conversion to scalar and timeseries data
+
 ## [0.18.0] - 2023-12-15
 ### Added
 - structure information to process

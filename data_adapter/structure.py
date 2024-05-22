@@ -4,6 +4,7 @@ import re
 from typing import List, Optional
 
 import pandas as pd
+from openpyxl import load_workbook
 
 from data_adapter import settings
 
@@ -48,18 +49,21 @@ class Structure:
         structure_name: str,
         process_sheet: str = "Process_Set",
         parameter_sheet: str = "Parameter_Input-Output",
+        helper_sheet: str = "Helper_Set",
     ):
         self.structure_file = settings.STRUCTURES_DIR / f"{structure_name}.xlsx"
-        self.processes = self._init_processes(process_sheet)
+        self.processes = self._init_processes(process_sheet, helper_sheet)
         self.parameters = self._init_parameters(parameter_sheet)
 
-    def _init_processes(self, process_sheet: str) -> dict:
-        """Parse processes with corresponding inputs and outputs to dict.
+    def _init_processes(self, process_sheet: str, helper_sheet: str) -> dict:
+        """Parse (helper) processes with corresponding inputs and outputs to dict.
 
         Parameters
         ----------
         process_sheet: str
             Sheet to read processes from
+        helper_sheet: str
+            Sheet to read additional helper processes from
 
         Returns
         -------
@@ -79,14 +83,22 @@ class Structure:
             nodes += [node for node in nodes_raw_stripped.split(",") if node != ""]
             return nodes
 
-        process_in_out = pd.read_excel(
+        processes_raw = pd.read_excel(
             io=self.structure_file,
             sheet_name=process_sheet,
             usecols=("process", "input", "output"),
         )
-        process_in_out = process_in_out.fillna("")
-        check_character_convention(process_in_out, ["process"])
-        processes = process_in_out.to_dict(orient="records")
+        wb = load_workbook(self.structure_file, read_only=True)
+        if helper_sheet in wb.sheetnames:
+            helpers_raw = pd.read_excel(
+                io=self.structure_file,
+                sheet_name=helper_sheet,
+                usecols=("process", "input", "output"),
+            )
+            processes_raw = pd.concat([processes_raw, helpers_raw])
+        processes_raw = processes_raw.fillna("")
+        check_character_convention(processes_raw, ["process"])
+        processes = processes_raw.to_dict(orient="records")
         return {
             process["process"]: {"inputs": get_nodes(process["input"]), "outputs": get_nodes(process["output"])}
             for process in processes

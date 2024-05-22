@@ -17,5 +17,5 @@ def test_parameters():
 
 def test_processes():
     st = structure.Structure("modex_example")
-    assert len(st.processes) == 3
+    assert len(st.processes) == 4
     assert st.processes["energy transformation unit"]["outputs"] == [["electricity", "heat"], "co2"]
