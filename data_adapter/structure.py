@@ -3,11 +3,10 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
+
 from data_adapter import settings
 
 MAX_IDENTIFIER_LENGTH = 50
@@ -165,6 +164,11 @@ class Structure:
          The Image will show what Commodities are used in which sectors
          respectively to their Input/Output
         """
+        try:
+            import matplotlib.pyplot as plt
+            from matplotlib.patches import Patch
+        except ImportError:
+            raise ImportError("You must install matplotlib in order to use this functionality.")
 
         cols = len(categories)
 
