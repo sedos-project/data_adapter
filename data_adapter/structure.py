@@ -251,7 +251,7 @@ class Structure:
         # Save the plot as svg
         plt.show()
 
-    def get_commodity_diff(self, input_processes: list = ["source", "import"], output_processes: list = ["sink"]):
+    def get_commodity_diff(self):
         """
         This Function intends to help the user quickly identify missing
         sources or sinks in the Energy system
@@ -263,28 +263,22 @@ class Structure:
         `destroy` Commodities
         """
 
-        def _add_values_to_io_dict(io_dict, inputs, outputs):
-            # If nested value level and add to io_dict
-            for i in inputs:
-                if isinstance(i, list):
-                    for in_list in i:
-                        io_dict["inputs"].append(in_list)
+        def add_value(original_list, adding_list):
+            for item in adding_list:
+                if isinstance(item, list):
+                    original_list.extend(item)
                 else:
-                    io_dict["inputs"].append(i)
-            for o in outputs:
-                if isinstance(o, list):
-                    for out_list in o:
-                        io_dict["outputs"].append(out_list)
-                else:
-                    io_dict["outputs"].append(o)
-            return io_dict
+                    original_list.append(item)
+            return original_list
 
         io_dict = {"inputs": [], "outputs": []}
 
         for x in self.processes.values():
             inputs = x["inputs"]
             outputs = x["outputs"]
-            io_dict = _add_values_to_io_dict(io_dict, inputs, outputs)
+
+            io_dict["inputs"] = add_value(io_dict["inputs"], inputs)
+            io_dict["outputs"] = add_value(io_dict["outputs"], outputs)
 
         # delete duplicates
         io_dict["inputs"] = np.unique(np.array(io_dict["inputs"]))
@@ -292,13 +286,5 @@ class Structure:
 
         needed_from_external_source = [x for x in io_dict["inputs"] if x not in io_dict["outputs"]]
         sink_is_necessary = [x for x in io_dict["outputs"] if x not in io_dict["inputs"]]
-
-        for process, io in self.processes.items():
-            for count, x in enumerate(needed_from_external_source):
-                if x in io["inputs"] and any([ip in process for ip in input_processes]):
-                    needed_from_external_source.pop(count)
-            for x in sink_is_necessary:
-                if x in io["outputs"] and any([op in process for op in output_processes]):
-                    sink_is_necessary = sink_is_necessary - x
 
         return {"sink_is_necessary": sink_is_necessary, "needed_from_external_source": needed_from_external_source}
