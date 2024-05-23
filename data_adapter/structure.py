@@ -44,7 +44,7 @@ def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]
                 raise ValueError(f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _")
 
 
-def process_data(category, sectors, processes):
+def _process_data(category, sectors, processes):
     input_commodities = {sector: set() for sector in sectors}
     output_commodities = {sector: set() for sector in sectors}
 
@@ -203,7 +203,7 @@ class Structure:
             axes = [axes]
 
         for i, category in enumerate(categories):
-            matrix_data = process_data(category, sectors, self.processes)
+            matrix_data = _process_data(category, sectors, self.processes)
             ax = axes[i]
             ax.imshow(matrix_data.values, cmap="RdYlGn", vmin=-1, vmax=1)
 
