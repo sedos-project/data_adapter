@@ -1,11 +1,7 @@
-import os
-import pathlib
-os.environ["STRUCTURES_DIR"] = str(pathlib.Path(pathlib.Path.cwd() / "test_data/test_structures"))
-
 from data_adapter.preprocessing import Structure
 
-def test_get_commodity_diff():
 
+def test_get_commodity_diff():
 
     structure = Structure(
         "SEDOS_Modellstruktur",
@@ -13,7 +9,6 @@ def test_get_commodity_diff():
         parameter_sheet="Parameter_O1",
         helper_sheet="Helper_O1",
     )
-
 
     x = structure.get_commodity_diff()
 
