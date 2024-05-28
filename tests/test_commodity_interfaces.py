@@ -11,7 +11,6 @@ def test_get_commodity_diff():
     )
 
     x = structure.get_commodity_diff()
-    structure.plot_commodity_interfaces()
 
     commodity_diff = {
         "sink_is_necessary": [
