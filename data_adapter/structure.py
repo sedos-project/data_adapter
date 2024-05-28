@@ -44,38 +44,56 @@ def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]
                 raise ValueError(f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _")
 
 
-def _process_data(category, sectors, processes):
-    input_commodities = {sector: set() for sector in sectors}
-    output_commodities = {sector: set() for sector in sectors}
-    source_commodities = {sector: set() for sector in sectors}
-    import_commodities = {sector: set() for sector in sectors}
-    sources = []
-    imports = []
-    for process_name, io_dict in processes.items():
-        if any([keyword in process_name for keyword in ["storage", "export", "delivery"]]):
-            continue
-        row_sectors = [process_name.split("_")[0]]
-        inputs = [num for item in io_dict["inputs"] for num in (item if isinstance(item, list) else (item,))]
-        outputs = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
-        categories_set = set([category.split("_")[0] for category in inputs + outputs])
-        if "source" in process_name:
-            sources = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
-        if "import" in process_name:
-            imports = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
-        for sector in row_sectors:
-            if category in categories_set:
-                input_commodities[sector] |= set([commodity for commodity in inputs if commodity.startswith(category)])
-                source_commodities[sector] |= set([commodity for commodity in sources if commodity.startswith(category)])
-                import_commodities[sector] |= set([commodity for commodity in imports if commodity.startswith(category)])
-                output_commodities[sector] |= set(
-                    [commodity for commodity in outputs if commodity.startswith(category)]
-                )
+def _initialize_commodities(sectors):
+    return {sector: set() for sector in sectors}
 
-    combined = {sector: list(input_commodities[sector] | output_commodities[sector] | source_commodities[sector] | import_commodities[sector]) for sector in sectors}
+
+def _process_row(
+    process_name, io_dict, category, input_commodities, output_commodities, source_commodities, import_commodities
+):
+    row_sectors = [process_name.split("_")[0]]
+    inputs = [num for item in io_dict["inputs"] for num in (item if isinstance(item, list) else (item,))]
+    outputs = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
+
+    categories_set = set([category.split("_")[0] for category in inputs + outputs])
+
+    sources = [
+        num
+        for item in io_dict["outputs"]
+        if "source" in process_name
+        for num in (item if isinstance(item, list) else (item,))
+    ]
+    imports = [
+        num
+        for item in io_dict["outputs"]
+        if "import" in process_name
+        for num in (item if isinstance(item, list) else (item,))
+    ]
+
+    for sector in row_sectors:
+        if category in categories_set:
+            input_commodities[sector] |= set([commodity for commodity in inputs if commodity.startswith(category)])
+            source_commodities[sector] |= set([commodity for commodity in sources if commodity.startswith(category)])
+            import_commodities[sector] |= set([commodity for commodity in imports if commodity.startswith(category)])
+            output_commodities[sector] |= set([commodity for commodity in outputs if commodity.startswith(category)])
+
+
+def _create_matrix_data(input_commodities, output_commodities, source_commodities, import_commodities, sectors):
+    combined = {
+        sector: list(
+            input_commodities[sector]
+            | output_commodities[sector]
+            | source_commodities[sector]
+            | import_commodities[sector]
+        )
+        for sector in sectors
+    }
+
     unique_commodity_list = sorted(list(set(commodity for sector in combined.values() for commodity in sector)))
 
     matrix_data = pd.DataFrame(np.NaN, index=unique_commodity_list, columns=sectors)
 
+    # Populate matrix_data based on conditions
     for sector in sectors:
         for commodity in combined[sector]:
             # if commodity in import_commodities[sector]:
@@ -91,6 +109,32 @@ def _process_data(category, sectors, processes):
             elif commodity in source_commodities[sector]:
                 matrix_data.at[commodity, sector] = 2
 
+    return matrix_data
+
+
+def _process_data(category, sectors, processes):
+    input_commodities = _initialize_commodities(sectors)
+    output_commodities = _initialize_commodities(sectors)
+    source_commodities = _initialize_commodities(sectors)
+    import_commodities = _initialize_commodities(sectors)
+
+    for process_name, io_dict in processes.items():
+        if any([keyword in process_name for keyword in ["storage", "export", "delivery"]]):
+            continue
+
+        _process_row(
+            process_name,
+            io_dict,
+            category,
+            input_commodities,
+            output_commodities,
+            source_commodities,
+            import_commodities,
+        )
+
+    matrix_data = _create_matrix_data(
+        input_commodities, output_commodities, source_commodities, import_commodities, sectors
+    )
 
     return matrix_data
 
@@ -228,12 +272,17 @@ class Structure:
                 for k in range(len(matrix_data.columns)):
                     value = matrix_data.values[j, k]
                     color = (
-                        "blue" if value == 2 else
-                        "purple" if value == 3 else
-                        "white" if np.isnan(value) else
-                        "red" if value == -1 else
-                        "green" if value == 1 else
-                        "yellow"
+                        "blue"
+                        if value == 2
+                        else "purple"
+                        if value == 3
+                        else "white"
+                        if np.isnan(value)
+                        else "red"
+                        if value == -1
+                        else "green"
+                        if value == 1
+                        else "yellow"
                     )
                     rect = plt.Rectangle(
                         (k - 0.5, j - 0.5), 1, 1, fill=True, facecolor=color, edgecolor="black", linewidth=1
@@ -246,10 +295,10 @@ class Structure:
             non_nan_not_zero_rows = ((matrix_data.notna()) & (matrix_data != 0)).sum(axis=1) == 1
 
             yticklabels = matrix_data.index.tolist()
-            ax.set_yticks(range(0,len(yticklabels)))
+            ax.set_yticks(range(0, len(yticklabels)))
             for label, bold in zip(ax.get_yticklabels(), non_nan_not_zero_rows):
                 if bold:
-                    label.set_fontweight('bold')  # Set font weight to bold for appropriate labels
+                    label.set_fontweight("bold")  # Set font weight to bold for appropriate labels
 
             ax.set_yticks(range(len(matrix_data.index)))
             ax.set_yticklabels(yticklabels)
