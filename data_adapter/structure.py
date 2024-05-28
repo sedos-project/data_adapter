@@ -104,7 +104,7 @@ def _create_matrix_data(input_commodities, output_commodities, source_commoditie
                 matrix_data.at[commodity, sector] = -1
             elif commodity in output_commodities[sector]:
                 matrix_data.at[commodity, sector] = 1
-            if commodity in source_commodities[sector] and matrix_data.at[commodity, sector] == 0:
+            if commodity in source_commodities[sector] and commodity in output_commodities[sector]:
                 matrix_data.at[commodity, sector] = 3
             elif commodity in source_commodities[sector]:
                 matrix_data.at[commodity, sector] = 2
@@ -292,7 +292,7 @@ class Structure:
             plt.sca(axes[i])
             ax.set_xticks(range(len(matrix_data.columns)), matrix_data.columns)
 
-            non_nan_not_zero_rows = ((matrix_data.notna()) & (matrix_data != 0)).sum(axis=1) == 1
+            non_nan_not_zero_rows = ((matrix_data.notna()) & (matrix_data != 0) & (matrix_data != 3)).sum(axis=1) == 1
 
             yticklabels = matrix_data.index.tolist()
             ax.set_yticks(range(0, len(yticklabels)))
