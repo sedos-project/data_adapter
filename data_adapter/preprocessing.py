@@ -207,7 +207,10 @@ class Adapter:
 
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
-            return df.explode("region")
+            df = df.explode("region")
+
+        df = self.__unpack_bandwidths(df)
+
         return df
 
     def __convert_units(self, df: pd.DataFrame, metadata: dict) -> pd.DataFrame:  # noqa: C901
@@ -249,6 +252,36 @@ class Adapter:
                     df[field["name"]] = df[field["name"]].apply(convert_series, factor=conversion_factor)
                 else:
                     df[field["name"]] = df[field["name"]] * conversion_factor
+        return df
+
+    def __unpack_bandwidths(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Takes Dataframe right and unpacks all found bandwidths.
+
+        Currently only supports to return the first argument of bandwidths
+        Different bandwidth types are not supported yet
+
+        Example:
+
+
+        Returns:
+            Modified Dataframe
+
+        """
+        if "bandwidth_type" not in df.columns:
+            return df
+
+        if "bandwidth_type" in df.columns:
+            # Iterate rows of dataframe
+            for index, row in df.iterrows():
+                bandwidth_keys = row["bandwidth_type"].keys()
+                for col in df.columns:
+                    if col in bandwidth_keys and isinstance(row[col], list):
+                        # Replace Values
+                        if row[col]:
+                            df.at[index, col] = row[col][0]
+                        else:
+                            df.at[index, col] = None
         return df
 
     @staticmethod
