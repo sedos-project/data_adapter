@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Changed
+- in case of bandwidth values, first value is used for process
+
 ## [0.20.4] - 2024-04-16
 ### Fixed
 - SPARQL queries
