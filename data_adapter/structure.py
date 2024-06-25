@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
 
@@ -41,6 +42,101 @@ def check_character_convention(dataframe: pd.DataFrame, cols: Optional[List[str]
                 continue
             if not IDENTIFIER_PATTERN.match(element):
                 raise ValueError(f"Wrong syntax: {element}\nAllowed are characters: a-z and 0-9 and , and _")
+
+
+def _initialize_commodities(sectors):
+    return {sector: set() for sector in sectors}
+
+
+def _process_row(
+    process_name, io_dict, category, input_commodities, output_commodities, source_commodities, import_commodities
+):
+    row_sectors = [process_name.split("_")[0]]
+    inputs = [num for item in io_dict["inputs"] for num in (item if isinstance(item, list) else (item,))]
+    outputs = [num for item in io_dict["outputs"] for num in (item if isinstance(item, list) else (item,))]
+
+    categories_set = set([category.split("_")[0] for category in inputs + outputs])
+
+    sources = [
+        num
+        for item in io_dict["outputs"]
+        if "source" in process_name
+        for num in (item if isinstance(item, list) else (item,))
+    ]
+    imports = [
+        num
+        for item in io_dict["outputs"]
+        if "import" in process_name
+        for num in (item if isinstance(item, list) else (item,))
+    ]
+
+    for sector in row_sectors:
+        if category in categories_set:
+            input_commodities[sector] |= set([commodity for commodity in inputs if commodity.startswith(category)])
+            source_commodities[sector] |= set([commodity for commodity in sources if commodity.startswith(category)])
+            import_commodities[sector] |= set([commodity for commodity in imports if commodity.startswith(category)])
+            output_commodities[sector] |= set([commodity for commodity in outputs if commodity.startswith(category)])
+
+
+def _create_matrix_data(input_commodities, output_commodities, source_commodities, import_commodities, sectors):
+    combined = {
+        sector: list(
+            input_commodities[sector]
+            | output_commodities[sector]
+            | source_commodities[sector]
+            | import_commodities[sector]
+        )
+        for sector in sectors
+    }
+
+    unique_commodity_list = sorted(list(set(commodity for sector in combined.values() for commodity in sector)))
+
+    matrix_data = pd.DataFrame(np.NaN, index=unique_commodity_list, columns=sectors)
+
+    # Populate matrix_data based on conditions
+    for sector in sectors:
+        for commodity in combined[sector]:
+            # if commodity in import_commodities[sector]:
+            #     matrix_data.at[commodity, sector] = 3
+            if commodity in input_commodities[sector] and commodity in output_commodities[sector]:
+                matrix_data.at[commodity, sector] = 0
+            elif commodity in input_commodities[sector]:
+                matrix_data.at[commodity, sector] = -1
+            elif commodity in output_commodities[sector]:
+                matrix_data.at[commodity, sector] = 1
+            if commodity in source_commodities[sector] and commodity in output_commodities[sector]:
+                matrix_data.at[commodity, sector] = 3
+            elif commodity in source_commodities[sector]:
+                matrix_data.at[commodity, sector] = 2
+
+    return matrix_data
+
+
+def _process_data(category, sectors, processes):
+    input_commodities = _initialize_commodities(sectors)
+    output_commodities = _initialize_commodities(sectors)
+    source_commodities = _initialize_commodities(sectors)
+    import_commodities = _initialize_commodities(sectors)
+
+    for process_name, io_dict in processes.items():
+        if any([keyword in process_name for keyword in ["storage", "export", "delivery"]]):
+            continue
+
+        _process_row(
+            process_name,
+            io_dict,
+            category,
+            input_commodities,
+            output_commodities,
+            source_commodities,
+            import_commodities,
+        )
+
+    matrix_data = _create_matrix_data(
+        input_commodities, output_commodities, source_commodities, import_commodities, sectors
+    )
+
+    return matrix_data
 
 
 class Structure:
@@ -150,3 +246,112 @@ class Structure:
                 es_structure[dic.get("process")] = es_structure[dic.get("process")] | dic_para
 
         return es_structure
+
+    def plot_commodity_interfaces(
+        self,
+        categories=["pri", "sec", "iip", "exo", "emi"],
+        sectors=["pow", "x2x", "ind", "mob", "hea", "helper"],
+    ):
+        try:
+            import matplotlib.pyplot as plt
+            from matplotlib.patches import Patch
+        except ImportError:
+            raise ImportError("You must install matplotlib in order to use this functionality.")
+
+        cols = len(categories)
+        fig, axes = plt.subplots(nrows=1, ncols=cols, figsize=(cols * 10, 16), sharey=False)
+        if len(categories) == 1:
+            axes = [axes]
+
+        for i, category in enumerate(categories):
+            matrix_data = _process_data(category, sectors, self.processes)
+            ax = axes[i]
+            ax.imshow(matrix_data.values, cmap="RdYlGn", vmin=-1, vmax=1)
+
+            for j in range(len(matrix_data.index)):
+                for k in range(len(matrix_data.columns)):
+                    value = matrix_data.values[j, k]
+                    color = (
+                        "blue"
+                        if value == 2
+                        else "purple"
+                        if value == 3
+                        else "white"
+                        if np.isnan(value)
+                        else "red"
+                        if value == -1
+                        else "green"
+                        if value == 1
+                        else "yellow"
+                    )
+                    rect = plt.Rectangle(
+                        (k - 0.5, j - 0.5), 1, 1, fill=True, facecolor=color, edgecolor="black", linewidth=1
+                    )
+                    ax.add_patch(rect)
+
+            plt.sca(axes[i])
+            ax.set_xticks(range(len(matrix_data.columns)), matrix_data.columns)
+
+            non_nan_not_zero_rows = ((matrix_data.notna()) & (matrix_data != 0) & (matrix_data != 3)).sum(axis=1) == 1
+
+            yticklabels = matrix_data.index.tolist()
+            ax.set_yticks(range(0, len(yticklabels)))
+            for label, bold in zip(ax.get_yticklabels(), non_nan_not_zero_rows):
+                if bold:
+                    label.set_fontweight("bold")  # Set font weight to bold for appropriate labels
+
+            ax.set_yticks(range(len(matrix_data.index)))
+            ax.set_yticklabels(yticklabels)
+
+            ax.set_xlabel("Sectors", fontsize=12)
+            ax.set_title(category.upper(), fontsize=16)
+
+        legend_elements = [
+            Patch(facecolor="white", edgecolor="black", label="No Relation"),
+            Patch(facecolor="red", edgecolor="black", label="Input"),
+            Patch(facecolor="green", edgecolor="black", label="Output"),
+            Patch(facecolor="yellow", edgecolor="black", label="Input & Output"),
+            Patch(facecolor="purple", edgecolor="black", label="Source & Input/Output"),
+            Patch(facecolor="blue", edgecolor="black", label="Source Output"),
+        ]
+        fig.legend(handles=legend_elements, loc="upper left", fontsize=12)
+        plt.tight_layout()
+        plt.show()
+
+    def get_commodity_diff(self):
+        """
+        This Function intends to help the user quickly identify missing
+        sources or sinks in the Energy system
+
+        input_processes allows the user to set names for processes that are
+        'creating' Commodities
+
+        output_processes allow the user to set names for processes that
+        `destroy` Commodities
+        """
+
+        def add_value(original_list, adding_list):
+            for item in adding_list:
+                if isinstance(item, list):
+                    original_list.extend(item)
+                else:
+                    original_list.append(item)
+            return original_list
+
+        io_dict = {"inputs": [], "outputs": []}
+
+        for x in self.processes.values():
+            inputs = x["inputs"]
+            outputs = x["outputs"]
+
+            io_dict["inputs"] = add_value(io_dict["inputs"], inputs)
+            io_dict["outputs"] = add_value(io_dict["outputs"], outputs)
+
+        # delete duplicates
+        io_dict["inputs"] = np.unique(np.array(io_dict["inputs"]))
+        io_dict["outputs"] = np.unique(io_dict["outputs"])
+
+        needed_from_external_source = [x for x in io_dict["inputs"] if x not in io_dict["outputs"]]
+        sink_is_necessary = [x for x in io_dict["outputs"] if x not in io_dict["inputs"]]
+
+        return {"sink_is_necessary": sink_is_necessary, "needed_from_external_source": needed_from_external_source}

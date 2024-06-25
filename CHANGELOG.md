@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [0.22.0] - 2024-06-25
+### Changed
+- in case of bandwidth values, first value is used for process
+
 ## [0.21.0] - 2024-04-24
 ### Added
 - if no type is given in type column, table process name is used

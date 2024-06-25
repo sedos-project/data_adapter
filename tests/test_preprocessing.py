@@ -2,7 +2,7 @@ import logging
 
 import pandas
 import pytest
-from pandas.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from data_adapter import collection, core, preprocessing
 from tests import utils
@@ -212,3 +212,17 @@ def test_fks_with_none_type():
     assert artifact.scalars["emissions_factor_sec_methane_co2"][0] == 28
     assert artifact.scalars["emissions_factor_sec_methane_ch4"][0] == 3
     assert artifact.scalars["emissions_factor_sec_methane_ch4"][1] == 2
+
+
+def test_bandwidth_unpacking():
+    adapter = preprocessing.Adapter("test_bandwidth")
+    assert_series_equal(
+        adapter.get_process("x2x_delivery_hydrogen_pipeline_new_1").scalars["conversion_factor_sec_hydrogen_orig"],
+        pandas.Series([None, None, None, None, None, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        check_names=False,
+    )
+    assert_series_equal(
+        adapter.get_process("x2x_delivery_hydrogen_pipeline_retrofit_1").scalars["conversion_factor_sec_hydrogen_orig"],
+        pandas.Series([None, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        check_names=False,
+    )
