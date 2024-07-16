@@ -26,13 +26,13 @@ def test_process_of_artifact_with_multiple_subprocesses():
 
     assert hasattr(onshore, "scalars")
     assert hasattr(onshore, "timeseries")
-    assert len(onshore.scalars.columns) == 12
+    assert len(onshore.scalars.columns) == 7
     assert len(onshore.scalars) == 50
     assert onshore.timeseries["wind_speed", ("HE",)][0] == 1003
 
     assert hasattr(offshore, "scalars")
     assert hasattr(offshore, "timeseries")
-    assert len(offshore.scalars.columns) == 12
+    assert len(offshore.scalars.columns) == 7
     assert len(offshore.scalars) == 50
     assert offshore.timeseries["wind_speed", ("HE",)][0] == 10003
 
@@ -226,3 +226,25 @@ def test_bandwidth_unpacking():
         pandas.Series([None, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
         check_names=False,
     )
+
+
+def test_return_only_relevant_columns():
+    adapter = preprocessing.Adapter("test_return_only_relevant_columns")
+
+    assert list(adapter.get_process("ind_other_boiler_hot_water_bio_1").scalars.columns.values) == [
+        "region",
+        "year",
+        "availability_constant",
+        "conversion_factor_pri_biomass_stemwood",
+        "conversion_factor_iip_hot_water",
+        "cost_fix_p",
+        "cost_inv_p",
+        "lifetime",
+        "ef_pri_biomass_stemwood_emi_co2_f_ind",
+        "ef_pri_biomass_stemwood_emi_ch4_f_ind",
+        "ef_pri_biomass_stemwood_emi_n2o_f_ind",
+        "bandwidth_type",
+        "method",
+        "source",
+        "comment",
+    ]
