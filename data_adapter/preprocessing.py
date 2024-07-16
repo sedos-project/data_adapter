@@ -207,7 +207,6 @@ class Adapter:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
         df = self.__convert_units(df, artifact.metadata)
 
-
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
             df = df.explode("region")
