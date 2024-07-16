@@ -205,6 +205,7 @@ class Adapter:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
         df = self.__convert_units(df, artifact.metadata)
 
+
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
             df = df.explode("region")
@@ -287,6 +288,7 @@ class Adapter:
     @staticmethod
     def __filter_subprocess(df: pd.DataFrame, subprocess: str) -> pd.DataFrame:
         df = df[df["type"] == subprocess]
+        df = df.dropna(axis=1)
         return df.drop("type", axis=1)
 
     @staticmethod
