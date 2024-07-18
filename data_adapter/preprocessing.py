@@ -287,6 +287,7 @@ class Adapter:
     @staticmethod
     def __filter_subprocess(df: pd.DataFrame, subprocess: str) -> pd.DataFrame:
         df = df[df["type"] == subprocess]
+        df = df.dropna(axis=1, how="all")
         return df.drop("type", axis=1)
 
     @staticmethod
