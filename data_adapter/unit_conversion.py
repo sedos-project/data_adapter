@@ -11,7 +11,7 @@ class UnitConversionError(Exception):
 def define_energy_model_units():
     unit("percent")
     unit("vehicle")
-    
+
     scaled_unit("kW", "W", 1e3)
     scaled_unit("MW", "kW", 1e3)
     scaled_unit("GW", "MW", 1e3)
@@ -58,8 +58,8 @@ def define_energy_model_units():
     scaled_unit("G_units", "M_units", 1e3)
     scaled_unit("T_units", "G_units", 1e3)
 
-    scaled_unit("vehicles","vehicle",1)
-    scaled_unit("number vehicles","vehicles",1)
+    scaled_unit("vehicles", "vehicle", 1)
+    scaled_unit("number vehicles", "vehicles", 1)
     scaled_unit("kvehicles", "vehicles", 1e3)
     scaled_unit("Mvehicles", "kvehicles", 1e3)
     scaled_unit("Gvehicles", "Mvehicles", 1e3)
@@ -80,33 +80,32 @@ def define_energy_model_units():
     NamedComposedUnit("TW/h", unit("TW") / unit("h"))
 
     NamedComposedUnit("MWh/MWh", unit("MWh") / unit("MWh"))
-    NamedComposedUnit("MWh/MW", unit("MWh")/unit("MW")) 
-    NamedComposedUnit("MWh/t", unit("MWh") / unit("t")) 
+    NamedComposedUnit("MWh/MW", unit("MWh") / unit("MW"))
+    NamedComposedUnit("MWh/t", unit("MWh") / unit("t"))
     NamedComposedUnit("MWh/M_units", unit("MWh") / unit("M_units"))
 
-    NamedComposedUnit("EUR/t", unit("EUR")/unit("t"))
-    NamedComposedUnit("MEUR/Mt", unit("MEUR")/unit("Mt"))
-    NamedComposedUnit("EUR/Mt", unit("EUR")/unit("Mt"))
+    NamedComposedUnit("EUR/t", unit("EUR") / unit("t"))
+    NamedComposedUnit("MEUR/Mt", unit("MEUR") / unit("Mt"))
+    NamedComposedUnit("EUR/Mt", unit("EUR") / unit("Mt"))
 
-    NamedComposedUnit("EUR/MWh", unit("EUR")/unit("MWh"))
+    NamedComposedUnit("EUR/MWh", unit("EUR") / unit("MWh"))
 
-    NamedComposedUnit("EUR/(MWh*a)", unit("EUR")/unit("MWh*a"))
-    NamedComposedUnit("MEUR/(Mt*a)", unit("MEUR")/unit("Mt*a"))
-    NamedComposedUnit("EUR/(vehicle*a)", unit("EUR")/unit("vehicle*a"))
+    NamedComposedUnit("EUR/(MWh*a)", unit("EUR") / unit("MWh*a"))
+    NamedComposedUnit("MEUR/(Mt*a)", unit("MEUR") / unit("Mt*a"))
+    NamedComposedUnit("EUR/(vehicle*a)", unit("EUR") / unit("vehicle*a"))
 
-    NamedComposedUnit("EUR/vehicle", unit("EUR")/unit("vehicle"))
+    NamedComposedUnit("EUR/vehicle", unit("EUR") / unit("vehicle"))
 
-    NamedComposedUnit("kWh/100km", unit("kWh")/unit("100km"))
+    NamedComposedUnit("kWh/100km", unit("kWh") / unit("100km"))
 
-    NamedComposedUnit("kg/MWh", unit("kg")/unit("MWh"))
-    NamedComposedUnit("kg/t", unit("kg")/unit("t"))
+    NamedComposedUnit("kg/MWh", unit("kg") / unit("MWh"))
+    NamedComposedUnit("kg/t", unit("kg") / unit("t"))
 
-    NamedComposedUnit("km/a", unit("km")/unit("a"))
+    NamedComposedUnit("km/a", unit("km") / unit("a"))
 
     NamedComposedUnit("percent/h", unit("percent") / unit("h"))
     NamedComposedUnit("p/vehicle", unit("p") / unit("vehicle"))
     NamedComposedUnit("t/vehicle", unit("t") / unit("vehicle"))
-
 
 
 define_units()
