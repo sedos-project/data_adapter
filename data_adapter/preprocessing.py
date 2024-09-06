@@ -447,11 +447,16 @@ class Adapter:
         # Check if Fks are unique (cannot have different FKs per process/subprocess)
         fk_candidates = {}
         for fk_column in fk_column_candidates:
-            if len(df[fk_column].unique()) > 1:
+            column_data_without_none = df[fk_column][~df[fk_column].isnull()]
+            if len(column_data_without_none.unique()) > 1:
                 continue  # no candidate
-            fk = df[fk_column].iloc[0]
+            fk = column_data_without_none.iloc[0]
             if "." not in fk:
                 continue  # no candidate
+            if df[fk_column].isnull().sum() > 0:
+                logging.warning(
+                    f"None values in column '{fk_column}' of process '{process}' will be overwritten by FK values."
+                )
             fk_candidates[fk_column] = ForeignKey(*fk.split("."))
         return fk_candidates
 
