@@ -180,8 +180,10 @@ class Structure:
             return nodes
 
         def process_emission_constraint_inputs(processes_raw):
-            """Adds a new row where the "process" is "emmission_constraint" 
+            """Adds a new row where the "process" is "emission_constraint"
             and "input" consists of the emi_XXXX values from other rows.
+
+            refer: https://github.com/sedos-project/data_adapter/pull/39
             """
             emi_outputs = []
             for output in processes_raw["output"]:
@@ -194,11 +196,11 @@ class Structure:
             emi_outputs = list(set(emi_outputs))
             emi_output_str = ",".join(emi_outputs)
 
-            if (len(emi_outputs) == 0):
+            if len(emi_outputs) == 0:
                 return processes_raw
 
             new_row = pd.DataFrame(
-                {"process": "emmission_constraint", "input": emi_output_str, "output": "co2_limit"}, index=[0]
+                {"process": "emission_constraint", "input": emi_output_str, "output": "co2_limit"}, index=[0]
             )
             processes_raw = pd.concat([processes_raw, new_row], ignore_index=True)
             return processes_raw
