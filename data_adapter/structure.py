@@ -180,6 +180,9 @@ class Structure:
             return nodes
 
         def process_emission_constraint_inputs(processes_raw):
+            """Adds a new row where the "process" is "emmission_constraint" 
+            and "input" consists of the emi_XXXX values from other rows.
+            """
             emi_outputs = []
             for output in processes_raw["output"]:
                 parts = output.split(",")
