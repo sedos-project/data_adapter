@@ -112,11 +112,11 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         if v == "srd_range_draft":
             return 99
         if "v" not in v:
-            return v
+            return 0
         try:
             return int(v[1:])
         except ValueError:
-            return v
+            return 0
 
     query = f"""
         PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
