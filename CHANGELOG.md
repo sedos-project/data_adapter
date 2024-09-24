@@ -20,6 +20,7 @@ Here is a template for new release sections
 ## [Unreleased]
 ### Changed
 - "None" values in possible FK column are overwritten by FK mapping
+- versioning for "srd_point_draft" and "srd_range_draft"
 
 ## [0.22.0] - 2024-06-25
 ### Changed
