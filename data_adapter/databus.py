@@ -107,6 +107,10 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         str | int
             If version number can be extracted int is returned, otherwise version is returned as is
         """
+        if v == "srd_point_draft":
+            return 100
+        if v == "srd_range_draft":
+            return 99
         if "v" not in v:
             return v
         try:
