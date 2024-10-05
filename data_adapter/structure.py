@@ -179,11 +179,42 @@ class Structure:
             nodes += [node for node in nodes_raw_stripped.split(",") if node != ""]
             return nodes
 
+        def process_emission_constraint_inputs(processes_raw):
+            """If there's a row in the table where the process is `ind_constraint_co2eq`,
+              take all unique values in the `output` column that start with `emi` and
+              place them into the `input` field of that row.
+
+            refer: https://github.com/sedos-project/data_adapter/pull/39
+            """
+
+            ind_constraint_row = processes_raw[processes_raw["process"] == "ind_constraint_co2eq"]
+
+            if ind_constraint_row.empty:
+                return processes_raw
+
+            emi_outputs = []
+            for output in processes_raw["output"]:
+                parts = output.split(",")
+                for part in parts:
+                    part = part.strip()
+                    if part.startswith("emi_"):
+                        emi_outputs.append(part)
+
+            emi_outputs = list(set(emi_outputs))
+            emi_output_str = ",".join(emi_outputs)
+
+            if len(emi_outputs) == 0:
+                return processes_raw
+
+            processes_raw.loc[processes_raw["process"] == "ind_constraint_co2eq", "input"] = emi_output_str
+            return processes_raw
+
         processes_raw = pd.read_excel(
             io=self.structure_file,
             sheet_name=process_sheet,
             usecols=("process", "input", "output"),
         )
+
         wb = load_workbook(self.structure_file, read_only=True)
         if helper_sheet in wb.sheetnames:
             helpers_raw = pd.read_excel(
@@ -193,8 +224,10 @@ class Structure:
             )
             processes_raw = pd.concat([processes_raw, helpers_raw])
         processes_raw = processes_raw.fillna("")
+        processes_raw = process_emission_constraint_inputs(processes_raw)
         check_character_convention(processes_raw, ["process"])
         processes = processes_raw.to_dict(orient="records")
+
         return {
             process["process"]: {"inputs": get_nodes(process["input"]), "outputs": get_nodes(process["output"])}
             for process in processes
