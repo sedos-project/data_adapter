@@ -3,14 +3,16 @@ from units.exception import IncompatibleUnitsError
 from units.predefined import define_units
 from units.registry import REGISTRY
 
+
 class UnitConversionError(Exception):
     """Raises when unit conversion goes wrong"""
 
+
 def define_energy_model_units():
-    unit('kg_CH4/TJ_input')
-    unit('kg_N2O/TJ_input')
-    unit('t_CO2/TJ_input')
-   
+    unit("kg_CH4/TJ_input")
+    unit("kg_N2O/TJ_input")
+    unit("t_CO2/TJ_input")
+
     scaled_unit("%", "percent", 1)
 
     scaled_unit("kW", "W", 1e3)
@@ -113,7 +115,7 @@ def define_energy_model_units():
     NamedComposedUnit("kEUR/t", unit("kEUR") / unit("t"))
     NamedComposedUnit("MEUR/t", unit("MEUR") / unit("t"))
     NamedComposedUnit("BEUR/t", unit("BEUR") / unit("t"))
-   
+
     NamedComposedUnit("EUR/Mt", unit("EUR") / unit("Mt"))
     NamedComposedUnit("kEUR/Mt", unit("kEUR") / unit("Mt"))
     NamedComposedUnit("MEUR/Mt", unit("MEUR") / unit("Mt"))
@@ -146,9 +148,9 @@ def define_energy_model_units():
 
     NamedComposedUnit("EUR/MW*a", unit("EUR") / unit("MW") * unit("a"))
     NamedComposedUnit("€/MW*a", unit("EUR") / unit("MW") * unit("a"))
-    NamedComposedUnit("EUR/MW/a", unit("EUR") / unit("MW") / unit("a")) 
+    NamedComposedUnit("EUR/MW/a", unit("EUR") / unit("MW") / unit("a"))
     NamedComposedUnit("EUR/W/a", unit("EUR") / unit("W") / unit("a"))
-    
+
     NamedComposedUnit("EUR/vehicle", unit("EUR") / unit("vehicle"))
     NamedComposedUnit("kEUR/vehicle", unit("kEUR") / unit("vehicle"))
     NamedComposedUnit("MEUR/vehicle", unit("MEUR") / unit("vehicle"))
@@ -160,8 +162,8 @@ def define_energy_model_units():
 
     NamedComposedUnit("EUR/pkm", unit("EUR") / unit("pkm"))
     NamedComposedUnit("EUR/kpkm", unit("EUR") / unit("kpkm"))
-    NamedComposedUnit("MEUR/GW", unit("MEUR") / unit("GW")) 
-    NamedComposedUnit("M€/GW", unit("MEUR") / unit("GW")) 
+    NamedComposedUnit("MEUR/GW", unit("MEUR") / unit("GW"))
+    NamedComposedUnit("M€/GW", unit("MEUR") / unit("GW"))
     NamedComposedUnit("MEUR/Kt CO2-eq", unit("MEUR") / unit("Kt CO2-eq"))
     NamedComposedUnit("M€/Kt CO2-eq", unit("MEUR") / unit("Kt CO2-eq"))
     NamedComposedUnit("MEUR/Million units", unit("MEUR") / unit("M_units"))
@@ -194,13 +196,13 @@ def define_energy_model_units():
 
     NamedComposedUnit("%/h", unit("%") / unit("h"))
 
-    NamedComposedUnit("Million units/Million units",unit("M_units") / unit("M_units"))
+    NamedComposedUnit("Million units/Million units", unit("M_units") / unit("M_units"))
     NamedComposedUnit("M_units/M_units", unit("M_units") / unit("M_units"))
     NamedComposedUnit("Kt/Million units", unit("Kt") / unit("Million units"))
-    NamedComposedUnit("Kt/M_units", unit("Kt") / unit("M_units")) 
+    NamedComposedUnit("Kt/M_units", unit("Kt") / unit("M_units"))
 
     # how to define Kt， Mt，PJ？
-    NamedComposedUnit("Kt/Kt", unit("kt") / unit("kt")) 
+    NamedComposedUnit("Kt/Kt", unit("kt") / unit("kt"))
     NamedComposedUnit("Kt/Mt", unit("kt") / unit("Mt"))
     NamedComposedUnit("Kt/PJ", unit("kt") / unit("PJ"))
     NamedComposedUnit("kt/PJ", unit("kt") / unit("PJ"))
@@ -210,10 +212,10 @@ def define_energy_model_units():
     NamedComposedUnit("PJ/Million units", unit("PJ") / unit("M_units"))
     NamedComposedUnit("PJ/M_units", unit("PJ") / unit("M_units"))
     NamedComposedUnit("PJ/Mt", unit("PJ") / unit("Mt"))
-    NamedComposedUnit("PJ/PJ", unit("PJ") / unit("PJ")) # how to process unit test?
+    NamedComposedUnit("PJ/PJ", unit("PJ") / unit("PJ"))  # how to process unit test?
 
-    NamedComposedUnit("kW/kW", unit("kW") / unit("kW")) 
-    NamedComposedUnit("kWh/kWh", unit("kWh") / unit("kWh")) 
+    NamedComposedUnit("kW/kW", unit("kW") / unit("kW"))
+    NamedComposedUnit("kWh/kWh", unit("kWh") / unit("kWh"))
 
     NamedComposedUnit("kWh/100km", unit("kWh") / unit("100km"))
     NamedComposedUnit("kWh/km", unit("kWh") / unit("km"))
@@ -221,12 +223,13 @@ def define_energy_model_units():
     NamedComposedUnit("kW/a", unit("kW") / unit("a"))
     NamedComposedUnit("W/a", unit("W") / unit("a"))
 
-    NamedComposedUnit("t/t", unit("t") / unit("t")) # no unit test.
+    NamedComposedUnit("t/t", unit("t") / unit("t"))  # no unit test.
     NamedComposedUnit("t/MWh", unit("t") / unit("MWh"))
 
 
 define_units()
 define_energy_model_units()
+
 
 def get_conversion_factor(convert_from, convert_to):
     if convert_from not in REGISTRY:
