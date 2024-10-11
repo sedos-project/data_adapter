@@ -1,7 +1,6 @@
 from data_adapter import unit_conversion
 from pytest import approx
 
-
 def test_unit_conversion():
 
     assert unit_conversion.get_conversion_factor("Gp", "p") == 1e9
@@ -43,6 +42,8 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("TEUR", "EUR") == 1e12
     assert unit_conversion.get_conversion_factor("TEUR", "MEUR") == 1e6
     assert unit_conversion.get_conversion_factor("BEUR", "kEUR") == 1e6
+    assert unit_conversion.get_conversion_factor("M€", "MEUR") == 1
+    assert unit_conversion.get_conversion_factor("M€", "EUR") == 1e6
 
     # Test monetary-related units
     assert unit_conversion.get_conversion_factor("kEUR/t", "EUR/t") == approx(1e3)
@@ -64,12 +65,27 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("MEUR/(vehicle*a)", "kEUR/(vehicle*a)") == 1e3
     assert unit_conversion.get_conversion_factor("MEUR/vehicle", "EUR/vehicle") == 1e6
     assert unit_conversion.get_conversion_factor("MEUR/vehicle", "kEUR/vehicle") == 1e3
-
+    assert unit_conversion.get_conversion_factor("kEUR/t", "€/t") == approx(1e3)
+    assert unit_conversion.get_conversion_factor("EUR/t", "€/t") == 1
+    assert unit_conversion.get_conversion_factor("€/MWh", "EUR/MWh") == 1
+    assert unit_conversion.get_conversion_factor("EUR/W", "EUR/MW") == 1e6
+    assert unit_conversion.get_conversion_factor("EUR/W", "€/MW") == 1e6
+    assert unit_conversion.get_conversion_factor("EUR/MW", "€/MW") == 1
+    assert unit_conversion.get_conversion_factor("EUR/MW*a", "€/MW*a") == 1
+    assert unit_conversion.get_conversion_factor("EUR/W", "EUR/kW") ==approx(1e3)
+    assert unit_conversion.get_conversion_factor("EUR/pkm", "EUR/kpkm") ==approx(1e3)
+    assert unit_conversion.get_conversion_factor("MEUR/GW", "M€/GW") ==1
+    assert unit_conversion.get_conversion_factor("MEUR/Kt CO2-eq", "M€/Kt CO2-eq") ==1
+    assert unit_conversion.get_conversion_factor("MEUR/Million units", "M€/Million units") ==1
+    assert unit_conversion.get_conversion_factor("MEUR/PJ", "M€/PJ") ==1
+    
     # Test distance units
     assert unit_conversion.get_conversion_factor("100km", "km") == 1e2
     assert unit_conversion.get_conversion_factor("Gm", "km") == 1e6
     assert unit_conversion.get_conversion_factor("Mm", "km") == 1e3
     assert unit_conversion.get_conversion_factor("Mm", "100km") == 1e1
+    assert unit_conversion.get_conversion_factor("kWh/km", "kWh/100km") == 1e2
+
 
     # Test units units
     assert unit_conversion.get_conversion_factor("T_units", "units") == 1e12
@@ -77,6 +93,9 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("G_units", "M_units") == 1e3
     assert unit_conversion.get_conversion_factor("T_units", "M_units") == 1e6
     assert unit_conversion.get_conversion_factor("T_units", "G_units") == 1e3
+    assert unit_conversion.get_conversion_factor("Million units", "M_units") == 1
+    assert unit_conversion.get_conversion_factor("G_units", "Million units") == 1e3
+    assert unit_conversion.get_conversion_factor("Kt/Million units", "Kt/M_units") == 1
 
     # Test vehicle units
     assert unit_conversion.get_conversion_factor("vehicles", "vehicle") == 1
@@ -86,7 +105,8 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("Mvehicles", "vehicles") == 1e6
     assert unit_conversion.get_conversion_factor("Gvehicles", "kvehicles") == 1e6
     assert unit_conversion.get_conversion_factor("Tvehicles", "vehicles") == 1e12
-
+    assert unit_conversion.get_conversion_factor("percent/vehicle", "percent/kvehicles") == 1e3
+    
     # Test CO2 equivalent units
     assert unit_conversion.get_conversion_factor("tCO2eq", "kgCO2eq") == 1e3
     assert unit_conversion.get_conversion_factor("ktCO2eq", "kgCO2eq") == 1e6
@@ -146,7 +166,9 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("kg/kWh", "kg/MWh") == 1e3
     assert unit_conversion.get_conversion_factor("Mm/a", "km/a") == 1e3
     assert unit_conversion.get_conversion_factor("km/day", "km/a") == 365
-
+    assert unit_conversion.get_conversion_factor("t/MWh", "kg/MWh") == 1e3
+    assert unit_conversion.get_conversion_factor("kW/a", "W/a") == 1e3
+    
     assert unit_conversion.get_conversion_factor("percent/h", "percent/day") == 24
     assert unit_conversion.get_conversion_factor("percent/day", "percent/a") == 365
     assert unit_conversion.get_conversion_factor("percent/h", "percent/a") == 365 * 24
@@ -154,3 +176,16 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("Mp/vehicle", "kp/vehicle") == 1e3
     assert unit_conversion.get_conversion_factor("Mp/vehicle", "p/vehicle") == 1e6
     assert unit_conversion.get_conversion_factor("t/vehicle", "kg/vehicle") == 1e3
+    assert unit_conversion.get_conversion_factor("%", "percent") == 1
+    assert unit_conversion.get_conversion_factor("%/h", "percent/h") == 1
+
+    assert unit_conversion.get_conversion_factor("EUR/W/a","EUR/MW/a")== 1e6
+
+    assert unit_conversion.get_conversion_factor("PJ","J")== 1e15
+    assert unit_conversion.get_conversion_factor("kWh","PJ")== 3.6e-9
+
+    assert unit_conversion.get_conversion_factor("Kt/PJ","kt/PJ")== 1
+    assert unit_conversion.get_conversion_factor("Mt/PJ","Mt/PJ")== 1
+    assert unit_conversion.get_conversion_factor("PJ/Million units","PJ/M_units")== 1
+    assert unit_conversion.get_conversion_factor("PJ/Mt","PJ/Mt")== 1
+    assert unit_conversion.get_conversion_factor("PJ/PJ","PJ/PJ")== 1
