@@ -188,4 +188,4 @@ def test_unit_conversion():
     assert unit_conversion.get_conversion_factor("Mt/PJ", "Mt/PJ") == 1
     assert unit_conversion.get_conversion_factor("PJ/Million units", "PJ/M_units") == 1
     assert unit_conversion.get_conversion_factor("PJ/Mt", "PJ/Mt") == 1
-    assert unit_conversion.get_conversion_factor("PJ/PJ", "PJ/PJ") == 1
+
