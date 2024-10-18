@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [Unreleased]
+### Added
+- unit conversions for all units detected in reference dataset
+
 ## [0.21.0] - 2024-06-25
 ### Changed
 - in case of bandwidth values, first value is used for process
