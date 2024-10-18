@@ -18,17 +18,19 @@ Here is a template for new release sections
 ```
 
 ## [Unreleased]
+### Added
+- unit conversions for all units detected in reference dataset
+
 ### Changed
 - "None" values in possible FK column are overwritten by FK mapping
 - versioning for "srd_point_draft" and "srd_range_draft"
 
-## [0.22.0] - 2024-06-25
-### Changed
-- in case of bandwidth values, first value is used for process
-
-## [0.21.0] - 2024-04-24
+## [0.21.0] - 2024-06-25
 ### Added
 - if no type is given in type column, table process name is used
+
+### Changed
+- in case of bandwidth values, first value is used for process
 
 ## [0.20.4] - 2024-04-16
 ### Fixed
