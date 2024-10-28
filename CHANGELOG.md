@@ -17,6 +17,10 @@ Here is a template for new release sections
 -
 ```
 
+## [unreleased]
+### Fixed
+- fix numpy error due to new numpy version
+
 ## [0.23.0] - 2024-10-18
 ### Added
 - unit conversions for all units detected in reference dataset
