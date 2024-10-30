@@ -98,6 +98,7 @@ class Adapter:
         # Get dataframes from processes by subject
         scalar_dfs = []
         timeseries_df = []
+        logging.warning("Removes column 'comment'. Remove the bug fix below when data is fixed.")
         for artifact in artifacts:
             df = self.__get_df_from_artifact(artifact, process)
             if artifact.datatype == collection.DataType.Scalar:
@@ -122,6 +123,10 @@ class Adapter:
                         timeseries_df.append(foreign_df)
                     # Remove FK column from original process
                     df = df.drop(fk_column, axis=1)
+                ### Bug fix - todo delete this bug fix when data is correct
+                if "comment" in df.columns:
+                    df = df.drop("comment", axis=1)
+                ### Bug fix end
                 scalar_dfs.append(df)
             else:
                 timeseries_df.append(df)
