@@ -34,6 +34,7 @@ class Process:
 
     scalars: pd.DataFrame
     timeseries: pd.DataFrame
+    units: dict[str, str]
     inputs: list[str] | None = None
     outputs: list[str] | None = None
     parameters: dict[str, list[str]] | None = None
@@ -98,8 +99,10 @@ class Adapter:
         # Get dataframes from processes by subject
         scalar_dfs = []
         timeseries_df = []
+        units = {}
         for artifact in artifacts:
-            df = self.__get_df_from_artifact(artifact, process)
+            df, artifact_units = self.__get_df_from_artifact(artifact, process)
+            units = {**units, **artifact_units}
             if artifact.datatype == collection.DataType.Scalar:
                 # Handle foreign keys (only possible in scalar data)
                 foreign_keys = self._get_foreign_keys(process, df)
@@ -114,7 +117,7 @@ class Adapter:
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
-                    foreign_df = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    foreign_df = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)[0]
                     foreign_df = foreign_df.rename({foreign_key.parameter: fk_column}, axis=1)
                     if artifacts[0].datatype == collection.DataType.Scalar:
                         scalar_dfs.append(foreign_df)
@@ -131,6 +134,7 @@ class Adapter:
             timeseries=self.__refactor_timeseries(
                 self.__merge_parameters(*timeseries_df, datatype=collection.DataType.Timeseries)
             ),
+            units=units,
             inputs=self.structure.processes[process]["inputs"] if self.structure else None,
             outputs=self.structure.processes[process]["outputs"] if self.structure else None,
             parameters=self.structure.parameters[process]
@@ -178,7 +182,10 @@ class Adapter:
             )
         return self.structure.processes
 
-    def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str) -> pd.DataFrame:
+    def __get_df_from_artifact(self, artifact: collection.Artifact, process: str, *parameters: str) -> (
+            pd.DataFrame,
+            dict
+    ):
         """Returns DataFrame from given artifact.
 
         If parameters are given, artifact columns are filtered for given parameters
@@ -205,7 +212,7 @@ class Adapter:
             df = self.__filter_subprocess(df, process)
         if len(parameters) > 0:
             df = self.__filter_parameters(df, parameters, artifact.datatype)
-        df = self.__convert_units(df, artifact.metadata)
+        df, df_units = self.__convert_units(df, artifact.metadata)
 
         # Unpack regions:
         if artifact.datatype == collection.DataType.Scalar:
@@ -213,9 +220,9 @@ class Adapter:
 
         df = self.__unpack_bandwidths(df)
 
-        return df
+        return df, df_units
 
-    def __convert_units(self, df: pd.DataFrame, metadata: dict) -> pd.DataFrame:  # noqa: C901
+    def __convert_units(self, df: pd.DataFrame, metadata: dict) -> (pd.DataFrame, dict):  # noqa: C901
         """
         Converts units
 
@@ -235,17 +242,22 @@ class Adapter:
         def convert_series(series: list[float], factor: float) -> list[float]:
             return [item * factor for item in series]
 
+        df_units = {}
         if df.empty:
             return df
         for field in metadata["resources"][0]["schema"]["fields"]:
             if "unit" not in field:
                 continue
+            if field["unit"] is None:
+                continue
             if field["name"] not in df.columns:
                 continue
+            df_units[field["name"]] = field["unit"]
             conversion_factor = None
             for unit in self.units:
                 try:
                     conversion_factor = get_conversion_factor(field["unit"], unit)
+                    df_units[field["name"]] = unit
                 except (UnitConversionError, IncompatibleUnitsError):
                     continue
                 break
@@ -254,7 +266,7 @@ class Adapter:
                     df[field["name"]] = df[field["name"]].apply(convert_series, factor=conversion_factor)
                 else:
                     df[field["name"]] = df[field["name"]] * conversion_factor
-        return df
+        return df, df_units
 
     def __unpack_bandwidths(self, df: pd.DataFrame) -> pd.DataFrame:
         """

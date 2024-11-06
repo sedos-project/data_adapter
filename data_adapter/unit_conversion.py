@@ -149,6 +149,7 @@ def define_energy_model_units():
     NamedComposedUnit("EUR/vehicle", unit("EUR") / unit("vehicle"))
     NamedComposedUnit("kEUR/vehicle", unit("kEUR") / unit("vehicle"))
     NamedComposedUnit("MEUR/vehicle", unit("MEUR") / unit("vehicle"))
+    NamedComposedUnit("BEUR/kvehicles", unit("BEUR") / unit("kvehicles"))
 
     NamedComposedUnit("EUR/kW", unit("EUR") / unit("kW"))
     NamedComposedUnit("EUR/W", unit("EUR") / unit("W"))
@@ -188,6 +189,12 @@ def define_energy_model_units():
     NamedComposedUnit("Mp/vehicle", unit("Mp") / unit("vehicle"))
     NamedComposedUnit("t/vehicle", unit("t") / unit("vehicle"))
     NamedComposedUnit("kg/vehicle", unit("kg") / unit("vehicle"))
+
+    NamedComposedUnit("pkm/vehicle", unit("pkm") / unit("vehicle"))
+    NamedComposedUnit("Mpkm/kvehicles", unit("Mpkm") / unit("kvehicles"))
+
+    NamedComposedUnit("kWh/vehicle", unit("kWh") / unit("vehicle"))
+    NamedComposedUnit("GWh/kvehicles", unit("GWh") / unit("kvehicles"))
 
     NamedComposedUnit("%/h", unit("%") / unit("h"))
 
