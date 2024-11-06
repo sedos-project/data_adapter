@@ -17,7 +17,7 @@ Here is a template for new release sections
 -
 ```
 
-## [Unreleased]
+## [0.24.0] - 2024-11-06
 ### Added
 - converted units to process output
 
