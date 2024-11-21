@@ -19,3 +19,12 @@ def test_processes():
     st = structure.Structure("modex_example")
     assert len(st.processes) == 4
     assert st.processes["energy transformation unit"]["outputs"] == [["electricity", "heat"], "co2"]
+
+
+def test_emission_constraint():
+    st = structure.Structure("emission_constraint_example")
+    processes_raw = st.processes
+    assert len(st.processes) == 8
+    expected_input = {'emi_n2o_f_ind', 'emi_co2_neg_air_dacc', 'emi_co2_f_ind', 'emi_ch4_f_ind'}
+    assert set(processes_raw['ind_constraint_co2eq']['inputs']) == expected_input
+
