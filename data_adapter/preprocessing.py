@@ -265,7 +265,11 @@ class Adapter:
                 if "array" in field["type"]:
                     df[field["name"]] = df[field["name"]].apply(convert_series, factor=conversion_factor)
                 else:
-                    df[field["name"]] = df[field["name"]] * conversion_factor
+                    try:
+                        df[field["name"]] = df[field["name"]] * conversion_factor
+                    except TypeError:  # occurs for foreign keys
+                        # rewrite unit as conversion did not take place
+                        df_units[field["name"]] = field["unit"]
         return df, df_units
 
     def __unpack_bandwidths(self, df: pd.DataFrame) -> pd.DataFrame:
