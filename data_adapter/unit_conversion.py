@@ -46,6 +46,8 @@ def define_energy_model_units():
     scaled_unit("ktCO2eq", "tCO2eq", 1e3)
     scaled_unit("MtCO2eq", "ktCO2eq", 1e3)
     scaled_unit("GtCO2eq", "MtCO2eq", 1e3)
+    scaled_unit("Mt CO2-eq.", "ktCO2eq", 1e3)
+    scaled_unit("GtCO2eq", "Mt CO2-eq.", 1e3)
 
     scaled_unit("kEUR", "EUR", 1e3)
     scaled_unit("MEUR", "kEUR", 1e3)
