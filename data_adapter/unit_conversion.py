@@ -46,6 +46,8 @@ def define_energy_model_units():
     scaled_unit("ktCO2eq", "tCO2eq", 1e3)
     scaled_unit("MtCO2eq", "ktCO2eq", 1e3)
     scaled_unit("GtCO2eq", "MtCO2eq", 1e3)
+    scaled_unit("Mt CO2-eq.", "ktCO2eq", 1e3)
+    scaled_unit("GtCO2eq", "Mt CO2-eq.", 1e3)
 
     scaled_unit("kEUR", "EUR", 1e3)
     scaled_unit("MEUR", "kEUR", 1e3)
@@ -68,6 +70,7 @@ def define_energy_model_units():
 
     scaled_unit("PJ", "J", 1e15)
     scaled_unit("kWh", "PJ", 3.6e-9)
+    scaled_unit("MWh", "PJ", 3.6e-6)
 
     NamedComposedUnit("Wh", unit("W") * unit("h"))
     NamedComposedUnit("kWh", unit("kW") * unit("h"))
@@ -100,6 +103,7 @@ def define_energy_model_units():
     NamedComposedUnit("MWh/MW", unit("MWh") / unit("MW"))
     NamedComposedUnit("MWh/t", unit("MWh") / unit("t"))
     NamedComposedUnit("MWh/kt", unit("MWh") / unit("kt"))
+    NamedComposedUnit("MWh/Mt", unit("MWh") / unit("Mt"))
     NamedComposedUnit("MWh/k_units", unit("MWh") / unit("k_units"))
     NamedComposedUnit("MWh/M_units", unit("MWh") / unit("M_units"))
     NamedComposedUnit("MWh/G_units", unit("MWh") / unit("G_units"))
@@ -166,6 +170,8 @@ def define_energy_model_units():
     NamedComposedUnit("M€/Million units", unit("MEUR") / unit("M_units"))
     NamedComposedUnit("MEUR/PJ", unit("MEUR") / unit("PJ"))
     NamedComposedUnit("M€/PJ", unit("MEUR") / unit("PJ"))
+    NamedComposedUnit("MEUR/Mt", unit("MEUR") / unit("Mt"))
+    NamedComposedUnit("M€/Mt", unit("MEUR") / unit("Mt"))
 
     NamedComposedUnit("kWh/100km", unit("kWh") / unit("100km"))
     NamedComposedUnit("MWh/100km", unit("MWh") / unit("100km"))
@@ -205,6 +211,7 @@ def define_energy_model_units():
     NamedComposedUnit("Kt/PJ", unit("kt") / unit("PJ"))
     NamedComposedUnit("kt/PJ", unit("kt") / unit("PJ"))
     NamedComposedUnit("Mt/PJ", unit("Mt") / unit("PJ"))
+    NamedComposedUnit("Mt/MWh", unit("Mt") / unit("MWh"))
 
     NamedComposedUnit("PJ/Million units", unit("PJ") / unit("M_units"))
     NamedComposedUnit("PJ/M_units", unit("PJ") / unit("M_units"))

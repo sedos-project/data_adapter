@@ -117,7 +117,8 @@ class Adapter:
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
-                    foreign_df = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)[0]
+                    foreign_df, foreign_units = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    units[fk_column] = foreign_units[getattr(foreign_key, "parameter")]
                     foreign_df = foreign_df.rename({foreign_key.parameter: fk_column}, axis=1)
                     if artifacts[0].datatype == collection.DataType.Scalar:
                         scalar_dfs.append(foreign_df)
@@ -251,6 +252,8 @@ class Adapter:
             if field["unit"] is None:
                 continue
             if field["name"] not in df.columns:
+                continue
+            if isinstance(df[field["name"]].iloc[-1], str):
                 continue
             df_units[field["name"]] = field["unit"]
             conversion_factor = None
