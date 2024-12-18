@@ -1,10 +1,21 @@
 # Data Adapter
+General data adapter that provides functionalities for other data adapters.
 
-This package provides scripts to download and preprocess data from OEDatamoel_parameter for further use in various ESM frameworks.
+## Installation
 
+To install data_adapter, follow these steps:
 
-## Energysystem Structure
+* git-clone data_adapter into local folder:
+  `git clone https://github.com/rl-institut/data_adapter.git
+* enter folder `cd data_adapter`
+* create virtual environment using conda: `conda env create -f environment.yml`
+* activate environment: `conda activate data_adapter`
+* install data_adapter_oemof package using poetry, via: `poetry install`
 
-Structure (processes and its parameters linked to busses/commodities) of an ES is stored as SQlite database using the following ERM:
+## Functionalities
 
-![Process ERM](/home/local/RL-INSTITUT/hendrik.huyskens/Dokumente/RLI/data_adapter/assets/process_erm.png "Process ERM")
+* Download of the latest data and metadata
+* Verification checks on the downloaded data and metadata
+* Preprocessing of the process data such as:
+  * Merging, filtering and transforming 
+  * Unit conversion
