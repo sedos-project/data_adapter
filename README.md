@@ -6,7 +6,7 @@ General data adapter that provides functionalities for other data adapters.
 To install data_adapter, follow these steps:
 
 * git-clone data_adapter into local folder:
-  `git clone https://github.com/rl-institut/data_adapter.git
+  `https://github.com/sedos-project/data_adapter.git`
 * enter folder `cd data_adapter`
 * create virtual environment using conda: `conda env create -f environment.yml`
 * activate environment: `conda activate data_adapter`
