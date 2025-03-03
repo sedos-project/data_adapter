@@ -42,11 +42,3 @@ repos:
         entry: pylama
         language: python
         types: [ "python" ]
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v0.991'
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - 'sqlalchemy'
-          - 'types-requests'

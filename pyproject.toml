@@ -7,6 +7,9 @@ license = "AGPL-3.0 license"
 readme = "README.md"
 packages = [{include = "data_adapter"}]
 
+[tool.poetry.scripts]
+data_adapter = "data_adapter.main:download_collection"
+
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0.0"
 requests = "^2.28.1"
