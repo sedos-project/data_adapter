@@ -107,6 +107,8 @@ def get_latest_version_of_artifact(artifact: str) -> str:
         str | int
             If version number can be extracted int is returned, otherwise version is returned as is
         """
+        if v == "srd_point_sedos":
+            return 101
         if v.startswith("srd_point"):
             return 100
         if v.startswith("srd_range"):
