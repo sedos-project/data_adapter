@@ -118,7 +118,8 @@ class Adapter:
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
-                    foreign_df, foreign_units = self.__get_foreign_df(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    # foreign_df, foreign_units = self.__get_foreign_df(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    foreign_df, foreign_units = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
                     for param in foreign_units.keys():
                         if foreign_units[param] != units[fk_column]:
                             logging.warning('Units of foreign key and parameter do not match. Please check units '
@@ -213,25 +214,6 @@ class Adapter:
         -------
         pd.DataFrame
         """
-        df = artifact.data
-
-        if artifact.multiple_types:
-            # Fill empty types with table process name
-            df["type"] = df["type"].fillna(artifact.metadata["name"])
-            df = self.__filter_subprocess(df, process)
-        if len(parameters) > 0:
-            df = self.__filter_parameters(df, parameters, artifact.datatype)
-        df, df_units = self.__convert_units(df, artifact.metadata)
-
-        # Unpack regions:
-        if artifact.datatype == collection.DataType.Scalar:
-            df = df.explode("region")
-
-        df = self.__unpack_bandwidths(df)
-
-        return df, df_units
-
-    def __get_foreign_df(self, artifact: collection.Artifact, process: str, parameter: str) -> (pd.DataFrame, dict):
         if process not in self.foreign_data.keys():
             df = artifact.data
 
@@ -247,12 +229,15 @@ class Adapter:
                 df = df.explode("region")
 
             df = self.__unpack_bandwidths(df)
-
-            units = {parameter: df_units[parameter]}
-            self.foreign_data[process] = (df, df_units)
+            if len(parameters) > 0:
+                self.foreign_data[process] = (df, df_units)
+                df = self.__filter_parameters(df, parameters, artifact.datatype)
+                df_units = {parameters[0]: df_units[parameters[0]]}
         else:
-            units = {parameter: self.foreign_data[process][1][parameter]}
-        return self.__filter_parameters(self.foreign_data[process][0], [parameter], artifact.datatype), units
+            df_units = {parameters[0]: self.foreign_data[process][1][parameters[0]]}
+            df = self.__filter_parameters(self.foreign_data[process][0], parameters, artifact.datatype)
+
+        return df, df_units
 
     def __convert_units(self, df: pd.DataFrame, metadata: dict) -> (pd.DataFrame, dict):  # noqa: C901
         """
