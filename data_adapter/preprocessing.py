@@ -118,7 +118,6 @@ class Adapter:
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
-                    # foreign_df, foreign_units = self.__get_foreign_df(artifacts[0], foreign_key.process, foreign_key.parameter)
                     foreign_df, foreign_units = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
                     for param in foreign_units.keys():
                         if foreign_units[param] != units[fk_column]:
