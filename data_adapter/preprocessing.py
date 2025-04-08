@@ -62,6 +62,7 @@ class Adapter:
         self.collection_name = collection_name
         self.structure = structure
         self.units = [] if units is None else units
+        self.foreign_data = {}
 
     def get_process(self, process: str) -> Process:
         """Loads data for given process from collection.
@@ -117,7 +118,15 @@ class Adapter:
                             f"Foreign key for process '{process}' points to subject '{foreign_key.process}' "
                             "which is not unique.",
                         )
-                    foreign_df = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)[0]
+                    foreign_df, foreign_units = self.__get_df_from_artifact(artifacts[0], foreign_key.process, foreign_key.parameter)
+                    for param in foreign_units.keys():
+                        if foreign_units[param] != units[fk_column]:
+                            logging.warning('Units of foreign key and parameter do not match. Please check units '
+                                            f'of process {process} in column {fk_column} as well as the unit of '
+                                            f'the foreign process {foreign_key}.\n'
+                                            f'The unit of the foreign unit of {param} [{foreign_units[param]}] was used.')
+                        units[fk_column] = foreign_units[param]
+                            
                     foreign_df = foreign_df.rename({foreign_key.parameter: fk_column}, axis=1)
                     if artifacts[0].datatype == collection.DataType.Scalar:
                         scalar_dfs.append(foreign_df)
@@ -204,21 +213,28 @@ class Adapter:
         -------
         pd.DataFrame
         """
-        df = artifact.data
+        if process not in self.foreign_data.keys():
+            df = artifact.data
 
-        if artifact.multiple_types:
-            # Fill empty types with table process name
-            df["type"] = df["type"].fillna(artifact.metadata["name"])
-            df = self.__filter_subprocess(df, process)
-        if len(parameters) > 0:
-            df = self.__filter_parameters(df, parameters, artifact.datatype)
-        df, df_units = self.__convert_units(df, artifact.metadata)
+            if artifact.multiple_types:
+                # Fill empty types with table process name
+                df["type"] = df["type"].fillna(artifact.metadata["name"])
+                df = self.__filter_subprocess(df, process)
 
-        # Unpack regions:
-        if artifact.datatype == collection.DataType.Scalar:
-            df = df.explode("region")
+            df, df_units = self.__convert_units(df, artifact.metadata)
 
-        df = self.__unpack_bandwidths(df)
+            # Unpack regions:
+            if artifact.datatype == collection.DataType.Scalar:
+                df = df.explode("region")
+
+            df = self.__unpack_bandwidths(df)
+            if len(parameters) > 0:
+                self.foreign_data[process] = (df, df_units)
+                df = self.__filter_parameters(df, parameters, artifact.datatype)
+                df_units = {parameters[0]: df_units[parameters[0]]}
+        else:
+            df_units = {parameters[0]: self.foreign_data[process][1][parameters[0]]}
+            df = self.__filter_parameters(self.foreign_data[process][0], parameters, artifact.datatype)
 
         return df, df_units
 
@@ -240,6 +256,8 @@ class Adapter:
         """
 
         def convert_series(series: list[float], factor: float) -> list[float]:
+            if series is None:
+                return None
             return [item * factor for item in series]
 
         df_units = {}
@@ -249,10 +267,15 @@ class Adapter:
             if "unit" not in field:
                 continue
             if field["unit"] is None:
-                continue
+                df_units[field["name"]] = None
             if field["name"] not in df.columns:
                 continue
             df_units[field["name"]] = field["unit"]
+            if isinstance(df[field["name"]].iloc[0], str):
+                try:
+                    df[field["name"]] = df[field["name"]].astype(float)
+                except ValueError:
+                    continue
             conversion_factor = None
             for unit in self.units:
                 try:
